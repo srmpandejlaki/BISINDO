@@ -14,6 +14,29 @@ TARGET_PER_LABEL = 5
 SAVE_PATH = "dataset/skeleton"
 
 # ========================
+# FUNCTION: AMBIL INDEX TERAKHIR
+# ========================
+def get_last_index(folder_path):
+    files = os.listdir(folder_path)
+
+    if len(files) == 0:
+        return 0
+
+    indices = []
+
+    for f in files:
+        if f.endswith(".npy"):
+            try:
+                indices.append(int(f.replace(".npy", "")))
+            except:
+                pass
+
+    if len(indices) == 0:
+        return 0
+
+    return max(indices) + 1
+
+# ========================
 # GENERATE SHUFFLED LIST
 # ========================
 all_data = []
@@ -32,10 +55,18 @@ mp_drawing = mp.solutions.drawing_utils
 hands = mp_hands.Hands(max_num_hands=2)
 
 # ========================
-# CREATE FOLDER
+# CREATE FOLDER + INIT COUNTER
 # ========================
+sequence_count = {}
+
 for label in LABELS:
-    os.makedirs(f"{SAVE_PATH}/{label}", exist_ok=True)
+    folder = f"{SAVE_PATH}/{label}"
+    os.makedirs(folder, exist_ok=True)
+
+    # 🔥 ambil index terakhir dari dataset lama
+    sequence_count[label] = get_last_index(folder)
+
+    print(f"{label} mulai dari index: {sequence_count[label]}")
 
 # ========================
 # WEBCAM
@@ -44,7 +75,6 @@ cap = cv2.VideoCapture(0)
 
 current_index = 0
 sequence = []
-sequence_count = {label: 0 for label in LABELS}
 
 status = "GET READY"
 start_time = time.time()
@@ -71,7 +101,6 @@ while cap.isOpened() and current_index < len(all_data):
             sequence = []
 
     elif status == "RECORDING":
-        # ambil keypoints
         left_hand = []
         right_hand = []
 
@@ -92,6 +121,7 @@ while cap.isOpened() and current_index < len(all_data):
                 else:
                     right_hand = hand_keypoints
 
+        # kalau tangan tidak terdeteksi
         if len(left_hand) == 0:
             left_hand = [0]*63
         if len(right_hand) == 0:
@@ -100,7 +130,9 @@ while cap.isOpened() and current_index < len(all_data):
         keypoints = left_hand + right_hand
         sequence.append(keypoints)
 
-        # kalau sudah cukup
+        # ========================
+        # SAVE DATA
+        # ========================
         if len(sequence) == SEQUENCE_LENGTH:
             np.save(
                 f"{SAVE_PATH}/{label}/{sequence_count[label]}.npy",
@@ -108,9 +140,10 @@ while cap.isOpened() and current_index < len(all_data):
             )
 
             print(f"Saved {label} #{sequence_count[label]}")
-            sequence_count[label] += 1
 
+            sequence_count[label] += 1
             current_index += 1
+
             status = "GET READY"
             start_time = time.time()
 
