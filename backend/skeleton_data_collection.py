@@ -11,7 +11,7 @@ import time
 LABELS = ["A", "B", "C"]  # tambah sampai A-Z nanti
 SEQUENCE_LENGTH = 30
 TARGET_PER_LABEL = 5
-SAVE_PATH = "dataset/skeleton"
+SAVE_PATH = "dataset"
 
 # ========================
 # FUNCTION: AMBIL INDEX TERAKHIR
