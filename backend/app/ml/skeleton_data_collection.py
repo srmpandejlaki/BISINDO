@@ -10,7 +10,7 @@ import time
 # ========================
 LABELS = ["A", "B", "C"]  # tambah sampai A-Z nanti
 SEQUENCE_LENGTH = 30
-TARGET_PER_LABEL = 5
+TARGET_PER_LABEL = 1
 SAVE_PATH = "dataset"
 
 # ========================
@@ -96,7 +96,7 @@ while cap.isOpened() and current_index < len(all_data):
     # STATUS CONTROL
     # ========================
     if status == "GET READY":
-        if time.time() - start_time > 2:
+        if time.time() - start_time > 5:  # 5 detik untuk bersiap
             status = "RECORDING"
             sequence = []
 
