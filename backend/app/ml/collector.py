@@ -8,7 +8,7 @@ import time
 # ========================
 # CONFIG
 # ========================
-LABELS = ["B"]  # tambah sampai A-Z nanti
+LABELS = ["G"]  # tambah sampai A-Z nanti
 SEQUENCE_LENGTH = 30
 TARGET_PER_LABEL = 10
 SAVE_PATH = "dataset"

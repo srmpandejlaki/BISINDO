@@ -7,10 +7,11 @@ import os
 import json
 import mediapipe as mp
 from tensorflow.keras.models import load_model
-from collections import deque
+from collections import deque, Counter
+import time
 
 # =========================================
-# PATH CONFIG
+# CONFIG
 # =========================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -18,6 +19,9 @@ MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "bisindo_lstm.h5")
 LABEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "labels.json")
 
 SEQUENCE_LENGTH = 30
+PREDICTION_SMOOTHING = 10
+CONFIDENCE_THRESHOLD = 0.7
+COOLDOWN_TIME = 1.5  # detik
 
 # =========================================
 # LOAD MODEL & LABEL
@@ -27,11 +31,10 @@ model = load_model(MODEL_PATH)
 with open(LABEL_PATH, "r") as f:
     label_map = json.load(f)
 
-# reverse mapping (angka → huruf)
 reverse_label_map = {v: k for k, v in label_map.items()}
 
 # =========================================
-# MEDIAPIPE SETUP
+# MEDIAPIPE
 # =========================================
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
@@ -39,9 +42,30 @@ mp_drawing = mp.solutions.drawing_utils
 hands = mp_hands.Hands(max_num_hands=2)
 
 # =========================================
-# SEQUENCE BUFFER (PAKAI QUEUE)
+# BUFFER
 # =========================================
 sequence = deque(maxlen=SEQUENCE_LENGTH)
+predictions = deque(maxlen=PREDICTION_SMOOTHING)
+
+last_prediction_time = 0
+current_output = "..."
+
+# =========================================
+# NORMALIZATION (WAJIB SAMA DENGAN TRAINING)
+# =========================================
+def normalize_wrist(frame):
+    frame = np.array(frame)
+
+    left = frame[:63].reshape(21, 3)
+    right = frame[63:].reshape(21, 3)
+
+    if not np.all(left == 0):
+        left = left - left[0]
+
+    if not np.all(right == 0):
+        right = right - right[0]
+
+    return np.concatenate([left.flatten(), right.flatten()])
 
 # =========================================
 # WEBCAM
@@ -57,7 +81,6 @@ while cap.isOpened():
 
     frame = cv2.flip(frame, 1)
 
-    # Convert warna untuk mediapipe
     image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = hands.process(image)
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
@@ -71,7 +94,6 @@ while cap.isOpened():
     if results.multi_hand_landmarks:
         for idx, hand_landmarks in enumerate(results.multi_hand_landmarks):
 
-            # gambar skeleton tangan
             mp_drawing.draw_landmarks(
                 image, hand_landmarks, mp_hands.HAND_CONNECTIONS
             )
@@ -87,48 +109,59 @@ while cap.isOpened():
             else:
                 right_hand = keypoints
 
-    # kalau tidak terdeteksi → isi nol
+    # padding jika tidak ada tangan
     if len(left_hand) == 0:
         left_hand = [0] * 63
     if len(right_hand) == 0:
         right_hand = [0] * 63
 
     keypoints = left_hand + right_hand
-
-    # =========================================
-    # MASUKKAN KE SEQUENCE
-    # =========================================
     sequence.append(keypoints)
 
-    prediction_text = "..."
-
     # =========================================
-    # PREDIKSI (JIKA SUDAH 30 FRAME)
+    # PREDIKSI
     # =========================================
     if len(sequence) == SEQUENCE_LENGTH:
-        input_data = np.array(sequence)
 
-        # normalisasi (harus sama seperti training!)
-        input_data = input_data / np.max(input_data)
-
-        input_data = np.expand_dims(input_data, axis=0)  # (1, 30, 126)
+        processed_sequence = [normalize_wrist(f) for f in sequence]
+        input_data = np.array(processed_sequence)
+        input_data = np.expand_dims(input_data, axis=0)
 
         prediction = model.predict(input_data, verbose=0)[0]
-
         predicted_class = np.argmax(prediction)
         confidence = prediction[predicted_class]
 
-        prediction_text = f"{reverse_label_map[predicted_class]} ({confidence:.2f})"
+        predictions.append(predicted_class)
+
+        # stabilisasi (majority vote)
+        most_common = Counter(predictions).most_common(1)[0][0]
+
+        current_time = time.time()
+
+        # hanya update jika confident & tidak spam
+        if (
+            confidence > CONFIDENCE_THRESHOLD and
+            current_time - last_prediction_time > COOLDOWN_TIME
+        ):
+            current_output = reverse_label_map[most_common]
+            last_prediction_time = current_time
+
+            # reset biar tidak carry over gesture lama
+            sequence.clear()
+            predictions.clear()
 
     # =========================================
     # DISPLAY
     # =========================================
-    cv2.putText(image, f"Prediction: {prediction_text}",
-                (10, 40),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                1,
-                (0, 255, 0),
-                2)
+    cv2.putText(
+        image,
+        f"Prediction: {current_output}",
+        (10, 40),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (0, 255, 0),
+        2
+    )
 
     cv2.imshow("BISINDO Realtime", image)
 
