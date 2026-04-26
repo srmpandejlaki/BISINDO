@@ -63,7 +63,7 @@ print("y shape:", y.shape)
 # SPLIT: TRAIN / VAL / TEST
 # =========================================
 X_train, X_temp, y_train, y_temp = train_test_split(
-    X, y, test_size=0.2, stratify=y, random_state=42
+    X, y, test_size=0.3, stratify=y, random_state=42
 )
 
 X_val, X_test, y_val, y_test = train_test_split(
@@ -120,7 +120,7 @@ print("🚀 Training started...")
 history = model.fit(
     X_train,
     y_train_cat,
-    epochs=100,
+    epochs=50,
     batch_size=16,
     validation_data=(X_val, y_val_cat),
     callbacks=[early_stopping]
