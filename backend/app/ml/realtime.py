@@ -15,7 +15,7 @@ import time
 # =========================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "bisindo_lstm.h5")
+MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "bisindo_lstm_no_es.h5")
 LABEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "labels.json")
 
 SEQUENCE_LENGTH = 30
