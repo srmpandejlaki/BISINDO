@@ -147,7 +147,7 @@ model.summary()
 # =========================================
 print(Fore.CYAN + "\n🚀 Training started...\n")
 
-EPOCHS = 50
+EPOCHS = 60
 
 history = model.fit(
     X_train,
