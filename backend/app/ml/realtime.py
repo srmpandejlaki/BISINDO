@@ -19,9 +19,11 @@ MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "bisindo_lstm_no_es.h
 LABEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models", "labels.json")
 
 SEQUENCE_LENGTH = 30
-PREDICTION_SMOOTHING = 10
-CONFIDENCE_THRESHOLD = 0.7
-COOLDOWN_TIME = 1.5  # detik
+
+# 🔥 PERBAIKAN PARAMETER
+PREDICTION_SMOOTHING = 5
+CONFIDENCE_THRESHOLD = 0.5
+COOLDOWN_TIME = 1.0
 
 # =========================================
 # LOAD MODEL & LABEL
@@ -39,7 +41,11 @@ reverse_label_map = {v: k for k, v in label_map.items()}
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 
-hands = mp_hands.Hands(max_num_hands=2)
+hands = mp_hands.Hands(
+    max_num_hands=2,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+)
 
 # =========================================
 # BUFFER
@@ -51,21 +57,38 @@ last_prediction_time = 0
 current_output = "..."
 
 # =========================================
-# NORMALIZATION (WAJIB SAMA DENGAN TRAINING)
+# 🔥 NORMALIZATION (SAMA DENGAN TRAINING)
 # =========================================
+def normalize_scale(hand):
+    wrist = hand[0]
+    ref_point = hand[9]  # middle finger MCP
+
+    scale = np.linalg.norm(ref_point - wrist)
+
+    if scale > 0:
+        hand = hand / scale
+
+    return hand
+
+
 def normalize_wrist(frame):
     frame = np.array(frame)
 
     left = frame[:63].reshape(21, 3)
     right = frame[63:].reshape(21, 3)
 
+    # LEFT HAND
     if not np.all(left == 0):
         left = left - left[0]
+        left = normalize_scale(left)
 
+    # RIGHT HAND
     if not np.all(right == 0):
         right = right - right[0]
+        right = normalize_scale(right)
 
     return np.concatenate([left.flatten(), right.flatten()])
+
 
 # =========================================
 # WEBCAM
@@ -133,12 +156,23 @@ while cap.isOpened():
 
         predictions.append(predicted_class)
 
-        # stabilisasi (majority vote)
+        # majority voting
         most_common = Counter(predictions).most_common(1)[0][0]
 
         current_time = time.time()
 
-        # hanya update jika confident & tidak spam
+        # tampilkan confidence di layar
+        cv2.putText(
+            image,
+            f"Conf: {confidence:.2f}",
+            (10, 80),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 255, 255),
+            2
+        )
+
+        # update output
         if (
             confidence > CONFIDENCE_THRESHOLD and
             current_time - last_prediction_time > COOLDOWN_TIME
@@ -146,7 +180,6 @@ while cap.isOpened():
             current_output = reverse_label_map[most_common]
             last_prediction_time = current_time
 
-            # reset biar tidak carry over gesture lama
             sequence.clear()
             predictions.clear()
 
