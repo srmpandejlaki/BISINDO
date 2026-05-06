@@ -1,0 +1,34 @@
+
+
+.dashboard-admin {
+  display: grid;
+  gap: 20px;
+  grid-template-areas: 
+    "pengantar pengantar pengantar"
+    "pengaturan camera camera"
+    "score camera camera";
+}
+.pengantar {
+  grid-area: pengantar;
+}
+.section-pengaturan {
+  grid-area: pengaturan;
+}
+.section-camera {
+  grid-area: camera;
+}
+.section-score {
+  grid-area: score;
+}
+
+.section-pengaturan, .section-score, .section-camera {
+  background-color: #E4E1E1;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.camera-setting, .model-setting, .score-realtime {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
