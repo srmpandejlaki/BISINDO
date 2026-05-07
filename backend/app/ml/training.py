@@ -59,12 +59,12 @@ def print_confusion_matrix(cm, labels):
 # PATH CONFIG
 # =========================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_PATH = os.path.join(BASE_DIR, "dataset_processed")
+DATA_PATH = os.path.join(BASE_DIR, "dataset_processed_v2")
 
 MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models")
 os.makedirs(MODEL_PATH, exist_ok=True)
 
-SEQUENCE_LENGTH = 30
+SEQUENCE_LENGTH = 60
 
 # =========================================
 # LOAD DATASET
@@ -147,7 +147,7 @@ model.summary()
 # =========================================
 print(Fore.CYAN + "\n🚀 Training started...\n")
 
-EPOCHS = 60
+EPOCHS = 50
 
 history = model.fit(
     X_train,
@@ -196,7 +196,7 @@ print_confusion_matrix(cm, labels)
 # =========================================
 # SAVE MODEL
 # =========================================
-model_file = os.path.join(MODEL_PATH, "bisindo_lstm_no_es.h5")
+model_file = os.path.join(MODEL_PATH, "bisindo_lstm_no_es_v2.h5")
 model.save(model_file)
 
 print(Fore.GREEN + f"\n💾 Model saved at: {model_file}")
@@ -204,7 +204,7 @@ print(Fore.GREEN + f"\n💾 Model saved at: {model_file}")
 # =========================================
 # SAVE HISTORY
 # =========================================
-history_file = os.path.join(MODEL_PATH, "training_history_no_es.json")
+history_file = os.path.join(MODEL_PATH, "training_history_no_es_v2.json")
 
 with open(history_file, "w") as f:
     json.dump(history.history, f)

@@ -9,9 +9,9 @@ import time
 # CONFIG
 # ========================
 LABELS = ["Y", "Z"]  # tambah sampai A-Z nanti
-SEQUENCE_LENGTH = 30
+SEQUENCE_LENGTH = 60
 TARGET_PER_LABEL = 15
-SAVE_PATH = "dataset"
+SAVE_PATH = "dataset_v2"
 
 # ========================
 # FUNCTION: AMBIL INDEX TERAKHIR

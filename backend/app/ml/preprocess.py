@@ -8,10 +8,10 @@ from tqdm import tqdm
 # =========================================
 # CONFIG
 # =========================================
-INPUT_PATH = "dataset"
-OUTPUT_PATH = "dataset_processed"
+INPUT_PATH = "dataset_v2"
+OUTPUT_PATH = "dataset_processed_v2"
 
-SEQUENCE_LENGTH = 30
+SEQUENCE_LENGTH = 60
 FEATURE_SIZE = 126
 
 # AUGMENTATION CONFIG

@@ -1,17 +1,19 @@
 import React from "react";
 
-function TableDataset() {
+function ListsDataset() {
   return (
-    <div className="table-dataset">
-      <h3>Table Dataset</h3>
-
+    <div className="lists-dataset">
+      <div className="pengantar">
+        <h1>Daftar Dataset</h1>
+        <p>Pilih dataset yang ingin belum melakukan preprocessing</p>
+      </div>
       <table>
         <thead>
           <tr>
             <th>No.</th>
             <th>Nama Dataset</th>
             <th>Jumlah Data</th>
-            <th>Aksi</th>
+            <th>Pilih Dataset</th>
           </tr>
         </thead>
         <tbody>
@@ -20,15 +22,13 @@ function TableDataset() {
             <td>Dataset 1</td>
             <td>100</td>
             <td>
-              <button>Detail</button>
-              <button>Edit</button>
-              <button>Hapus</button>
+              <input type="checkbox" name="dataset" id="dataset1" />
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-  )
+  );
 }
 
-export default TableDataset;
+export default ListsDataset;

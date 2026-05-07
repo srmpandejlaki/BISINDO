@@ -1,7 +1,9 @@
 .vscode
 venv310
 dataset
+dataset_v2
 dataset_processed
+dataset_processed_v2
 
 # Logs
 logs
