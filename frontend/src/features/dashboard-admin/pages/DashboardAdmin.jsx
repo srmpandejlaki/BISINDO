@@ -1,7 +1,7 @@
 import React from "react";
-import SectionPengaturan from "../components/SectionPengaturan";
-import SectionScore from "../components/SectionScore";
-import SectionCamera from "../components/SectionCamera";
+import SectionInfo from "../components/SectionInfo";
+import SectionGrafik from "../components/SectionGrafik";
+import SectionModel from "../components/SectionModel";
 
 function DashboardAdmin() {
   return (
@@ -10,9 +10,9 @@ function DashboardAdmin() {
         <h1>Dashboard Admin</h1>
         <p>Selamat datang di Dashboard Admin! Di sini Anda dapat mengelola seluruh proses mulai dari pengumpulan data, preprocessing, hingga evaluasi performa model. Gunakan menu di sebelah kiri untuk menavigasi ke berbagai fitur yang tersedia.</p>
       </div>
-      <SectionPengaturan />
-      <SectionScore />
-      <SectionCamera />
+      <SectionInfo />
+      <SectionGrafik />
+      <SectionModel />
     </div>
   )
 }

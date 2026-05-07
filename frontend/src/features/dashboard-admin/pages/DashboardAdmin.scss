@@ -5,26 +5,34 @@
   gap: 20px;
   grid-template-areas: 
     "pengantar pengantar pengantar"
-    "pengaturan camera camera"
-    "score camera camera";
+    "info info info"
+    "grafik grafik model";
+  grid-template-rows: auto auto 1fr;
 }
 .pengantar {
   grid-area: pengantar;
 }
-.section-pengaturan {
-  grid-area: pengaturan;
+.section-info {
+  grid-area: info;
 }
-.section-camera {
-  grid-area: camera;
+.section-grafik {
+  grid-area: grafik;
 }
-.section-score {
-  grid-area: score;
+.section-model {
+  grid-area: model;
 }
 
-.section-pengaturan, .section-score, .section-camera {
+.card, .section-model, .section-grafik {
   background-color: #E4E1E1;
   padding: 20px;
   border-radius: 10px;
+  margin-top: 10px;
+}
+
+.section-info {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
 }
 
 .camera-setting, .model-setting, .score-realtime {
