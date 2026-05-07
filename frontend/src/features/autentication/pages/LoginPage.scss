@@ -1,0 +1,33 @@
+
+
+.login-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  // height: 100vh;
+
+  background-color: #E4E1E1;
+  padding: 40px;
+  border-radius: 10px;
+}
+
+.login-title {
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}

@@ -24,7 +24,7 @@ function NavBarAdmin() {
       </ul>
       <ul>
         <li><a href="/website-bisindo">Kunjungi Website BISINDO</a></li>
-        <li><a href="/admin/logout">Logout</a></li>
+        <li><a href="/admin/login">Logout</a></li>
       </ul>
     </nav>
   )
