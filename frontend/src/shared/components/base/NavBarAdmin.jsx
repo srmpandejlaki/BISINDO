@@ -22,6 +22,10 @@ function NavBarAdmin() {
         <li><a href="/admin/testing">Testing</a></li>
         <li><a href="/admin/evaluation">Evaluasi Performa Model</a></li>
       </ul>
+      <ul>
+        <li><a href="/website-bisindo">Kunjungi Website BISINDO</a></li>
+        <li><a href="/admin/logout">Logout</a></li>
+      </ul>
     </nav>
   )
 }

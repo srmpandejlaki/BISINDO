@@ -3,7 +3,7 @@ import React from "react";
 function SectionModel() {
   return (
     <div className="section-model">
-      <h1>Model Settings</h1>
+      <h2>Model Settings</h2>
       <div className="model-setting">
         <p>Pengaturan model akan ditampilkan di sini.</p>
       </div>
