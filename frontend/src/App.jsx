@@ -6,6 +6,7 @@ import DataCollection from "./features/data-collection/pages/DataCollection";
 import DetailDataset from "./features/data-collection/pages/DetailDataset";
 import Preprocessing from "./features/preprocessing/pages/Preprocessing";
 import Processing from "./features/processing/pages/Processing";
+import TestingPage from "./features/testing/pages/Testing";
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/admin/data-collection/:id" element={<DetailDataset />} />
         <Route path="/admin/preprocessing" element={<Preprocessing />} />
         <Route path="/admin/processing" element={<Processing />} />
+        <Route path="/admin/testing" element={<TestingPage />} />
       </Routes>
     </main>
   )
