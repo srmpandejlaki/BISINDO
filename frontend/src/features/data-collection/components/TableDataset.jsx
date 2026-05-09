@@ -20,7 +20,7 @@ function TableDataset() {
             <td>Dataset 1</td>
             <td>100</td>
             <td>
-              <button>Detail</button>
+              <button><a href="/admin/data-collection/1">Detail</a></button>
               <button>Edit</button>
               <button>Hapus</button>
             </td>
