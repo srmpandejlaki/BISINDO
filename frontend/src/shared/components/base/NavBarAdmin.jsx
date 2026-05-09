@@ -8,7 +8,7 @@ function NavBarAdmin() {
         <li>
           <a href="/admin/data-collection">Data Collection</a>
           <ul className="submenu">
-            <li><a href="/admin/data-collection/hand-skeleton">Pengaturan Parameter Hand Skeleton</a></li>
+            <li><a href="/admin/data-collection">Pengaturan Parameter Hand Skeleton</a></li>
           </ul>
         </li>
         <li><a href="/admin/preprocessing">Preprocessing</a></li>

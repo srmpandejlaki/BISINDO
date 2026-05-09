@@ -4,7 +4,8 @@ import LoginPage from "./features/autentication/pages/LoginPage";
 import DashboardAdmin from "./features/dashboard-admin/pages/DashboardAdmin";
 import DataCollection from "./features/data-collection/pages/DataCollection";
 import DetailDataset from "./features/data-collection/pages/DetailDataset";
-import PreprocessingAdmin from "./features/preprocessing/pages/PreprocessingAdmin";
+import Preprocessing from "./features/preprocessing/pages/Preprocessing";
+import Processing from "./features/processing/pages/Processing";
 
 function App() {
 
@@ -17,7 +18,8 @@ function App() {
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/data-collection" element={<DataCollection />} />
         <Route path="/admin/data-collection/:id" element={<DetailDataset />} />
-        <Route path="/admin/preprocessing" element={<PreprocessingAdmin />} />
+        <Route path="/admin/preprocessing" element={<Preprocessing />} />
+        <Route path="/admin/processing" element={<Processing />} />
       </Routes>
     </main>
   )

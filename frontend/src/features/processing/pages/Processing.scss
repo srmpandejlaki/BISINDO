@@ -1,0 +1,37 @@
+
+
+.processing-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-preparation {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+
+  grid-template-areas: 
+    "title title"
+    "data-preparation parameter-model"
+    "data-preparation parameter-training";
+
+  h2 {
+    grid-area: title;
+  }
+  button {
+    width: fit-content;
+    justify-self: end;
+    grid-column: 2;
+    padding: 5px;
+  }
+}
+.data-preparation {
+  grid-area: data-preparation;
+}
+.parameter-model {
+  grid-area: parameter-model;
+}
+.parameter-training {
+  grid-area: parameter-training;
+}
