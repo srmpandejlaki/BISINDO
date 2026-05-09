@@ -1,0 +1,29 @@
+
+
+.preprocessing-admin {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.parameter-setting {
+  background-color: #e5e5e5;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.section-parameter {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.main-parameter {
+  display: flex;
+  gap: 10px;
+}
+
+.parameter {
+  display: flex;
+  gap: 10px;
+}
