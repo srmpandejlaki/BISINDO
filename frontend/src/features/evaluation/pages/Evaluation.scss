@@ -1,0 +1,31 @@
+
+
+.evaluation-page {
+  display: grid;
+  gap: 20px;
+  grid-template-rows: auto 1fr 1fr;
+  grid-template-areas:
+    "title title"
+    "training testing"
+    "perbandingan perbandingan";
+
+  .title {
+    grid-area: title;
+  }
+}
+
+.evaluation-training {
+  grid-area: training;
+}
+
+.evaluation-testing {
+  grid-area: testing;
+}
+
+.evaluation-perbandingan {
+  grid-area: perbandingan;
+}
+
+.confusion-metrix {
+  margin-top: 20px;
+}

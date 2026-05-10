@@ -11,7 +11,7 @@ function TestingPage() {
       </div>
       <TestingPreparation />
       <TestingResult />
-      <button className="detail-evaluation">Lihat Detail Evaluasi</button>
+      <button className="detail-evaluation"><a href="/admin/evaluation">Lihat Detail Evaluasi</a></button>
     </div>
   );
 }
