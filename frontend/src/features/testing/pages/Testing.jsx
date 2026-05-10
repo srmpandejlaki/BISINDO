@@ -5,10 +5,13 @@ import TestingResult from "../components/TestingResult";
 function TestingPage() {
   return (
     <div className="content testing-page">
-      <h2>Testing Page</h2>
-      <p>This is a placeholder for the Testing page.</p>
+      <div className="title">
+        <h2>Testing Page</h2>
+        <p>This is a placeholder for the Testing page.</p>
+      </div>
       <TestingPreparation />
       <TestingResult />
+      <button className="detail-evaluation">Lihat Detail Evaluasi</button>
     </div>
   );
 }

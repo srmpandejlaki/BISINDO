@@ -1,0 +1,56 @@
+
+
+.testing-page {
+  display: grid;
+  grid-template-rows: auto 2fr;
+  grid-template-columns: auto 1fr;
+  gap: 20px;
+  grid-template-areas: 
+    "title title"
+    "preparation result";
+
+  .title {
+    grid-area: title;
+  }
+  .detail-evaluation {
+    width: fit-content;
+    justify-self: end;
+    grid-column: 2;
+    padding: 5px;
+  }
+}
+
+.testing-preparation {
+  grid-area: preparation;
+}
+.testing-result {
+  grid-area: result;
+}
+
+.testing-preparation, .testing-result {
+  height: fit-content;
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.option-mode, .option-model {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-block: 20px;
+
+  label {
+    width: 100px;
+  }
+  select {
+    padding: 5px;
+    width: 180px;
+  }
+}
+
+.start-testing {
+  display: flex;
+  justify-self: center;
+  padding: 5px;
+}
