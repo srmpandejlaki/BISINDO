@@ -1,5 +1,8 @@
 import { Route, Routes, Navigate } from "react-router-dom";
+
 import NavBarAdmin from "./shared/components/base/NavBarAdmin";
+
+// admin pages
 import LoginPage from "./features/autentication/pages/LoginPage";
 import DashboardAdmin from "./features/dashboard-admin/pages/DashboardAdmin";
 import DataCollection from "./features/data-collection/pages/DataCollection";
@@ -8,6 +11,11 @@ import Preprocessing from "./features/preprocessing/pages/Preprocessing";
 import Processing from "./features/processing/pages/Processing";
 import TestingPage from "./features/testing/pages/Testing";
 import EvaluationPage from "./features/evaluation/pages/Evaluation";
+
+// user pages
+import DashboardUser from "./features/dashboard-user/pages/DashboardUser";
+import LearningBisindo from "./features/learning-bisindo/pages/LearningBisindo";
+import TestBisindo from "./features/test-bisindo/pages/TestBisindo";
 
 function App() {
 
@@ -24,6 +32,10 @@ function App() {
         <Route path="/admin/processing" element={<Processing />} />
         <Route path="/admin/testing" element={<TestingPage />} />
         <Route path="/admin/evaluation" element={<EvaluationPage />} />
+
+        <Route path="/user/dashboard" element={<DashboardUser />} />
+        <Route path="/user/learning-bisindo" element={<LearningBisindo />} />
+        <Route path="/user/test-bisindo" element={<TestBisindo />} />
       </Routes>
     </main>
   )

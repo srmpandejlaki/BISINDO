@@ -5,7 +5,7 @@ import os
 # =========================
 # CONFIG
 # =========================
-NPY_PATH = "dataset/B/0.npy"
+NPY_PATH = "dataset/J/4.npy"
 SAVE_DIR = "saved_frames"
 
 os.makedirs(SAVE_DIR, exist_ok=True)
