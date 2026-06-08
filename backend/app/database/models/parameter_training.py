@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 
 from app.database.connection import Base
 
-class ParameterTraining:
+class ParameterTraining(Base):
   __tablename__ = "parameter_training"
 
   idParameterTraining = Column(

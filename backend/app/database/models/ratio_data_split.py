@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 from app.database.connection import Base
 
 
-class RatioDataSplit:
+class RatioDataSplit(Base):
   __tablename__ = "ratio_data_split"
 
   idRatioDataSplit = Column(
