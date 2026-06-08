@@ -1,0 +1,38 @@
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
+
+from app.database.connection import Base
+
+class RawData(Base):
+  __tablename__ = "raw_data"
+
+  idRawData = Column(
+    Integer, 
+    primary_key=True
+  )
+  
+  idDataset = Column(
+    Integer,
+    ForeignKey("dataset.idDataset"),
+  )
+  idLabel = Column(
+    Integer,
+    ForeignKey("label.idLabel"),
+  )
+  sequenceLength = Column(Integer)
+  dataFilePath = Column(String(999))
+  createdAt = Column(
+    DateTime,
+    server_default=func.now()
+  )
+
+  dataset = relationship(
+    "Dataset",
+    back_populates="raw_data",
+  )
+  label = relationship(
+    "Label",
+    back_populates="raw_data",
+  )
+  
