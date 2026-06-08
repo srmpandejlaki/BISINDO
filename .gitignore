@@ -4,6 +4,7 @@ dataset
 dataset_v2
 dataset_processed
 dataset_processed_v2
+.env
 
 # Logs
 logs

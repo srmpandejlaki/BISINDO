@@ -3,6 +3,7 @@ import React from "react";
 function NavBarAdmin() {
   return (
     <nav>
+      <h3>Panel Admin Sistem Pembelajaran Alfabet Bahasa Isyarat Indonesia (BISINDO)</h3>
       <ul>
         <li><a href="/admin/dashboard">Dashboard</a></li>
         <li>
