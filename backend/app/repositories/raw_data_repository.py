@@ -1,5 +1,5 @@
-from app.database.models.raw_data import RawData
-from app.repositories.base_repository import BaseRepository
+from app.database.models import RawData
+from app.repositories import BaseRepository
 
 
 class RawDataRepository(BaseRepository):

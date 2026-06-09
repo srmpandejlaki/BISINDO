@@ -15,6 +15,7 @@ class Dataset(Base):
   datasetName = Column(String(99))
   totalLabel = Column(Integer)
   totalData = Column(Integer)
+  folderPath = Column(String(999))
   createdAt = Column(
     DateTime,
     server_default=func.now()
