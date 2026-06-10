@@ -15,6 +15,13 @@
 .section-preview {
   flex: 1;
 
+  .preview-dataset {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-top: 1rem;
+  }
+
   .preview-dataset p {
     display: flex;
     gap: 12px;

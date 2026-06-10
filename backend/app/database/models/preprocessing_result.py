@@ -27,3 +27,8 @@ class PreprocessingResult(Base):
     "Dataset",
     back_populates="preprocessing_result",
   )
+
+  preprocessing_training = relationship(
+    "PreprocessingTraining",
+    back_populates="preprocessing_result",
+  )

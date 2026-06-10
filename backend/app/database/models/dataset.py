@@ -25,3 +25,9 @@ class Dataset(Base):
     "RawData",
     back_populates="dataset",
   )
+
+  preprocessing_result = relationship(
+    "PreprocessingResult",
+    back_populates="dataset"
+  )
+  

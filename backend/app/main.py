@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes.data_collection_route import router as data_collection_router
+from app.api.router import api_router
 
 app = FastAPI(
     title="BISINDO Alphabet Recognition API",
@@ -22,7 +22,7 @@ app.add_middleware(
 )
 
 # Root endpoint
-@app.get("/bisindo/api")
+@app.get("/bisindo")
 async def root():
     return {
         "success": True,
@@ -30,15 +30,16 @@ async def root():
     }
 
 # Health Check
-@app.get("/health")
+@app.get("/bisindo/health")
 async def health_check():
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "service": "bisindo-api",
+        "version": "1.0.0"
     }
 
 # Register Routes
 app.include_router(
-    data_collection_router,
-    prefix="/api/data-collection",
-    tags=["Predictions"]
+    api_router,
+    prefix="/bisindo/api"
 )
