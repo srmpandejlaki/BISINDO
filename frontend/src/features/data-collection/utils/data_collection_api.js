@@ -26,12 +26,14 @@ export const get_all_datasets = async () => {
   }
 };
 
-export const create_dataset_from_zip = async () => {
+export const create_dataset_from_zip = async (file) => {
   try {
-    const response = await fetch(`${BASE_URL}/data-collection/`, {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(`${BASE_URL}/datasets/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({}), 
+      body: formData, 
     });
 
     if (!response.ok) {

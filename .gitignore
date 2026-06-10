@@ -20,14 +20,6 @@ __pycache__/
 *.pyd
 
 # =========================
-# Dataset
-# =========================
-dataset/
-dataset_v2/
-dataset_processed/
-dataset_processed_v2/
-
-# =========================
 # Trained Models
 # =========================
 storage/models/
@@ -39,7 +31,7 @@ storage/models/
 # =========================
 # Upload Files
 # =========================
-storage/uploads/
+storage/
 
 # =========================
 # TensorBoard

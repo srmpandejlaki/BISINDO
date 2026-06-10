@@ -11,6 +11,7 @@ function DataCollection() {
   // useState
   const [dataset, setDataset] = useState([]);
   const [_error, setError] = useState(null);
+  const [previewData, setPreviewData] = useState(null);
 
   // function
   const loadDatasets = async () => {
@@ -44,12 +45,14 @@ function DataCollection() {
     <div className="content data-collection">
       <h1>Data Collection</h1>
       <div className="section-atas">
-        <SectionUpload />
-        <SectionPreview />
+        <SectionUpload 
+          onUploadSuccess={loadDatasets} 
+          onPreviewGenerated={setPreviewData}
+        />
+        <SectionPreview preview={previewData} />
         <TableLabel />
       </div>
       <TableDataset datasets={dataset} />
-      <p className="info-total">Total Data: 360</p>
     </div>
   )
 }

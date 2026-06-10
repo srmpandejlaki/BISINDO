@@ -37,6 +37,7 @@ function TableDataset({ datasets = [] }) {
           ))}
         </tbody>
       </table>
+      <p className="info-total">Total Data: 360</p>
     </div>
   )
 }

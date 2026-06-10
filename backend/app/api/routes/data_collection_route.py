@@ -34,7 +34,7 @@ def get_all_datasets(
         "data": datasets
     }
 
-@router.get("/{dataset_id}")
+@router.get("/{idDataset}")
 def get_dataset_by_id(
     idDataset: int,
     db: Session = Depends(get_db)
@@ -54,7 +54,7 @@ def get_dataset_by_id(
     }
 
 @router.post("/")
-async def create_dataset_from_zip(
+def create_dataset_from_zip(
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
@@ -91,7 +91,7 @@ async def create_dataset_from_zip(
             detail=str(e)
         )
     
-@router.delete("/{dataset_id}")
+@router.delete("/{idDataset}")
 def delete_dataset(
     idDataset: int,
     db: Session = Depends(get_db)
@@ -114,8 +114,8 @@ def delete_dataset(
         )
 
 # Raw Data
-@router.get("/{dataset_id}/detail-dataset")
-def get_dataset_by_id(
+@router.get("/{idDataset}/detail-dataset")
+def get_detail_dataset_by_id(
     idDataset: int,
     db: Session = Depends(get_db)
 ):
