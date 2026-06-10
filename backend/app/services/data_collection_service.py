@@ -8,7 +8,7 @@ from app.database.models import Dataset, Label, RawData
 
 from app.utils.zip_extractor import extract_zip
 
-class DatasetService:
+class DataCollectionService:
 
     def __init__(self):
         self.dataset_repository = DatasetRepository()
@@ -27,7 +27,7 @@ class DatasetService:
         
         return self.dataset_repository.get_by_id(db, idDataset)
     
-    def uploadDataset(
+    def create_dataset_from_zip(
         self,
         db: Session,
         zip_path: str
@@ -137,25 +137,16 @@ class DatasetService:
 
         return self.dataset_repository.delete(db, dataset)
     
-    def deleteDatasetById(self, db: Session, idDataset: int):
-        return self.dataset_repository.delete_by_id(db, idDataset)
-    
     # Raw Data
-    def getAllRawData(self, db):
-        return self.raw_data_repository.get_all(db)
+    # def get_all_raw_data(self, db):
+    #     return self.raw_data_repository.get_all(db)
     
-    def getRawDataById(self, db: Session, idRawData: int):
-        return self.raw_data_repository.get_by_id(db, idRawData)
+    # def get_raw_data_by_id(self, db: Session, idRawData: int):
+    #     return self.raw_data_repository.get_by_id(db, idRawData)
     
-    def updateRawDataById(self, db: Session, idRawData: int):
-        return self.raw_data_repository.update(db, idRawData)
+    # def update_raw_data_by_id(self, db: Session, idRawData: int):
+    #     return self.raw_data_repository.update(db, idRawData)
     
-    def deleteRawDataById(self, db: Session, idRawData: int):
-        return self.raw_data_repository.delete_by_id(db, idRawData)
+    # def delete_raw_data_by_id(self, db: Session, idRawData: int):
+    #     return self.raw_data_repository.delete_by_id(db, idRawData)
     
-    # Label
-    def getAllLabels(self, db):
-        return self.label_repository.get_all(db)
-    
-    def getAllLabelById(self, db: Session, idLabel: int):
-        return self.label_repository.get_by_id(db, idLabel)
