@@ -16,10 +16,10 @@ class DataCollectionService:
         self.label_repository = LabelRepository()
 
     # Dataset
-    def getAllDatasets(self, db):
+    def get_all_datasets(self, db):
         return self.dataset_repository.get_all(db)
     
-    def getDatasetById(self, db: Session, idDataset: int):
+    def get_dataset_by_id(self, db: Session, idDataset: int):
         dataset = (self.dataset_repository.get_by_id(db, idDataset))
 
         if not dataset :
@@ -77,7 +77,7 @@ class DataCollectionService:
 
                 if not label:
                     raise ValueError(
-                        f"Label '{label_name}' tidak ditemukan"
+                        f"Label '{label_name}' not found"
                     )
 
                 npy_files = (
@@ -133,13 +133,20 @@ class DataCollectionService:
         )
 
         if not dataset:
-            raise ValueError("Dataset tidak ditemukan")
+            raise ValueError("Dataset not found")
 
         return self.dataset_repository.delete(db, dataset)
     
     # Raw Data
-    # def get_all_raw_data(self, db):
-    #     return self.raw_data_repository.get_all(db)
+    def get_raw_data_by_id_dataset(self, db: Session, idDataset: int):
+        raw_data_by_id = (
+            self.raw_data_repository.get_by_id_dataset(db, idDataset)
+        )
+
+        if  not raw_data_by_id:
+            raise ValueError("Raw data not found")
+        
+        return self.raw_data_repository.get_by_id_dataset(db, idDataset)
     
     # def get_raw_data_by_id(self, db: Session, idRawData: int):
     #     return self.raw_data_repository.get_by_id(db, idRawData)
