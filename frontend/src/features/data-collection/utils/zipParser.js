@@ -19,6 +19,15 @@ export const parseZipDataset = async (zipFile) => {
     
     const labelData = {}; // Menyimpan format: { "LABEL_A": 12, "LABEL_B": 15 }
     let totalData = 0;
+    let ukuranFile = 0;
+
+    // Menghitung total data dan ukuran file
+    loadedZip.forEach((relativePath, fileInfo) => {
+      if (!fileInfo.dir && relativePath.endsWith(".npy")) {
+        totalData += 1;
+        ukuranFile += fileInfo.size;
+      }
+    });
 
     // Iterasi setiap file/folder di dalam ZIP
     loadedZip.forEach((relativePath, fileInfo) => {
@@ -59,6 +68,7 @@ export const parseZipDataset = async (zipFile) => {
 
     return {
       fileName: zipFile.name,
+      fileSize: (ukuranFile / 1024 / 1024).toFixed(2),
       totalLabel: labelsList.length,
       totalData: totalData,
       labels: labelsList, // Array berisi [{ name: "A", count: 100 }, ...]

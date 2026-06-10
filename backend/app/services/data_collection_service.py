@@ -40,6 +40,7 @@ class DataCollectionService:
 
             dataset_name = dataset_path.name
 
+            # Ambil semua folder label
             label_folders = [
                 folder
                 for folder in dataset_path.iterdir()
@@ -48,11 +49,23 @@ class DataCollectionService:
 
             total_label = len(label_folders)
 
+            if total_label == 0:
+                raise ValueError(
+                    "Dataset tidak memiliki folder label."
+                )
+
+            # Hitung seluruh file .npy
             total_data = sum(
                 len(list(folder.glob("*.npy")))
                 for folder in label_folders
             )
 
+            if total_data == 0:
+                raise ValueError(
+                    "Dataset tidak memiliki file .npy."
+                )
+
+            # Simpan dataset
             dataset = Dataset(
                 datasetName=dataset_name,
                 folderPath=str(dataset_path),
@@ -63,9 +76,12 @@ class DataCollectionService:
             db.add(dataset)
             db.flush()
 
+            # Proses setiap folder label
             for label_folder in label_folders:
 
-                label_name = (label_folder.name.upper())
+                label_name = (
+                    label_folder.name.upper()
+                )
 
                 label = (
                     self.label_repository
@@ -77,21 +93,34 @@ class DataCollectionService:
 
                 if not label:
                     raise ValueError(
-                        f"Label '{label_name}' not found"
+                        f"Label '{label_name}' tidak ditemukan."
                     )
 
-                npy_files = (
-                    label_folder.glob(
-                        "*.npy"
-                    )
-                )
+                npy_files = label_folder.glob("*.npy")
 
                 for npy_file in npy_files:
 
-                    sequence = np.load(
-                        npy_file,
-                        allow_pickle=True
-                    )
+                    try:
+                        sequence = np.load(
+                            npy_file,
+                            allow_pickle=False
+                        )
+                    except Exception:
+                        raise ValueError(
+                            f"File '{npy_file.name}' tidak valid atau rusak."
+                        )
+
+                    # Validasi sequence kosong
+                    if sequence.shape[0] == 0:
+                        raise ValueError(
+                            f"File '{npy_file.name}' tidak memiliki sequence."
+                        )
+
+                    # Validasi minimal dimensi data
+                    if len(sequence.shape) < 2:
+                        raise ValueError(
+                            f"Format data pada '{npy_file.name}' tidak valid."
+                        )
 
                     sequence_length = (
                         sequence.shape[0]
@@ -113,10 +142,9 @@ class DataCollectionService:
 
             return dataset
 
-        except Exception as error:
-
+        except Exception:
             db.rollback()
-            raise error
+            raise
 
     def delete_dataset(
         self,

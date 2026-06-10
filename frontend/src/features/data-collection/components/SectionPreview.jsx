@@ -10,6 +10,10 @@ function SectionPreview({ preview }) {
           <span>: {preview ? preview.fileName : "-"}</span>
         </p>
         <p>
+          <span>Ukuran File</span>
+          <span>: {preview ? preview.fileSize : "0"} MB</span>
+        </p>
+        <p>
           <span>Jumlah Label</span>
           <span>: {preview ? preview.totalLabel : "0"}</span>
         </p>
