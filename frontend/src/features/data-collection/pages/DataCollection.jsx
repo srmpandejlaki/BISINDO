@@ -12,6 +12,7 @@ function DataCollection() {
   const [dataset, setDataset] = useState([]);
   const [_error, setError] = useState(null);
   const [previewData, setPreviewData] = useState(null);
+  // const [detailDataset, setDetailDataset] = useState([]);
 
   // function
   const loadDatasets = async () => {
@@ -34,9 +35,20 @@ function DataCollection() {
     }
   };
 
+  // const loadDetailDataset = async (idDataset) => {
+  //   try {
+  //     const response = await get_raw_data_by_id_dataset(idDataset);
+  //     console.log("Detail dataset:", response);
+  //     setDetailDataset(response);
+  //   } catch (error) {
+  //     console.error("Error fetching data", error);
+  //   }
+  // };
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadDatasets();
+    // loadDetailDataset();
   }, []);
 
   console.log("Datasets:", dataset);

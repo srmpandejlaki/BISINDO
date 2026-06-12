@@ -1,47 +1,67 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { parseZipDataset } from "../utils/zipParser";
 import { create_dataset_from_zip } from "../utils/data_collection_api";
 
-function SectionUpload({ onUploadSuccess, onPreviewGenerated}) {
+function SectionUpload({
+  onUploadSuccess,
+  onPreviewGenerated,
+}) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const handleFileChange = async (e) => {
-    const selectedFile = e.target.files[0];
+
+  const handleFileChange = async (event) => {
+    const selectedFile = event.target.files[0];
+
     if (!selectedFile) return;
-    if (!selectedFile.name.endsWith(".zip")) {
-      alert("Harap pilih file berformat .zip!");
-      return;
-    }
-    setFile(selectedFile);
-    // Jalankan parser untuk preview
+
     try {
-      const parsedInfo = await parseZipDataset(selectedFile);
-      onPreviewGenerated(parsedInfo); // Kirim data preview ke parent state
+      const preview = await parseZipDataset(
+        selectedFile
+      );
+
+      setFile(selectedFile);
+
+      if (onPreviewGenerated) {
+        onPreviewGenerated(preview);
+      }
     } catch (error) {
-      alert("Gagal membaca struktur ZIP. Pastikan file ZIP tidak rusak.", error);
-      onPreviewGenerated(null);
+      alert(
+        error.message ||
+        "Gagal membaca file ZIP."
+      );
     }
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!file) {
       alert("Pilih file terlebih dahulu!");
       return;
     }
+
     setLoading(true);
+
     try {
-      const response = await create_dataset_from_zip(file);
-      if (response && response.success) {
+      const response =
+        await create_dataset_from_zip(file);
+
+      if (response) {
         alert("Dataset berhasil diunggah!");
-        onUploadSuccess(); // Refresh list dataset di tabel bawah
+
+        onUploadSuccess?.();
+        onPreviewGenerated?.(null);
+
         setFile(null);
-        onPreviewGenerated(null); // Reset preview
-        e.target.reset(); // Reset form
-      } else {
-        alert("Gagal mengunggah dataset.");
+
+        e.target.reset();
       }
     } catch (error) {
-      alert("Terjadi kesalahan saat mengunggah.", error);
+      alert(
+        error.response?.data?.detail ||
+        error.message ||
+        "Terjadi kesalahan saat mengunggah."
+      );
     } finally {
       setLoading(false);
     }
@@ -50,11 +70,25 @@ function SectionUpload({ onUploadSuccess, onPreviewGenerated}) {
   return (
     <div className="section-upload">
       <h2>Upload Dataset</h2>
-      <p>Upload dataset Anda di sini menggunakan format Zip.</p>
+      <p>
+        Upload dataset Anda di sini menggunakan
+        format ZIP.
+      </p>
+
       <form onSubmit={handleSubmit}>
-        <input type="file" accept=".zip" onChange={handleFileChange} />
-        <button type="submit" disabled={loading}>
-          {loading ? "Uploading..." : "Upload"}
+        <input
+          type="file"
+          accept=".zip"
+          onChange={handleFileChange}
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+        >
+          {loading
+            ? "Uploading..."
+            : "Upload"}
         </button>
       </form>
     </div>
