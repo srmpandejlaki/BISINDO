@@ -3,9 +3,11 @@ import { useParams } from "react-router-dom";
 import IconPanahKiri from "../../../assets/icons/carbon_next-filled.svg";
 import IconPanahKanan from "../../../assets/icons/carbon_next-filled-right.svg";
 import { get_dataset_by_id_dataset } from "../utils/data_collection_api";
+import { BASE_URL } from "../../../shared/utils/index-api";
 
 function DetailDataset() {
   const [detailDataset, setDetailDataset] = useState([]);
+  const [previewId, setPreviewId] = useState(null);
   const { idDataset } = useParams();
 
   // Pagination state
@@ -57,7 +59,26 @@ function DetailDataset() {
               <td>{dataset.dataName || dataset.dataFilePath?.split(/[\/\\]/).pop()}</td>
               <td>{dataset.idLabel}</td>
               <td>{dataset.sequenceLength}</td>
-              <td></td>
+              <td>
+                <button 
+                  onClick={() => setPreviewId(dataset.idRawData)}
+                  style={{
+                    padding: "6px 12px",
+                    // backgroundColor: "#007bff",
+                    color: "#000000",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    fontSize: "0.7rem",
+                    transition: "background-color 0.2s"
+                  }}
+                  // onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
+                  // onMouseOut={(e) => e.target.style.backgroundColor = "#007bff"}
+                >
+                  Lihat Preview
+                </button>
+              </td>
               <td></td>
             </tr>
           ))}
@@ -88,6 +109,73 @@ function DetailDataset() {
           </div>
         </div>
       </div>
+
+      {previewId && (
+        <div 
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0, 0, 0, 0.75)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1000,
+            backdropFilter: "blur(4px)"
+          }}
+          onClick={() => setPreviewId(null)}
+        >
+          <div 
+            style={{
+              backgroundColor: "#1e1e1e",
+              padding: "25px",
+              borderRadius: "12px",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.5)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "20px",
+              position: "relative",
+              border: "1px solid #333"
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ color: "#fff", margin: 0, fontSize: "1.2rem", fontWeight: "600" }}>Hand Skeleton Preview</h3>
+            <img 
+              src={`${BASE_URL}/datasets/raw-data/${previewId}/preview`} 
+              alt="Hand Skeleton Preview" 
+              style={{ 
+                width: "280px", 
+                height: "280px", 
+                backgroundColor: "#000", 
+                borderRadius: "8px",
+                objectFit: "contain",
+                border: "1px solid #444"
+              }} 
+            />
+            <button 
+              style={{
+                padding: "8px 20px",
+                backgroundColor: "#dc3545",
+                color: "#fff",
+                border: "none",
+                borderRadius: "6px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "0.9rem",
+                transition: "background-color 0.2s"
+              }}
+              onClick={() => setPreviewId(null)}
+              onMouseOver={(e) => e.target.style.backgroundColor = "#c82333"}
+              onMouseOut={(e) => e.target.style.backgroundColor = "#dc3545"}
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

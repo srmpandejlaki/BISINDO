@@ -9,7 +9,7 @@ function TableLabel() {
         <thead>
           <tr>
             <th>Label</th>
-            <th>Jumlah Data</th>
+            <th>Jumlah Data Saat Ini</th>
           </tr>
         </thead>
         <tbody>

@@ -176,8 +176,8 @@ class DataCollectionService:
         
         return self.raw_data_repository.get_by_id_dataset(db, idDataset)
     
-    # def get_raw_data_by_id(self, db: Session, idRawData: int):
-    #     return self.raw_data_repository.get_by_id(db, idRawData)
+    def get_raw_data_by_id(self, db: Session, idRawData: int):
+        return self.raw_data_repository.get_by_id(db, idRawData, RawData.idRawData)
     
     # def update_raw_data_by_id(self, db: Session, idRawData: int):
     #     return self.raw_data_repository.update(db, idRawData)
