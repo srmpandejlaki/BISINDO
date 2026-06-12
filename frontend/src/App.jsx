@@ -27,7 +27,7 @@ function App() {
         <Route path="/admin/login" element={<LoginPage />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/data-collection" element={<DataCollection />} />
-        <Route path="/admin/data-collection/:id" element={<DetailDataset />} />
+        <Route path="/admin/data-collection/:idDataset/detail_dataset" element={<DetailDataset />} />
         <Route path="/admin/preprocessing" element={<Preprocessing />} />
         <Route path="/admin/processing" element={<Processing />} />
         <Route path="/admin/testing" element={<TestingPage />} />

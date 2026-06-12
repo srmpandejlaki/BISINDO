@@ -14,10 +14,6 @@ function SectionPreview({ preview }) {
           <span>: {preview ? preview.fileSize : "0"} MB</span>
         </p>
         <p>
-          <span>Jumlah Label</span>
-          <span>: {preview ? preview.totalLabel : "0"}</span>
-        </p>
-        <p>
           <span>Jumlah Data</span>
           <span>: {preview ? preview.totalData : "0"}</span>
         </p>

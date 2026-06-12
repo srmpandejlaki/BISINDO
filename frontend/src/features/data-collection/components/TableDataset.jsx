@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { delete_dataset } from "../utils/data_collection_api";
+import { NavLink } from "react-router-dom";
 
 function TableDataset({ datasets = [] }) {
   const [error, setError] = useState(null);
@@ -24,7 +25,6 @@ function TableDataset({ datasets = [] }) {
             <th>No.</th>
             <th>Nama Dataset</th>
             <th>Jumlah Data</th>
-            <th>Jumlah Label</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -40,9 +40,8 @@ function TableDataset({ datasets = [] }) {
               <td>{index + 1}</td>
               <td>{dataset.datasetName}</td>
               <td>{dataset.totalData}</td>
-              <td>{dataset.totalLabel}</td>
               <td>
-                <button><a href="/admin/data-collection/1">Detail</a></button>
+                <NavLink to={`/admin/data-collection/${dataset.idDataset}/detail_dataset`}>Detail</NavLink>
                 <button>Edit</button>
                 <button onClick={() => handleDelete(dataset.idDataset)}>Hapus</button>
               </td>

@@ -26,6 +26,26 @@ export const get_all_datasets = async () => {
   }
 };
 
+export const get_dataset_by_id_dataset = async (idDataset) => {
+  try {
+    const response = await fetch(`${BASE_URL}/datasets/${idDataset}/detail-dataset`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch datasets. ", response.status, response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log("Error fetching datasets", error);
+    return [];
+  }
+}
+
 export const create_dataset_from_zip = async (file) => {
   try {
     const formData = new FormData();

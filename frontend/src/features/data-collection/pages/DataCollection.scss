@@ -43,3 +43,26 @@
   text-align: right;
   font-weight: bold;
 }
+
+// pagination
+.pagination-display, .pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .pages-count p {
+        margin: 0;
+        font-size: 0.9rem;
+    }
+}
+
+.left, .right {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.pagination {
+    height: 50px;
+    gap: 1.5rem;
+}
