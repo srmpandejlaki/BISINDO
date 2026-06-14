@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import IconPanahKiri from "../../../assets/icons/carbon_next-filled.svg";
 import IconPanahKanan from "../../../assets/icons/carbon_next-filled-right.svg";
 import { get_dataset_by_id_dataset } from "../utils/data_collection_api";
 import { BASE_URL } from "../../../shared/utils/index-api";
 
 function DetailDataset() {
+  const { idDataset } = useParams();
   const [detailDataset, setDetailDataset] = useState([]);
   const [previewId, setPreviewId] = useState(null);
-  const { idDataset } = useParams();
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  const loadDetailDataset = async (idDataset) => {
+  const loadDetailDataset = async (id) => {
     try {
-      const response = await get_dataset_by_id_dataset(idDataset);
+      const response = await get_dataset_by_id_dataset(id);
       console.log("Detail dataset:", response);
       setDetailDataset(response?.data || []);
     } catch (error) {
@@ -26,13 +26,13 @@ function DetailDataset() {
   };
 
   // Pagination logic
-  const totalPages = Math.ceil(detailDataset.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(detailDataset.length / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = detailDataset.slice(startIndex, startIndex + itemsPerPage);
-
   
-  useEffect(() => {
+  useEffect(() => { 
     if (idDataset) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       loadDetailDataset(idDataset);
     }
   }, [idDataset]);
@@ -55,17 +55,17 @@ function DetailDataset() {
         <tbody>
           {paginatedData.map((dataset, index) => (
             <tr key={index}>
-              <td>{index + 1}</td>
-              <td>{dataset.dataName || dataset.dataFilePath?.split(/[\/\\]/).pop()}</td>
-              <td>{dataset.idLabel}</td>
-              <td>{dataset.sequenceLength}</td>
-              <td>
+              <td className="text-center">{startIndex + index + 1}</td>
+              <td>{dataset.dataName || dataset.dataFilePath?.replace(/\\/g, "/").split("/").pop()}</td>
+              <td className="text-center">{dataset.idLabel}</td>
+              <td className="text-center">{dataset.sequenceLength}</td>
+              <td className="text-center">
                 <button 
                   onClick={() => setPreviewId(dataset.idRawData)}
                   style={{
                     padding: "6px 12px",
-                    // backgroundColor: "#007bff",
-                    color: "#000000",
+                    backgroundColor: "#007bff",
+                    color: "#ffffff",
                     border: "none",
                     borderRadius: "4px",
                     cursor: "pointer",
@@ -73,20 +73,22 @@ function DetailDataset() {
                     fontSize: "0.7rem",
                     transition: "background-color 0.2s"
                   }}
-                  // onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
-                  // onMouseOut={(e) => e.target.style.backgroundColor = "#007bff"}
+                  onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
+                  onMouseOut={(e) => e.target.style.backgroundColor = "#007bff"}
                 >
                   Lihat Preview
                 </button>
               </td>
-              <td></td>
+              <td className="text-center"></td>
             </tr>
           ))}
         </tbody>
       </table>
 
       <div className="pagination-display">
-        <button><a href="/admin/data-collection">Kembali</a></button>
+        <Link to="/admin/data-collection">
+          <button className="back-btn" >Kembali</button>
+        </Link>
         <div className="pagination">
           <div 
             className="left"
@@ -107,7 +109,13 @@ function DetailDataset() {
             {/* <p>Setelahnya</p> */}
             <img src={IconPanahKanan} className="blackIcon" alt="Setelahnya" />
           </div>
-        </div>
+        </div> 
+        <div className="right-section">
+          <div className="total-data">
+            <p className="info-total">Total Data: {detailDataset.length}</p>
+          </div>
+          <button className="download-btn">Download</button>
+        </div>   
       </div>
 
       {previewId && (
@@ -125,7 +133,7 @@ function DetailDataset() {
             zIndex: 1000,
             backdropFilter: "blur(4px)"
           }}
-          onClick={() => setPreviewId(null)}
+          onClick={() => setPreviewId (null)}
         >
           <div 
             style={{
@@ -144,7 +152,7 @@ function DetailDataset() {
           >
             <h3 style={{ color: "#fff", margin: 0, fontSize: "1.2rem", fontWeight: "600" }}>Hand Skeleton Preview</h3>
             <img 
-              src={`${BASE_URL}/datasets/raw-data/${previewId}/preview`} 
+              src={`${BASE_URL}/datasets/raw-data/${previewId}/preview`}
               alt="Hand Skeleton Preview" 
               style={{ 
                 width: "280px", 
@@ -167,8 +175,9 @@ function DetailDataset() {
                 fontSize: "0.9rem",
                 transition: "background-color 0.2s"
               }}
-              onClick={() => setPreviewId(null)}
+              onClick={() => setPreviewId (null)}
               onMouseOver={(e) => e.target.style.backgroundColor = "#c82333"}
+
               onMouseOut={(e) => e.target.style.backgroundColor = "#dc3545"}
             >
               Tutup

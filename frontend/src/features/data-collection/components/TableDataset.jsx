@@ -1,17 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import { delete_dataset } from "../utils/data_collection_api";
 import { NavLink } from "react-router-dom";
 
 function TableDataset({ datasets = [] }) {
-  const [error, setError] = useState(null);
-
   const handleDelete = async (idDataset) => {
     try {
       const response = await delete_dataset(idDataset);
       console.log("Datasets:", response);
     } catch (error) {
       console.error("Error fetching data", error);
-      setError(error);
     }
   };
 
@@ -49,7 +46,7 @@ function TableDataset({ datasets = [] }) {
           ))}
         </tbody>
       </table>
-      <p className="info-total">Total Data: 360</p>
+      <p className="info-total">Total Data: {datasets.length}</p>
     </div>
   )
 }
