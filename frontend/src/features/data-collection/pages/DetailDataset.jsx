@@ -55,7 +55,7 @@ function DetailDataset() {
         <tbody>
           {paginatedData.map((dataset, index) => (
             <tr key={index}>
-              <td className="text-center">{startIndex + index + 1}</td>
+              <td className="text-center">{startIndex + index + 1}.</td>
               <td>{dataset.dataName || dataset.dataFilePath?.replace(/\\/g, "/").split("/").pop()}</td>
               <td className="text-center">{dataset.idLabel}</td>
               <td className="text-center">{dataset.sequenceLength}</td>

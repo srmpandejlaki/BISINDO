@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Float, DateTime
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
@@ -13,13 +13,23 @@ class RatioDataSplit(Base):
     primary_key=True
   )
 
-  trainRatio = Column(Float)
-  testRatio = Column(Float)
-  valRatio = Column(Float)
+  trainRatio = Column(String(99))
+  epochs = Column(String)
+  batchSize = Column(String)
+  learningRate = Column(Float)
+
+  accuracy = Column(Float)
+  precision = Column(Float)
+  recall = Column(Float)
+  f1score = Column(Float)
+
+  bestRatio = Column(Boolean)
+
   createdAt = Column(
     DateTime, 
     server_default=func.now()
   )
+  updatedAt = Column(DateTime)
 
   training = relationship(
     "Training",

@@ -16,6 +16,7 @@ class Dataset(Base):
   totalLabel = Column(Integer)
   totalData = Column(Integer)
   folderPath = Column(String(999))
+  preprocessingResultPath = Column(String(999))
   createdAt = Column(
     DateTime,
     server_default=func.now()
@@ -25,9 +26,8 @@ class Dataset(Base):
     "RawData",
     back_populates="dataset",
   )
-
-  preprocessing_result = relationship(
-    "PreprocessingResult",
-    back_populates="dataset"
-  )
   
+  training = relationship(
+    "Training",
+    back_populates="dataset",
+  )

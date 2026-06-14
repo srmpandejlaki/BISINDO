@@ -1,20 +1,20 @@
-from sqlalchemy import Column, Integer, Float, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, Float, String, JSON, ForeignKey, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
 from app.database.connection import Base
 
 class Training(Base):
-  __tablename__ = "training"
+  __tablename__ = "training_testing"
 
-  idTraining = Column(
+  idTrainingTesting = Column(
     Integer, 
     primary_key=True
   )
 
-  idModel = Column(
+  idDataset = Column(
     Integer, 
-    ForeignKey("model.idModel")
+    ForeignKey("dataset.idDataset")
   )
 
   idRatioDataSplit = Column(
@@ -22,37 +22,48 @@ class Training(Base):
     ForeignKey("ratio_data_split.idRatioDataSplit")
   )
 
-  idParameterTraining = Column(
-    Integer, 
-    ForeignKey("parameter_training.idParameterTraining")
-  )
+  modelName = Column(String(99))
+  
+  LSTMUnits1 = Column(Integer)
+  LSTMUnits2 = Column(Integer)
+  dropout1 = Column(Float)
+  dropout2 = Column(Float)
+  denseUnits = Column(Integer)
+
+  kFold = Column(Integer)
+  epochs = Column(Integer)
+  batchSize = Column(Integer)
+  learningRate = Column(Float)
 
   accuracy = Column(Float)
   precision = Column(Float)
   recall = Column(Float)
   f1score = Column(Float)
+  confusionMatrix = Column(JSON)
+
+  weightedAverage = Column(Float)
+  macroAverage = Column(Float)
+
+  trainLoss = Column(Float)
+  valLoss = Column(Float)
+  
+  mcc = Column(Float)
+  rocAuc = Column(Float)
+
   trainModelPath = Column(String(999))
+
   createdAt = Column(
     DateTime, 
     server_default=func.now()
   )
+  updatedAt = Column(DateTime)
 
-  model = relationship(
-    "Model",
+  dataset = relationship(
+    "Dataset",
     back_populates="training",
   )
 
   ratio_data_split = relationship(
     "RatioDataSplit",
-    back_populates="training",
-  )
-
-  parameter_training = relationship(
-    "ParameterTraining",
-    back_populates="training",
-  )
-
-  evaluation = relationship(
-    "Evaluation",
     back_populates="training",
   )
