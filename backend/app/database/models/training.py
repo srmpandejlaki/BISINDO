@@ -5,9 +5,9 @@ from sqlalchemy.orm import relationship
 from app.database.connection import Base
 
 class Training(Base):
-  __tablename__ = "training_testing"
+  __tablename__ = "training"
 
-  idTrainingTesting = Column(
+  idTraining = Column(
     Integer, 
     primary_key=True
   )
@@ -65,5 +65,10 @@ class Training(Base):
 
   ratio_data_split = relationship(
     "RatioDataSplit",
+    back_populates="training",
+  )
+
+  evaluation = relationship(
+    "Evaluation",
     back_populates="training",
   )
