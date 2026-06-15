@@ -1,8 +1,8 @@
-"""create all table
+"""create tables
 
-Revision ID: cce7cb905e4d
-Revises: 971d97db8462
-Create Date: 2026-06-08 14:09:52.402548
+Revision ID: d712cbe855ac
+Revises: 
+Create Date: 2026-06-16 05:18:08.666327
 
 """
 from typing import Sequence, Union
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'cce7cb905e4d'
-down_revision: Union[str, Sequence[str], None] = '971d97db8462'
+revision: str = 'd712cbe855ac'
+down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -26,6 +26,8 @@ def upgrade() -> None:
     sa.Column('datasetName', sa.String(length=99), nullable=True),
     sa.Column('totalLabel', sa.Integer(), nullable=True),
     sa.Column('totalData', sa.Integer(), nullable=True),
+    sa.Column('folderPath', sa.String(length=999), nullable=True),
+    sa.Column('preprocessingResultPath', sa.String(length=999), nullable=True),
     sa.Column('createdAt', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
     sa.PrimaryKeyConstraint('idDataset')
     )
@@ -34,44 +36,34 @@ def upgrade() -> None:
     sa.Column('labelName', sa.String(length=1), nullable=True),
     sa.PrimaryKeyConstraint('idLabel')
     )
-    op.create_table('model',
-    sa.Column('idModel', sa.Integer(), nullable=False),
-    sa.Column('LSTMUnits1', sa.Integer(), nullable=True),
-    sa.Column('LSTMUnits2', sa.Integer(), nullable=True),
-    sa.Column('dropout1', sa.Float(), nullable=True),
-    sa.Column('dropout2', sa.Float(), nullable=True),
-    sa.Column('denseUnits', sa.Integer(), nullable=True),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
-    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
-    sa.PrimaryKeyConstraint('idModel')
-    )
-    op.create_table('parameter_training',
-    sa.Column('idParameterTraining', sa.Integer(), nullable=False),
-    sa.Column('epochs', sa.Integer(), nullable=True),
-    sa.Column('batchSize', sa.Integer(), nullable=True),
-    sa.Column('learningRate', sa.Float(), nullable=True),
-    sa.PrimaryKeyConstraint('idParameterTraining')
-    )
     op.create_table('ratio_data_split',
     sa.Column('idRatioDataSplit', sa.Integer(), nullable=False),
-    sa.Column('trainRatio', sa.Float(), nullable=True),
-    sa.Column('testRatio', sa.Float(), nullable=True),
-    sa.Column('valRatio', sa.Float(), nullable=True),
+    sa.Column('trainRatio', sa.String(length=99), nullable=True),
+    sa.Column('epochs', sa.String(), nullable=True),
+    sa.Column('batchSize', sa.String(), nullable=True),
+    sa.Column('learningRate', sa.Float(), nullable=True),
+    sa.Column('accuracy', sa.Float(), nullable=True),
+    sa.Column('precision', sa.Float(), nullable=True),
+    sa.Column('recall', sa.Float(), nullable=True),
+    sa.Column('f1score', sa.Float(), nullable=True),
+    sa.Column('bestRatio', sa.Boolean(), nullable=True),
     sa.Column('createdAt', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+    sa.Column('updatedAt', sa.DateTime(), nullable=True),
     sa.PrimaryKeyConstraint('idRatioDataSplit')
     )
-    op.create_table('preprocessing_result',
-    sa.Column('idPreprocessingResult', sa.Integer(), nullable=False),
-    sa.Column('idDataset', sa.Integer(), nullable=True),
-    sa.Column('preprocessingFilePath', sa.String(length=999), nullable=True),
-    sa.Column('createdAt', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.ForeignKeyConstraint(['idDataset'], ['dataset.idDataset'], ),
-    sa.PrimaryKeyConstraint('idPreprocessingResult')
+    op.create_table('user',
+    sa.Column('idUser', sa.Integer(), nullable=False),
+    sa.Column('nameUser', sa.String(length=100), nullable=True),
+    sa.Column('emailUser', sa.String(length=30), nullable=True),
+    sa.Column('passwordUser', sa.String(length=10), nullable=True),
+    sa.Column('createdAt', sa.DateTime(), nullable=True),
+    sa.PrimaryKeyConstraint('idUser')
     )
     op.create_table('raw_data',
     sa.Column('idRawData', sa.Integer(), nullable=False),
     sa.Column('idDataset', sa.Integer(), nullable=True),
     sa.Column('idLabel', sa.Integer(), nullable=True),
+    sa.Column('dataName', sa.String(length=99), nullable=True),
     sa.Column('sequenceLength', sa.Integer(), nullable=True),
     sa.Column('dataFilePath', sa.String(length=999), nullable=True),
     sa.Column('createdAt', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
@@ -81,17 +73,33 @@ def upgrade() -> None:
     )
     op.create_table('training',
     sa.Column('idTraining', sa.Integer(), nullable=False),
-    sa.Column('idModel', sa.Integer(), nullable=True),
+    sa.Column('idDataset', sa.Integer(), nullable=True),
     sa.Column('idRatioDataSplit', sa.Integer(), nullable=True),
-    sa.Column('idParameterTraining', sa.Integer(), nullable=True),
+    sa.Column('modelName', sa.String(length=99), nullable=True),
+    sa.Column('LSTMUnits1', sa.Integer(), nullable=True),
+    sa.Column('LSTMUnits2', sa.Integer(), nullable=True),
+    sa.Column('dropout1', sa.Float(), nullable=True),
+    sa.Column('dropout2', sa.Float(), nullable=True),
+    sa.Column('denseUnits', sa.Integer(), nullable=True),
+    sa.Column('kFold', sa.Integer(), nullable=True),
+    sa.Column('epochs', sa.Integer(), nullable=True),
+    sa.Column('batchSize', sa.Integer(), nullable=True),
+    sa.Column('learningRate', sa.Float(), nullable=True),
     sa.Column('accuracy', sa.Float(), nullable=True),
     sa.Column('precision', sa.Float(), nullable=True),
     sa.Column('recall', sa.Float(), nullable=True),
     sa.Column('f1score', sa.Float(), nullable=True),
+    sa.Column('confusionMatrix', sa.JSON(), nullable=True),
+    sa.Column('weightedAverage', sa.Float(), nullable=True),
+    sa.Column('macroAverage', sa.Float(), nullable=True),
+    sa.Column('trainLoss', sa.Float(), nullable=True),
+    sa.Column('valLoss', sa.Float(), nullable=True),
+    sa.Column('mcc', sa.Float(), nullable=True),
+    sa.Column('rocAuc', sa.Float(), nullable=True),
     sa.Column('trainModelPath', sa.String(length=999), nullable=True),
     sa.Column('createdAt', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.ForeignKeyConstraint(['idModel'], ['model.idModel'], ),
-    sa.ForeignKeyConstraint(['idParameterTraining'], ['parameter_training.idParameterTraining'], ),
+    sa.Column('updatedAt', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['idDataset'], ['dataset.idDataset'], ),
     sa.ForeignKeyConstraint(['idRatioDataSplit'], ['ratio_data_split.idRatioDataSplit'], ),
     sa.PrimaryKeyConstraint('idTraining')
     )
@@ -107,29 +115,17 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['idTraining'], ['training.idTraining'], ),
     sa.PrimaryKeyConstraint('idEvaluation')
     )
-    op.create_table('preprocessing_training',
-    sa.Column('idPreprocessingTraining', sa.Integer(), nullable=False),
-    sa.Column('idPreprocessingResult', sa.Integer(), nullable=True),
-    sa.Column('idTraining', sa.Integer(), nullable=True),
-    sa.Column('createdAt', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-    sa.ForeignKeyConstraint(['idPreprocessingResult'], ['preprocessing_result.idPreprocessingResult'], ),
-    sa.ForeignKeyConstraint(['idTraining'], ['training.idTraining'], ),
-    sa.PrimaryKeyConstraint('idPreprocessingTraining')
-    )
     # ### end Alembic commands ###
 
 
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('preprocessing_training')
     op.drop_table('evaluation')
     op.drop_table('training')
     op.drop_table('raw_data')
-    op.drop_table('preprocessing_result')
+    op.drop_table('user')
     op.drop_table('ratio_data_split')
-    op.drop_table('parameter_training')
-    op.drop_table('model')
     op.drop_table('label')
     op.drop_table('dataset')
     # ### end Alembic commands ###
