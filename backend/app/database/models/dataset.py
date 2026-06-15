@@ -31,8 +31,3 @@ class Dataset(Base):
     "Training",
     back_populates="dataset",
   )
-
-  evaluation = relationship(
-    "Evaluation",
-    back_populates="dataset",
-  )

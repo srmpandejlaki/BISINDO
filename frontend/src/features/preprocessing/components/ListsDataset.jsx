@@ -1,6 +1,6 @@
 import React from "react";
 
-function ListsDataset() {
+function ListsDataset({ datasets = [] }) {
   return (
     <div className="lists-dataset">
       <div className="pengantar">
@@ -17,14 +17,22 @@ function ListsDataset() {
           </tr>
         </thead>
         <tbody>
-          <tr>
-            <td>1</td>
-            <td>Dataset 1</td>
-            <td>100</td>
-            <td>
-              <input type="checkbox" name="dataset" id="dataset1" />
-            </td>
-          </tr>
+          {datasets.length === 0 && (
+            <tr>
+              <td colSpan="5">Tidak ada data</td>
+            </tr>
+          )}
+
+          {datasets.map((dataset, index) => (
+            <tr key={index}>
+              <td>{index + 1}</td>
+              <td>{dataset.datasetName}</td>
+              <td>{dataset.totalData}</td>
+              <td>
+                <input type="checkbox" name="dataset" id="dataset1" />
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>

@@ -5,7 +5,7 @@ import SectionPreview from "../components/SectionPreview";
 import TableLabel from "../components/TableLabel";
 import TableDataset from "../components/TableDataset";
 
-import { get_all_datasets } from "../utils/data_collection_api";
+import { get_all_datasets } from "../../../shared/utils/general_api";
 
 function DataCollection() {
   // useState
