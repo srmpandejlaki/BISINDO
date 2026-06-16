@@ -59,7 +59,7 @@ def print_confusion_matrix(cm, labels):
 # PATH CONFIG
 # =========================================
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_PATH = os.path.join(BASE_DIR, "dataset_processed_v2")
+DATA_PATH = os.path.join(BASE_DIR, "storage/dataset_processed_v2")
 
 MODEL_PATH = os.path.join(BASE_DIR, "app", "ml", "models")
 os.makedirs(MODEL_PATH, exist_ok=True)

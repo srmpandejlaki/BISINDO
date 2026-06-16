@@ -1,11 +1,11 @@
 import React from "react";
 
-function ListsDataset({ datasets = [] }) {
+function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
   return (
     <div className="lists-dataset">
       <div className="pengantar">
-        <h1>Daftar Dataset</h1>
-        <p>Pilih dataset yang ingin belum melakukan preprocessing</p>
+        <h3>Daftar Dataset</h3>
+        <p>Pilih dataset yang ingin dilakukan preprocessing</p>
       </div>
       <table>
         <thead>
@@ -13,7 +13,8 @@ function ListsDataset({ datasets = [] }) {
             <th>No.</th>
             <th>Nama Dataset</th>
             <th>Jumlah Data</th>
-            <th>Pilih Dataset</th>
+            <th>Status</th>
+            <th>Pilih</th>
           </tr>
         </thead>
         <tbody>
@@ -24,12 +25,33 @@ function ListsDataset({ datasets = [] }) {
           )}
 
           {datasets.map((dataset, index) => (
-            <tr key={index}>
+            <tr
+              key={dataset.idDataset}
+              className={selectedDatasetId === dataset.idDataset ? "selected-row" : ""}
+            >
               <td>{index + 1}</td>
               <td>{dataset.datasetName}</td>
               <td>{dataset.totalData}</td>
               <td>
-                <input type="checkbox" name="dataset" id="dataset1" />
+                <span
+                  className={`status-badge ${
+                    dataset.preprocessingResultPath
+                      ? "status-done"
+                      : "status-pending"
+                  }`}
+                >
+                  {dataset.preprocessingResultPath
+                    ? "Sudah diproses"
+                    : "Belum diproses"}
+                </span>
+              </td>
+              <td>
+                <input
+                  type="radio"
+                  name="dataset-select"
+                  checked={selectedDatasetId === dataset.idDataset}
+                  onChange={() => onSelectDataset(dataset.idDataset)}
+                />
               </td>
             </tr>
           ))}

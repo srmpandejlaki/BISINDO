@@ -5,7 +5,7 @@ import os
 # =========================
 # CONFIG
 # =========================
-NPY_PATH = "storage/dataset/A/8.npy"
+NPY_PATH = "storage/dataset_v2/A/1.npy"
 SAVE_DIR = "saved_frames"
 
 os.makedirs(SAVE_DIR, exist_ok=True)
@@ -64,8 +64,13 @@ while True:
 
         for lm in landmarks:
 
-            x = int(lm[0] * WIDTH)
-            y = int(lm[1] * HEIGHT)
+            SCALE = 150
+
+            x = int(lm[0] * SCALE + WIDTH // 2)
+            y = int(lm[1] * SCALE + HEIGHT // 2)
+
+            # x = int(lm[0] * WIDTH)
+            # y = int(lm[1] * HEIGHT)
 
             # mirror seperti kamera depan
             x = WIDTH - x
