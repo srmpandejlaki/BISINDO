@@ -1,8 +1,6 @@
 from sqlalchemy.orm import Session
-from pathlib import Path
 
 import os
-import numpy as np
 
 from app.repositories import DatasetRepository, LabelRepository, RawDataRepository
 from app.database.models import Dataset, Label, RawData
