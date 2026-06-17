@@ -31,38 +31,6 @@ class PreprocessingConfig(BaseModel):
     frame_dropout_prob: float = 0.1
 
 
-# Get all datasets
-@router.get("/")
-def get_all_datasets(db: Session = Depends(get_db)):
-    datasets = preprocessing_service.get_all_datasets(db)
-
-    return {
-        "success": True,
-        "data": datasets
-    }
-
-
-# Get dataset by ID
-@router.get("/{idDataset}")
-def get_dataset_by_id(
-    idDataset: int,
-    db: Session = Depends(get_db)
-):
-    try:
-        dataset = preprocessing_service.get_dataset_by_id(db, idDataset)
-
-        return {
-            "success": True,
-            "data": dataset
-        }
-
-    except ValueError as e:
-        raise HTTPException(
-            status_code=404,
-            detail=str(e)
-        )
-
-
 # Run preprocessing
 @router.post("/{idDataset}/run")
 def run_preprocessing(

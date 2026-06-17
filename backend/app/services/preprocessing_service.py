@@ -13,17 +13,6 @@ class PreprocessingService:
     self.raw_data_repository = RawDataRepository()
     self.label_repository = LabelRepository()
 
-  def get_all_datasets(self, db: Session):
-    return self.dataset_repository.get_all(db)
-
-  def get_dataset_by_id(self, db: Session, idDataset: int):
-    dataset = self.dataset_repository.get_by_id(db, idDataset, Dataset.idDataset)
-
-    if not dataset:
-      raise ValueError("Dataset not found")
-
-    return dataset
-
   def preprocess_dataset(self, db: Session, idDataset: int, config: dict):
     # Get dataset
     dataset = self.dataset_repository.get_by_id(db, idDataset, Dataset.idDataset)

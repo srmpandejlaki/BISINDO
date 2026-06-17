@@ -32,6 +32,7 @@ function PreprocessingPage() {
         setDatasets([]);
       } else {
         setDatasets(response);
+        console.log("Datasets:", response);
       }
     } catch (err) {
       console.error("Error fetching data", err);
