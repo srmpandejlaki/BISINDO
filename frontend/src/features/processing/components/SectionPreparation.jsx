@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 
-function SectionPreparation() {
+function SectionPreparation({ models }) {
+  const [modelType, setModelType] = useState("");
+  const [selectedModel, setSelectedModel] = useState(null);
+
+  console.log("Models:", models);
+
   return (
     <div className="section-preparation">
       <h2>Section Preparation</h2>
@@ -12,19 +17,26 @@ function SectionPreparation() {
         </div>
         <div className="pilih-model">
           <h4>Pemilihan Model</h4>
-          <select name="" id="">
-            <option value="">Model Baru</option>
-            <option value="">Model yang sudah ada</option>
+          <select value={modelType} onChange={(e) => setModelType(e.target.value)}>
+            <option value="new">Model Baru</option>
+            <option value="existing">Model yang sudah ada</option>
           </select>
         </div>
-        <div className="opsi-model">
-          <h4>Opsi Model</h4>
-          <select name="" id="">
-            <option value="">Pilih Model</option>
-            <option value="">ModelLSTM001</option>
-            <option value="">ModelLSTM002</option>
-          </select>
-        </div>
+        {modelType === "existing" && (
+          <div className="opsi-model">
+            <h4>Opsi Model</h4>
+              <select 
+                value={selectedModel} 
+                onChange={(e) => setSelectedModel(e.target.value)}
+              >
+                <option value="">Pilih Model</option>
+                
+                {models.map((model) => (
+                  <option key={model.idTraining} value={model.idTraining}>{model.modelName}</option>
+                ))}
+              </select>
+          </div>
+        )}
       </div>
       <div className="parameter-model">
         <h4>Parameter Model</h4>

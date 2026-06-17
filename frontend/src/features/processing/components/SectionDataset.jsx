@@ -1,6 +1,6 @@
 import React from "react";
 
-function SectionDataset() {
+function SectionDataset({ models }) {
   return (
     <div className="section-dataset">
       <h2>Section Dataset</h2>
@@ -28,17 +28,24 @@ function SectionDataset() {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>Model A</td>
-              <td>2023-01-01</td>
-              <td>95%</td>
-              <td>
-                <button>Detail</button>
-                <button>Edit</button>
-                <button>Delete</button>
-              </td>
-            </tr>
+            {models.length === 0 && (
+              <tr>
+                <td colSpan="5">Tidak ada data</td>
+              </tr>
+            )}
+            {models.map((model, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{model.modelName}</td>
+                <td>{model.createdAt}</td>
+                <td>{model.accuracy}</td>
+                <td>
+                  <button>Detail</button>
+                  <button>Edit</button>
+                  <button>Delete</button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
