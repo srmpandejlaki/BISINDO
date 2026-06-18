@@ -1,0 +1,35 @@
+
+
+.add-ratio-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.add-form, .table-ratio {
+  width: 48%;
+  background-color: #e5e5e5;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .form-ratio {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .input {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  button {
+    align-self: flex-end;
+    padding: 5px;
+  }
+}

@@ -10,17 +10,18 @@
   background-color: #E4E1E1;
   padding: 40px;
   border-radius: 10px;
+  
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
 }
 
 .login-title {
   text-align: center;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
 
 label {
   font-weight: bold;

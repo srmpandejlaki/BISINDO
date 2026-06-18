@@ -4,8 +4,8 @@ function AddRatioSection() {
   return (
     <div className="add-ratio-section">
       <div className="add-form">
-        <h5>Ratio Data Split (train : test)</h5>
-        <form action="">
+        <h3>Ratio Data Split (train : test)</h3>
+        <form className="form-ratio">
           <div className="input">
             <label>Train:</label>
             <input type="number" placeholder="60, 70, 80" />
@@ -18,7 +18,7 @@ function AddRatioSection() {
         <button>Tambah Ratio</button>
       </div>
       <div className="table-ratio">
-        <h5>Tabel Data Split Ratio</h5>
+        <h3>Tabel Data Split Ratio</h3>
         <table>
           <thead>
             <th>Train</th>
