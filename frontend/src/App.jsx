@@ -8,6 +8,7 @@ import DashboardAdmin from "./features/dashboard-admin/pages/DashboardAdmin";
 import DataCollection from "./features/data-collection/pages/DataCollection";
 import DetailDataset from "./features/data-collection/pages/DetailDataset";
 import Preprocessing from "./features/preprocessing/pages/Preprocessing";
+import SplitRatio from "./features/split-ratio/pages/SplitRatio";
 import Processing from "./features/processing/pages/Processing";
 import TestingPage from "./features/testing/pages/Testing";
 import EvaluationPage from "./features/evaluation/pages/Evaluation";
@@ -30,6 +31,7 @@ function App() {
         <Route path="/admin/data-collection/:idDataset/detail_dataset" element={<DetailDataset />} />
         <Route path="/admin/preprocessing" element={<Preprocessing />} />
         <Route path="/admin/processing" element={<Processing />} />
+        <Route path="/admin/processing/ratio" element={<SplitRatio />} />
         <Route path="/admin/testing" element={<TestingPage />} />
         <Route path="/admin/evaluation" element={<EvaluationPage />} />
 
