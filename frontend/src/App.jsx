@@ -1,6 +1,7 @@
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 
 import NavBarAdmin from "./shared/components/base/NavBarAdmin";
+import ProtectedRoute from "./shared/components/ProtectedRoute";
 
 // admin pages
 import LoginPage from "./features/autentication/pages/LoginPage";
@@ -19,28 +20,86 @@ import LearningBisindo from "./features/learning-bisindo/pages/LearningBisindo";
 import TestBisindo from "./features/test-bisindo/pages/TestBisindo";
 
 function App() {
+  const location = useLocation();
+
+  const showAdminNavbar =
+    location.pathname.startsWith("/admin") &&
+    location.pathname !== "/admin/login";
 
   return (
     <main className="App">
-      <NavBarAdmin />
-      <Routes>
-        <Route path="/" element={<Navigate to="/admin/dashboard" />} />
-        <Route path="/admin/login" element={<LoginPage />} />
-        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-        <Route path="/admin/data-collection" element={<DataCollection />} />
-        <Route path="/admin/data-collection/:idDataset/detail_dataset" element={<DetailDataset />} />
-        <Route path="/admin/preprocessing" element={<Preprocessing />} />
-        <Route path="/admin/processing" element={<Processing />} />
-        <Route path="/admin/processing/ratio" element={<SplitRatio />} />
-        <Route path="/admin/testing" element={<TestingPage />} />
-        <Route path="/admin/evaluation" element={<EvaluationPage />} />
+      {showAdminNavbar && <NavBarAdmin />}
 
-        <Route path="/user/dashboard" element={<DashboardUser />} />
-        <Route path="/user/learning-bisindo" element={<LearningBisindo />} />
-        <Route path="/user/test-bisindo" element={<TestBisindo />} />
+      <Routes>
+        {/* Redirect halaman awal */}
+        <Route 
+          path="/" element={<Navigate to="/user/dashboard" replace />}
+        />
+
+        {/* Public Route */}
+        <Route 
+          path="/admin/login" element={<LoginPage />}
+        />
+
+        {/* User Route (bebas diakses) */}
+        <Route 
+          path="/user/dashboard" element={<DashboardUser />}
+        />
+        <Route 
+          path="/user/learning-bisindo" element={<LearningBisindo />}
+        />
+        <Route 
+          path="/user/test-bisindo" element={<TestBisindo />} 
+        />
+
+        {/* Protected Admin Route */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+
+          <Route
+            path="/admin/data-collection"
+            element={<DataCollection />}
+          />
+
+          <Route
+            path="/admin/data-collection/:idDataset/detail_dataset"
+            element={<DetailDataset />}
+          />
+
+          <Route
+            path="/admin/preprocessing"
+            element={<Preprocessing />}
+          />
+
+          <Route
+            path="/admin/processing"
+            element={<Processing />}
+          />
+
+          <Route
+            path="/admin/processing/ratio"
+            element={<SplitRatio />}
+          />
+
+          <Route
+            path="/admin/testing"
+            element={<TestingPage />}
+          />
+
+          <Route
+            path="/admin/evaluation"
+            element={<EvaluationPage />}
+          />
+        </Route>
+
+        {/* Route tidak ditemukan */}
+        <Route
+          path="*"
+          element={<Navigate to="/user/dashboard" replace />}
+        />
       </Routes>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -4,6 +4,7 @@ from .raw_data_repository import RawDataRepository
 from .dataset_repository import DatasetRepository
 from .training_repository import TrainingRepository
 from .ratio_data_repository import RatioDataRepository
+from .user_repository import UserRepository
 
 __all__=[
   "BaseRepository",
@@ -11,5 +12,6 @@ __all__=[
   "RawDataRepository", 
   "DatasetRepository",
   "TrainingRepository",
-  "RatioDataRepository"
+  "RatioDataRepository",
+  "UserRepository"
 ]

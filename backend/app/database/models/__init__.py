@@ -4,7 +4,7 @@ from .label import Label
 from .ratio_data_split import RatioDataSplit
 from .raw_data import RawData
 from .training import Training
-from .user import User
+from .user import Admin
 
 
 __all__ = [
@@ -14,5 +14,5 @@ __all__ = [
   "RatioDataSplit",
   "RawData",
   "Training",
-  "User"
+  "Admin"
 ]
