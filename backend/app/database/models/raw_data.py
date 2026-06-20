@@ -24,7 +24,8 @@ class RawData(Base):
   sequenceLength = Column(Integer)
   dataFilePath = Column(String(999))
   createdAt = Column(
-    DateTime,
+    DateTime(timezone=True),
+    nullable=False,
     server_default=func.now()
   )
 

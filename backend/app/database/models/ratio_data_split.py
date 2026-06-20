@@ -26,9 +26,17 @@ class RatioDataSplit(Base):
   bestRatio = Column(Boolean)
 
   createdAt = Column(
-    DateTime, 
+    DateTime(timezone=True),
+    nullable=False,
     server_default=func.now()
   )
+  updatedAt = Column(
+    DateTime(timezone=True),
+    nullable=False,
+    server_default=func.now(),
+    onupdate=func.now()
+  )
+  
   updatedAt = Column(DateTime)
 
   training = relationship(

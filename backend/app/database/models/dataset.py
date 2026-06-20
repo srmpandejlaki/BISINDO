@@ -19,6 +19,7 @@ class Dataset(Base):
   preprocessingResultPath = Column(String(999))
   createdAt = Column(
     DateTime,
+    nullable=False,
     server_default=func.now()
   )
 

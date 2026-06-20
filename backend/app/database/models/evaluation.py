@@ -24,6 +24,7 @@ class Evaluation(Base):
   confusionMatrix = Column(JSON)
   createdAt = Column(
     DateTime, 
+    nullable=False,
     server_default=func.now()
   )
 

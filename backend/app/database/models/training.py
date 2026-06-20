@@ -53,10 +53,16 @@ class Training(Base):
   trainModelPath = Column(String(999))
 
   createdAt = Column(
-    DateTime, 
+    DateTime(timezone=True),
+    nullable=False,
     server_default=func.now()
   )
-  updatedAt = Column(DateTime)
+  updatedAt = Column(
+    DateTime(timezone=True),
+    nullable=False,
+    server_default=func.now(),
+    onupdate=func.now()
+  )
 
   dataset = relationship(
     "Dataset",
