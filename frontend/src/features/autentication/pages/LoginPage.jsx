@@ -1,6 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
+import { login } from "../utils/login_api";
 
 function LoginPage() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await login(username, password);
+      console.log("Login successful:", response);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
+
   return (
     <div className="login-page">
       <div className="login-title">
@@ -8,10 +22,10 @@ function LoginPage() {
         <p>Masuk sebagai Admin</p>
       </div>
       {/* Form login akan ditempatkan di sini */}
-      <form>
-        <input type="email" placeholder="Email" />
-        <input type="password" placeholder="Password" />
-        <button type="submit">Masuk</button>
+      <form onSubmit={handleLogin}>
+        <input type="text" placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
+        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+        <button type="submit" >Masuk</button>
       </form>
     </div>
   )

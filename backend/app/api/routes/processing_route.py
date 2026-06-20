@@ -58,26 +58,26 @@ def get_best_ratio(
   }
 
 # POST start training
-@router.post("/start-training/")
-def start_training(
-  db: Session = Depends(get_db),
-  dataset_path: str,
-  lstm_units1: int,
-  lstm_units2: int,
-  dropout1: float,
-  dropout2: float,
-  dense_units: int,
-  epochs: int,
-  batch_size: int,
-  learning_rate: float
-):
+# @router.post("/start-training/")
+# def start_training(
+#   db: Session = Depends(get_db),
+#   dataset_path: str,
+#   lstm_units1: int,
+#   lstm_units2: int,
+#   dropout1: float,
+#   dropout2: float,
+#   dense_units: int,
+#   epochs: int,
+#   batch_size: int,
+#   learning_rate: float
+# ):
 
-  processing_service.start_training(
-    db, dataset_path, 
-    lstm_units1, lstm_units2, dropout1, dropout2, dense_units, 
-    epochs, batch_size, learning_rate
-  )
+#   processing_service.start_training(
+#     db, dataset_path, 
+#     lstm_units1, lstm_units2, dropout1, dropout2, dense_units, 
+#     epochs, batch_size, learning_rate
+#   )
 
-  return {
-    "success": True
-  }
+#   return {
+#     "success": True
+#   }
