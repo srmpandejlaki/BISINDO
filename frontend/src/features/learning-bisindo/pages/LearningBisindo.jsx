@@ -1,50 +1,60 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-
-import AlfabetA from "@/assets/alfabet-img/alfabet-bisindo-a.png";
-import AlfabetB from "@/assets/alfabet-img/alfabet-bisindo-b.png";
-import AlfabetC from "@/assets/alfabet-img/alfabet-bisindo-c.png";
+import bisindoMaterials from "../utils/bisindo-materials";
 
 function LearningBisindo() {
+  const [openDetail, setOpenDetail] = useState(null);
+
   return (
     <div className="content learning-bisindo-page">
-      <div className="head-page">
-        <NavLink to="/user/dashboard">
-          <button>Kembali</button>
-        </NavLink>
-        <p>Belajar Alfabet BISINDO (Bahasa Isyarat Indonesia)</p>
+      <div className="learning-content" >
+        <div className="head-page">
+          <NavLink to="/user/dashboard">
+            <button>Kembali</button>
+          </NavLink>
+          <p>Belajar Alfabet BISINDO (Bahasa Isyarat Indonesia)</p>
+        </div>
+
+        <div className="alfabet-items">
+          {bisindoMaterials.map((item) => (
+            <div className="alfabet-item" key={item.id} onClick={() => setOpenDetail(item)} >
+              <div className="alfabet-img">
+                <img src={item.img} alt={item.alfabet} />
+              </div>
+              <div className="alfabet-name">{item.alfabet}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="alfabet-lists">
-        <div className="alfabet-item">
-          <div className="alfabet-img">
-            <img src={AlfabetA} alt="" />
+      {openDetail && (
+        <div className="detail-alfabet">
+          <button
+            className="close-btn"
+            onClick={() => setOpenDetail(null)}
+          >
+            ✕
+          </button>
+
+          <div className="video-alfabet">
+            {openDetail.video && (
+              <video controls>
+                <source
+                  src={openDetail.video}
+                  type="video/mp4"
+                />
+              </video>
+            )}
           </div>
-          <div className="alfabet-name">A</div>
-        </div>
-        <div className="alfabet-item">
-          <div className="alfabet-img">
-            <img src={AlfabetB} alt="" />
+
+          <div className="deskripsi-alfabet">
+            <p>Deskripsi Alfabet {openDetail.alfabet}</p>
+            <p>{openDetail.desc}</p>
           </div>
-          <div className="alfabet-name">B</div>
         </div>
-        <div className="alfabet-item">
-          <div className="alfabet-img">
-            <img src={AlfabetC} alt="" />
-          </div>
-          <div className="alfabet-name">C</div>
-        </div>
-        <div className="alfabet-item">
-          <div className="alfabet-img"></div>
-          <div className="alfabet-name">D</div>
-        </div>
-        <div className="alfabet-item">
-          <div className="alfabet-img"></div>
-          <div className="alfabet-name">E</div>
-        </div>
-      </div>
+      )}
     </div>
-  )
-};
+  );
+}
 
 export default LearningBisindo;

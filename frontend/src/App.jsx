@@ -1,7 +1,9 @@
-import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 
-import NavBarAdmin from "./shared/components/base/NavBarAdmin";
 import ProtectedRoute from "./shared/components/ProtectedRoute";
+
+import AdminLayout from "./shared/layouts/AdminLayout";
+import UserLayout from "./shared/layouts/UserLayout";
 
 // admin pages
 import LoginPage from "./features/autentication/pages/LoginPage";
@@ -20,85 +22,42 @@ import LearningBisindo from "./features/learning-bisindo/pages/LearningBisindo";
 import TestBisindo from "./features/test-bisindo/pages/TestBisindo";
 
 function App() {
-  const location = useLocation();
-
-  const showAdminNavbar =
-    location.pathname.startsWith("/admin") &&
-    location.pathname !== "/admin/login";
-
   return (
-    <main className="App">
-      {showAdminNavbar && <NavBarAdmin />}
+    <Routes>
+      <Route path="/" element={<Navigate to="/user/dashboard" replace />} />
 
-      <Routes>
-        {/* Redirect halaman awal */}
-        <Route 
-          path="/" element={<Navigate to="/user/dashboard" replace />}
-        />
+      {/* Login */}
+      <Route path="/admin/login" element={<LoginPage />} />
 
-        {/* Public Route */}
-        <Route 
-          path="/admin/login" element={<LoginPage />}
-        />
+      {/* User Layout */}
+      <Route element={<UserLayout />}>
+        <Route path="/user/dashboard" element={<DashboardUser />} />
+        <Route path="/user/learning-bisindo" element={<LearningBisindo />} />
+        <Route path="/user/test-bisindo" element={<TestBisindo />} />
+      </Route>
 
-        {/* User Route (bebas diakses) */}
-        <Route 
-          path="/user/dashboard" element={<DashboardUser />}
-        />
-        <Route 
-          path="/user/learning-bisindo" element={<LearningBisindo />}
-        />
-        <Route 
-          path="/user/test-bisindo" element={<TestBisindo />} 
-        />
-
-        {/* Protected Admin Route */}
-        <Route element={<ProtectedRoute />}>
+      {/* Admin Layout */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AdminLayout />}>
           <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-
-          <Route
-            path="/admin/data-collection"
-            element={<DataCollection />}
-          />
-
+          <Route path="/admin/data-collection" element={<DataCollection />} />
           <Route
             path="/admin/data-collection/:idDataset/detail_dataset"
             element={<DetailDataset />}
           />
-
-          <Route
-            path="/admin/preprocessing"
-            element={<Preprocessing />}
-          />
-
-          <Route
-            path="/admin/processing"
-            element={<Processing />}
-          />
-
-          <Route
-            path="/admin/processing/ratio"
-            element={<SplitRatio />}
-          />
-
-          <Route
-            path="/admin/testing"
-            element={<TestingPage />}
-          />
-
-          <Route
-            path="/admin/evaluation"
-            element={<EvaluationPage />}
-          />
+          <Route path="/admin/preprocessing" element={<Preprocessing />} />
+          <Route path="/admin/processing" element={<Processing />} />
+          <Route path="/admin/processing/ratio" element={<SplitRatio />} />
+          <Route path="/admin/testing" element={<TestingPage />} />
+          <Route path="/admin/evaluation" element={<EvaluationPage />} />
         </Route>
+      </Route>
 
-        {/* Route tidak ditemukan */}
-        <Route
-          path="*"
-          element={<Navigate to="/user/dashboard" replace />}
-        />
-      </Routes>
-    </main>
+      <Route
+        path="*"
+        element={<Navigate to="/user/dashboard" replace />}
+      />
+    </Routes>
   );
 }
 
