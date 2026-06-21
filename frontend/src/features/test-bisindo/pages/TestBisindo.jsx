@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {  useState, useEffect, useRef } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import words from "../utils/words";
 
@@ -6,6 +6,59 @@ function TestBisindo() {
   const location = useLocation();
   const level = location.state?.level || 1;
 
+  const videoRef = useRef(null);
+  const [cameraActive, setCameraActive] = useState(false);
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [score, setScore] = useState(0);
+
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false,
+      });
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+
+      setCameraActive(true);
+    } catch (error) {
+      console.error("Gagal mengakses kamera:", error);
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      const tracks = videoRef.current.srcObject.getTracks();
+
+      tracks.forEach((track) => track.stop());
+
+      videoRef.current.srcObject = null;
+    }
+
+    setCameraActive(false);
+  };
+
+  const toggleCamera = () => {
+    if (cameraActive) {
+      stopCamera();
+    } else {
+      startCamera();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (videoRef.current?.srcObject) {
+        const tracks = videoRef.current.srcObject.getTracks();
+
+        tracks.forEach((track) => track.stop());
+      }
+    };
+  }, []);
+  
   const generateWord = (lvl) => {
     const levelKey = `level${lvl}`;
 
@@ -20,10 +73,6 @@ function TestBisindo() {
   const [targetWord, setTargetWord] = useState(() =>
     generateWord(level)
   );
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
-
   const handleNewQuestion = () => {
     setTargetWord(generateWord(level));
     setCurrentIndex(0);
@@ -46,8 +95,24 @@ function TestBisindo() {
           <div className="camera-section">
             <h3>Tampilan Kamera</h3>
 
-            <div className="camera-placeholder">
-              Kamera akan muncul di sini
+            <div className="camera-container">
+              {!cameraActive && (
+                <div className="camera-placeholder">
+                  Kamera Belum Aktif
+                </div>
+              )}
+
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
+                style={{
+                  display: cameraActive
+                    ? "block"
+                    : "none",
+                }}
+              />
             </div>
           </div>
 
@@ -98,7 +163,11 @@ function TestBisindo() {
               Soal Baru
             </button>
 
-            <button>Mulai Tes</button>
+            <button onClick={toggleCamera}>
+              {cameraActive
+                ? "Matikan Kamera"
+                : "Aktifkan Kamera"}
+            </button>
           </div>
         </div>
       </div>
