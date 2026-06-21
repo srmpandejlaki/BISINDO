@@ -1,7 +1,9 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate  } from "react-router-dom";
 
 function DashboardUser() {
+const navigate = useNavigate();
+
   return (
     <div className="content dashboard-user">
       <div className="pengantar">
@@ -14,12 +16,49 @@ function DashboardUser() {
           <p>Belajar Alfabet BISINDO (Bahasa Isyarat Indonesia)</p>
         </div>
       </NavLink>
-      <NavLink to="/user/test-bisindo">
+      <div className="test-bisindo">
         <div className="test-bisindo-card">
           <h3>Test Bisindo</h3>
           <p>Uji Alfabet BISINDO (Bahasa Isyarat Indonesia)</p>
         </div>
-      </NavLink>
+        <div className="button-levels">
+          <button
+            onClick={() =>
+              navigate("/user/test-bisindo", {
+                state: {
+                  level: 1
+                }
+              })
+            }
+          >
+            Level 1
+          </button>
+
+          <button
+            onClick={() =>
+              navigate("/user/test-bisindo", {
+                state: {
+                  level: 2
+                }
+              })
+            }
+          >
+            Level 2
+          </button>
+
+          <button
+            onClick={() =>
+              navigate("/user/test-bisindo", {
+                state: {
+                  level: 3
+                }
+              })
+            }
+          >
+            Level 3
+          </button>
+        </div>
+      </div>
     </div>
   );
 } 
