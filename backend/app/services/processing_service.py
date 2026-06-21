@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 import os
 
 from app.repositories import TrainingRepository, LabelRepository, RatioDataRepository
-from app.database.models import Training, Label
+from app.database.models import Training, Label, RatioDataSplit
+
+from app.schemas.processing_schemas import AddRatio
 
 from app.ml.processing.training_dataset import TrainingDataset
 
@@ -19,6 +21,16 @@ class ProcessingService:
   # Ratio Data
   def get_all_ratio(self, db: Session):
     return self.ratio_repository.get_all(db)
+  
+  def add_ratio(self, db: Session, ratio_data: AddRatio):
+    db_ratio = RatioDataSplit(
+        trainRatio=ratio_data.trainRatio,
+        # bestRatio=False # opsional, bisa set default
+    )
+    return self.ratio_repository.create(db, db_ratio)
+
+  def delete_ratio(self, db: Session, idRatioDataSplit: int):
+    return self.ratio_repository.delete(db, idRatioDataSplit)
   
   def get_best_ratio(self, db: Session):
     return self.ratio_repository.get_by_best_ratio(db, True)

@@ -1,6 +1,7 @@
 import React from "react";
 import AddRatioSection from "../components/AddRatio";
 import ParameterTest from "../components/ParameterTest";
+import ResultRatio from "../components/ResultRatio";
 
 function SplitRatio() {
   return (
@@ -11,6 +12,7 @@ function SplitRatio() {
         <h3>Pengujian Ratio Data Split</h3>
         <ParameterTest />
       </div>
+      <ResultRatio />
     </div>
   );
 }

@@ -1,42 +1,168 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { add_ratio, get_all_ratio, delete_ratio } from "../utils/split_ratio_api";
 
 function AddRatioSection() {
+  const [trainVal, setTrainVal] = useState("");
+  const [testVal, setTestVal] = useState("");
+  const [ratios, setRatios] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Ambil semua ratio dari backend saat komponen dimuat
+  const fetchRatios = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await get_all_ratio();
+      if (response && response.success) {
+        setRatios(response.data);
+      } else {
+        setError("Gagal memuat data ratio.");
+      }
+    } catch (err) {
+      setError("Terjadi kesalahan koneksi ke server.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRatios();
+  }, []);
+
+  // Handler untuk menambah ratio
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if (!trainVal || !testVal) {
+      alert("Mohon isi nilai Train dan Test!");
+      return;
+    }
+
+    const trainNum = parseInt(trainVal);
+    const testNum = parseInt(testVal);
+    
+    // Validasi opsional agar total input berjumlah 100%
+    if (trainNum + testNum !== 100) {
+      const confirmAdd = window.confirm("Jumlah Train + Test tidak sama dengan 100. Tetap tambahkan?");
+      if (!confirmAdd) return;
+    }
+
+    const ratioString = `${trainVal}:${testVal}`; // Format tersimpan 80:20
+    try {
+      const result = await add_ratio({ trainRatio: ratioString });
+      if (result && result.success) {
+        setTrainVal("");
+        setTestVal("");
+        fetchRatios(); // Refresh tabel setelah berhasil menambahkan
+      } else {
+        alert("Gagal menambahkan ratio.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan saat menghubungi server.");
+    }
+  };
+
+  // Handler untuk menghapus ratio
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus ratio ini?");
+    if (!confirmDelete) return;
+
+    try {
+      const result = await delete_ratio(id);
+      if (result && result.success) {
+        // Hapus dari state lokal secara langsung agar UI responsif
+        setRatios(ratios.filter((item) => item.idRatioDataSplit !== id));
+      } else {
+        alert("Gagal menghapus ratio.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Terjadi kesalahan saat menghapus ratio.");
+    }
+  };
+
   return (
     <div className="add-ratio-section">
       <div className="add-form">
         <h3>Ratio Data Split (train : test)</h3>
-        <form className="form-ratio">
+        <form className="form-ratio" onSubmit={handleAdd}>
           <div className="input">
             <label>Train:</label>
-            <input type="number" placeholder="60, 70, 80" />
+            <input
+              type="number"
+              placeholder="60, 70, 80"
+              value={trainVal}
+              onChange={(e) => setTrainVal(e.target.value)}
+              min="0"
+              max="100"
+              required
+            />
           </div>
           <div className="input">
             <label>Test:</label>
-            <input type="number" placeholder="40, 30, 20" />
+            <input
+              type="number"
+              placeholder="40, 30, 20"
+              value={testVal}
+              onChange={(e) => setTestVal(e.target.value)}
+              min="0"
+              max="100"
+              required
+            />
           </div>
+          <button type="submit">Tambah Ratio</button>
         </form>
-        <button>Tambah Ratio</button>
       </div>
+
       <div className="table-ratio">
         <h3>Tabel Data Split Ratio</h3>
-        <table>
-          <thead>
-            <th>Train</th>
-            <th>Test</th>
-            <th>Best Ratio</th>
-            <th>Action</th>
-          </thead>
-          <tbody>
-            <tr>
-              <td>80</td>
-              <td>20</td>
-              <td></td>
-              <td>
-                <button>Hapus</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        {loading ? (
+          <p>Memuat data ratio...</p>
+        ) : error ? (
+          <p className="error-message" style={{ color: "red" }}>{error}</p>
+        ) : (
+          <table>
+            <thead>
+              <tr>
+                <th>Train</th>
+                <th>Test</th>
+                <th>Best Ratio</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ratios.length > 0 ? (
+                ratios.map((item) => {
+                  // Pisahkan format string "80:20" menjadi 80 dan 20
+                  const parts = item.trainRatio ? item.trainRatio.split(":") : [];
+                  const train = parts[0] || item.trainRatio;
+                  const test = parts[1] || "";
+
+                  return (
+                    <tr key={item.idRatioDataSplit}>
+                      <td>{train}</td>
+                      <td>{test}</td>
+                      <td>{item.bestRatio ? "⭐" : "-"}</td>
+                      <td>
+                        <button onClick={() => handleDelete(item.idRatioDataSplit)}>
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center" }}>
+                    Tidak ada data ratio
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

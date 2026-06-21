@@ -4,6 +4,12 @@ from app.repositories import BaseRepository
 class RatioDataRepository(BaseRepository):
   def __init__(self):
     super().__init__(RatioDataSplit)
+
+  def create(self, db, ratioDataSplit: RatioDataSplit):
+    db.add(ratioDataSplit)
+    db.commit()
+    db.refresh(ratioDataSplit)
+    return ratioDataSplit
   
   def get_by_best_ratio(self, db, bestRatio: bool):
     return (
