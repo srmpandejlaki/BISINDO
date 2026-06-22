@@ -1,8 +1,17 @@
 import React from "react";
 
-function ResultRatio({ ratios, liveProgress, testingStatus, currentRatioTesting }) {
+function ResultRatio({ ratios, liveProgress, testingStatus, currentRatioTesting, currentEpochsConfig }) {
   const testedRatios = ratios.filter((item) => item.accuracy !== null && item.accuracy !== undefined);
   const bestRatioItem = ratios.find((item) => item.bestRatio === true);
+
+  let numEpochs = 0;
+  if (testingStatus === "testing" && currentEpochsConfig) {
+    numEpochs = currentEpochsConfig;
+  } else if (testedRatios.length > 0) {
+    numEpochs = parseInt(testedRatios[0].epochs) || 1;
+  } else {
+    numEpochs = 10;
+  }
 
   return (
     <div className="result-ratio-section" >
@@ -90,54 +99,67 @@ function ResultRatio({ ratios, liveProgress, testingStatus, currentRatioTesting 
           <tbody>
             {testedRatios.length > 0 ? (
               <>
-                {/* Row 1: Epoch 1 */}
-                <tr className="text-center">
-                  <td>1</td>
-                  {/* Accuracy Epoch 1 */}
-                  {testedRatios.map(r => {
-                    const logs = liveProgress[r.trainRatio] || [];
-                    const valAcc = logs[0]?.val_accuracy;
-                    return <td key={`acc-1-${r.idRatioDataSplit}`}>{valAcc !== undefined ? `${(valAcc * 100).toFixed(0)}%` : "-"}</td>;
-                  })}
-                  {/* Precision Epoch 1 (Keras only calculates valAcc/valLoss per epoch) */}
-                  {testedRatios.map(r => <td key={`pre-1-${r.idRatioDataSplit}`} >-</td>)}
-                  {/* Recall Epoch 1 */}
-                  {testedRatios.map(r => <td key={`rec-1-${r.idRatioDataSplit}`} >-</td>)}
-                  {/* F1 Epoch 1 */}
-                  {testedRatios.map(r => <td key={`f1-1-${r.idRatioDataSplit}`} >-</td>)}
-                </tr>
+                {Array.from({ length: numEpochs }, (_, i) => {
+                  const epochNum = i + 1;
+                  return (
+                    <tr key={`epoch-${epochNum}`} className="text-center">
+                      <td>{epochNum}</td>
+                      {/* Accuracy per ratio */}
+                      {testedRatios.map((r) => {
+                        const logs = liveProgress[r.trainRatio] || [];
+                        const valAcc = logs.find((l) => l.epoch === epochNum)?.val_accuracy;
+                        return (
+                          <td key={`acc-${epochNum}-${r.idRatioDataSplit}`}>
+                            {valAcc !== undefined ? `${(valAcc * 100).toFixed(0)}%` : "-"}
+                          </td>
+                        );
+                      })}
+                      {/* Precision per ratio */}
+                      {testedRatios.map((r) => (
+                        <td key={`pre-${epochNum}-${r.idRatioDataSplit}`}>-</td>
+                      ))}
+                      {/* Recall per ratio */}
+                      {testedRatios.map((r) => (
+                        <td key={`rec-${epochNum}-${r.idRatioDataSplit}`}>-</td>
+                      ))}
+                      {/* F1-Score per ratio */}
+                      {testedRatios.map((r) => (
+                        <td key={`f1-${epochNum}-${r.idRatioDataSplit}`}>-</td>
+                      ))}
+                    </tr>
+                  );
+                })}
 
-                {/* Row 2: Epoch 2 dst. */}
+                {/* Average (Final Evaluation metrics from DB) */}
                 <tr className="text-center">
-                  <td>2 dst.</td>
-                  {/* Accuracy Epoch 2 dst. (last epoch val accuracy) */}
-                  {testedRatios.map(r => {
-                    const logs = liveProgress[r.trainRatio] || [];
-                    if (logs.length > 1) {
-                      const lastValAcc = logs[logs.length - 1]?.val_accuracy;
-                      return <td key={`acc-2-${r.idRatioDataSplit}`} >{lastValAcc !== undefined ? `${(lastValAcc * 100).toFixed(0)}%` : "-"}</td>;
-                    }
-                    return <td key={`acc-2-${r.idRatioDataSplit}`} >-</td>;
-                  })}
-                  {/* Precision Epoch 2 dst. */}
-                  {testedRatios.map(r => <td key={`pre-2-${r.idRatioDataSplit}`} >-</td>)}
-                  {/* Recall Epoch 2 dst. */}
-                  {testedRatios.map(r => <td key={`rec-2-${r.idRatioDataSplit}`} >-</td>)}
-                  {/* F1 Epoch 2 dst. */}
-                  {testedRatios.map(r => <td key={`f1-2-${r.idRatioDataSplit}`} >-</td>)}
-                </tr>
-
-                {/* Row 3: Average (Final Evaluation metrics from DB) */}
-                <tr className="text-center">
-                  <td >Average</td>
+                  <td>Average</td>
                   {/* Final Accuracy */}
-                  {testedRatios.map(r => <td key={`acc-avg-${r.idRatioDataSplit}`} style={{  color: r.bestRatio ? "#dd6b20" : "inherit" }}>{r.accuracy !== null ? `${(r.accuracy * 100).toFixed(0)}%` : "-"}</td>)}
+                  {testedRatios.map((r) => (
+                    <td
+                      key={`acc-avg-${r.idRatioDataSplit}`}
+                      style={{ color: r.bestRatio ? "#dd6b20" : "inherit" }}
+                    >
+                      {r.accuracy !== null ? `${(r.accuracy * 100).toFixed(0)}%` : "-"}
+                    </td>
+                  ))}
                   {/* Final Precision */}
-                  {testedRatios.map(r => <td key={`pre-avg-${r.idRatioDataSplit}`} >{r.precision !== null ? `${(r.precision * 100).toFixed(0)}%` : "-"}</td>)}
+                  {testedRatios.map((r) => (
+                    <td key={`pre-avg-${r.idRatioDataSplit}`}>
+                      {r.precision !== null ? `${(r.precision * 100).toFixed(0)}%` : "-"}
+                    </td>
+                  ))}
                   {/* Final Recall */}
-                  {testedRatios.map(r => <td key={`rec-avg-${r.idRatioDataSplit}`} >{r.recall !== null ? `${(r.recall * 100).toFixed(0)}%` : "-"}</td>)}
+                  {testedRatios.map((r) => (
+                    <td key={`rec-avg-${r.idRatioDataSplit}`}>
+                      {r.recall !== null ? `${(r.recall * 100).toFixed(0)}%` : "-"}
+                    </td>
+                  ))}
                   {/* Final F1-Score */}
-                  {testedRatios.map(r => <td key={`f1-avg-${r.idRatioDataSplit}`} >{r.f1score !== null ? `${(r.f1score * 100).toFixed(0)}%` : "-"}</td>)}
+                  {testedRatios.map((r) => (
+                    <td key={`f1-avg-${r.idRatioDataSplit}`}>
+                      {r.f1score !== null ? `${(r.f1score * 100).toFixed(0)}%` : "-"}
+                    </td>
+                  ))}
                 </tr>
               </>
             ) : (

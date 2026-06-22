@@ -5,6 +5,6 @@ class AddRatio(BaseModel):
   trainRatio: str
 
 class TestRatiosConfig(BaseModel):
-  epochs: int = 50
-  batch_size: int = 16
-  learning_rate: float = 0.001
+  epochs: int
+  batch_size: int
+  learning_rate: float

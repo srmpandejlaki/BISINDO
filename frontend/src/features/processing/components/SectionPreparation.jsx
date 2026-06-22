@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-function SectionPreparation({ models }) {
+function SectionPreparation({ models, bestRatio }) {
   const [modelType, setModelType] = useState("");
   const [selectedModel, setSelectedModel] = useState(null);
 
@@ -12,7 +12,7 @@ function SectionPreparation({ models }) {
       <div className="split-data">
         <h4>Split Data</h4>
         <p>training menggunakan rasio terbaik</p>
-        <p className="split-rasio">80:20</p>
+        <p className="split-rasio">{bestRatio?.trainRatio || "Belum ditentukan"}</p>
       </div>
       <div className="pilih-model">
         <h4>Pemilihan Model</h4>

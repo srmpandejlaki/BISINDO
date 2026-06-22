@@ -1,16 +1,11 @@
 import React from "react";
 
-function SectionDataset({ models }) {
+function SectionDataset({ models, bestRatio }) {
   return (
     <div className="section-dataset">
       <h2>Section Dataset</h2>
       <div className="option-rasio">
-        <label htmlFor="ratio">Ratio:</label>
-        <select name="" id="">
-          <option value="">80:20</option>
-          <option value="">70:30</option>
-          <option value="">60:40</option>
-        </select>
+        <label htmlFor="ratio">Ratio: {bestRatio?.trainRatio || "Belum ditentukan"}</label>
       </div>
       <div className="search-data">
         <input type="text" placeholder="Search data..." />

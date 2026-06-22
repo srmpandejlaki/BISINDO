@@ -28,9 +28,6 @@ class ProcessingService:
         # bestRatio=False # opsional, bisa set default
     )
     return self.ratio_repository.create(db, db_ratio)
-
-  def delete_ratio(self, db: Session, idRatioDataSplit: int):
-    return self.ratio_repository.delete(db, idRatioDataSplit)
   
   def get_best_ratio(self, db: Session):
     return self.ratio_repository.get_by_best_ratio(db, True)
@@ -52,23 +49,28 @@ class ProcessingService:
       learning_rate
   ):
       bestRatio = self.ratio_repository.get_by_best_ratio(db, True)
+      test_size = 0.2
+      if bestRatio and bestRatio.trainRatio:
+          try:
+              parts = bestRatio.trainRatio.split(":")
+              if len(parts) == 2:
+                  train_val = float(parts[0])
+                  test_val = float(parts[1])
+                  test_size = test_val / (train_val + test_val)
+          except Exception:
+              pass
 
       trainer = TrainingDataset(
           dataset_path=dataset_path,
-          bestRatio=bestRatio,
-
           lstm_units1=lstm_units1,
           lstm_units2=lstm_units2,
-
           dropout1=dropout1,
           dropout2=dropout2,
-
           dense_units=dense_units,
-
           epochs=epochs,
           batch_size=batch_size,
-
-          learning_rate=learning_rate
+          learning_rate=learning_rate,
+          test_size=test_size
       )
 
       return trainer.train()
@@ -89,16 +91,18 @@ class ProcessingService:
       q = queue.Queue()
       
       def run_training():
+          from app.database.connection import SessionLocal
+          thread_db = SessionLocal()
           try:
               # 1. Get all ratios
-              ratios = self.ratio_repository.get_all(db)
+              ratios = thread_db.query(RatioDataSplit).all()
               if not ratios:
                   q.put({"type": "error", "message": "Tidak ada split ratio terdaftar. Tambahkan ratio terlebih dahulu."})
                   q.put({"type": "done"})
                   return
                   
               # 2. Get latest dataset with preprocessingResultPath
-              dataset = db.query(Dataset).filter(Dataset.preprocessingResultPath != None).order_by(Dataset.idDataset.desc()).first()
+              dataset = thread_db.query(Dataset).filter(Dataset.preprocessingResultPath != None).order_by(Dataset.idDataset.desc()).first()
               if not dataset:
                   q.put({"type": "error", "message": "Tidak ada dataset yang siap (belum dipreprocess)"})
                   q.put({"type": "done"})
@@ -159,7 +163,7 @@ class ProcessingService:
                   ratio.precision = results["precision"]
                   ratio.recall = results["recall"]
                   ratio.f1score = results["f1score"]
-                  db.commit()
+                  thread_db.commit()
                   
                   # Check for best ratio
                   if results["accuracy"] > best_acc:
@@ -172,13 +176,12 @@ class ProcessingService:
                       ratio.bestRatio = True
                   else:
                       ratio.bestRatio = False
-              db.commit()
+              thread_db.commit()
               
               # Send the final ratios list to client
-              updated_ratios = self.ratio_repository.get_all(db)
               # Map SQLAlchemy object to dictionary for JSON serialization
               ratios_data = []
-              for r in updated_ratios:
+              for r in ratios:
                   ratios_data.append({
                       "idRatioDataSplit": r.idRatioDataSplit,
                       "trainRatio": r.trainRatio,
@@ -199,7 +202,9 @@ class ProcessingService:
               traceback.print_exc()
               q.put({"type": "error", "message": str(e)})
               q.put({"type": "done"})
-
+          finally:
+              thread_db.close()
+ 
       # Run training in background thread
       t = threading.Thread(target=run_training)
       t.start()

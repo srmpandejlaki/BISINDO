@@ -36,6 +36,8 @@ class TrainingDataset:
         self.test_size = test_size
 
     def train(self, epoch_callback=None):
+        from tensorflow.keras import backend as K
+        K.clear_session()
 
         loader = DatasetLoader(
             self.dataset_path
