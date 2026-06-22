@@ -47,3 +47,25 @@ export const get_best_ratio = async () => {
     return null;
   }
 };
+
+export const delete_model = async (idTraining) => {
+  try {
+    const response = await fetch(`${BASE_URL}/processing/models/${idTraining}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      console.error("Failed to delete model. ", response.status, response.statusText);
+      return { success: false, message: "Gagal menghapus model." };
+    }
+
+    return await response.json();
+    
+  } catch (error) {
+    console.log("Error deleting model", error);
+    return { success: false, message: "Terjadi kesalahan saat menghapus model." };
+  }
+};
+
+// Trigger hot reload

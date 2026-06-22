@@ -219,3 +219,193 @@ class ProcessingService:
           except queue.Empty:
               if not t.is_alive():
                   break
+
+  def train_model_generator(
+      self,
+      db: Session,
+      modelName: str,
+      lstm_units1: int,
+      lstm_units2: int,
+      dropout1: float,
+      dropout2: float,
+      dense_units: int,
+      epochs: int,
+      batch_size: int,
+      learning_rate: float
+  ):
+      import queue
+      import threading
+      import json
+      import os
+      from app.database.models import Dataset, RatioDataSplit, Training
+      
+      q = queue.Queue()
+      
+      def run_training():
+          from app.database.connection import SessionLocal
+          thread_db = SessionLocal()
+          try:
+              # 1. Get latest dataset with preprocessingResultPath
+              dataset = thread_db.query(Dataset).filter(Dataset.preprocessingResultPath != None).order_by(Dataset.idDataset.desc()).first()
+              if not dataset:
+                  q.put({"type": "error", "message": "Tidak ada dataset yang siap (belum dipreprocess)"})
+                  q.put({"type": "done"})
+                  return
+                  
+              dataset_path = dataset.preprocessingResultPath
+              
+              # 2. Get best split ratio
+              bestRatio = thread_db.query(RatioDataSplit).filter(RatioDataSplit.bestRatio == True).first()
+              test_size = 0.2
+              idRatioDataSplit = None
+              if bestRatio:
+                  idRatioDataSplit = bestRatio.idRatioDataSplit
+                  try:
+                      parts = bestRatio.trainRatio.split(":")
+                      if len(parts) == 2:
+                          train_val = float(parts[0])
+                          test_val = float(parts[1])
+                          test_size = test_val / (train_val + test_val)
+                  except Exception:
+                      pass
+              
+              q.put({"type": "training_start", "modelName": modelName})
+              
+              # Define callback for Keras epoch ends
+              def epoch_callback(epoch, logs):
+                  q.put({
+                      "type": "epoch",
+                      "modelName": modelName,
+                      "epoch": epoch,
+                      "loss": float(logs.get("loss", 0)),
+                      "accuracy": float(logs.get("accuracy", 0)),
+                      "val_loss": float(logs.get("val_loss", 0)),
+                      "val_accuracy": float(logs.get("val_accuracy", 0))
+                  })
+              
+              # Initialize and run trainer
+              trainer = TrainingDataset(
+                  dataset_path=dataset_path,
+                  lstm_units1=lstm_units1,
+                  lstm_units2=lstm_units2,
+                  dropout1=dropout1,
+                  dropout2=dropout2,
+                  dense_units=dense_units,
+                  epochs=epochs,
+                  batch_size=batch_size,
+                  learning_rate=learning_rate,
+                  test_size=test_size
+              )
+              
+              model, encoder, results = trainer.train(epoch_callback=epoch_callback)
+              
+              # Save model to file
+              model_dir = os.path.join("storage", "models")
+              os.makedirs(model_dir, exist_ok=True)
+              model_filename = f"{modelName}.h5"
+              model_path = os.path.join(model_dir, model_filename)
+              model.save(model_path)
+              
+              import datetime
+              now = datetime.datetime.now(datetime.timezone.utc)
+
+              # Save training data to DB
+              new_training = Training(
+                  idDataset=dataset.idDataset,
+                  idRatioDataSplit=idRatioDataSplit,
+                  modelName=modelName,
+                  LSTMUnits1=lstm_units1,
+                  LSTMUnits2=lstm_units2,
+                  dropout1=dropout1,
+                  dropout2=dropout2,
+                  denseUnits=dense_units,
+                  epochs=epochs,
+                  batchSize=batch_size,
+                  learningRate=learning_rate,
+                  accuracy=results["accuracy"],
+                  precision=results["precision"],
+                  recall=results["recall"],
+                  f1score=results["f1score"],
+                  confusionMatrix=results["confusionMatrix"],
+                  weightedAverage=results["weightedAverage"],
+                  macroAverage=results["macroAverage"],
+                  trainLoss=results["trainLoss"],
+                  valLoss=results["valLoss"],
+                  mcc=results["mcc"],
+                  trainModelPath=model_path,
+                  createdAt=now,
+                  updatedAt=now
+              )
+              thread_db.add(new_training)
+              thread_db.commit()
+              thread_db.refresh(new_training)
+              
+              # Map SQLAlchemy object to dictionary for JSON serialization
+              training_data = {
+                  "idTraining": new_training.idTraining,
+                  "idDataset": new_training.idDataset,
+                  "idRatioDataSplit": new_training.idRatioDataSplit,
+                  "modelName": new_training.modelName,
+                  "LSTMUnits1": new_training.LSTMUnits1,
+                  "LSTMUnits2": new_training.LSTMUnits2,
+                  "dropout1": new_training.dropout1,
+                  "dropout2": new_training.dropout2,
+                  "denseUnits": new_training.denseUnits,
+                  "epochs": new_training.epochs,
+                  "batchSize": new_training.batchSize,
+                  "learningRate": new_training.learningRate,
+                  "accuracy": new_training.accuracy,
+                  "precision": new_training.precision,
+                  "recall": new_training.recall,
+                  "f1score": new_training.f1score,
+                  "confusionMatrix": new_training.confusionMatrix,
+                  "weightedAverage": new_training.weightedAverage,
+                  "macroAverage": new_training.macroAverage,
+                  "trainLoss": new_training.trainLoss,
+                  "valLoss": new_training.valLoss,
+                  "mcc": new_training.mcc,
+                  "trainModelPath": new_training.trainModelPath,
+                  "createdAt": new_training.createdAt.isoformat() if new_training.createdAt else None
+              }
+              
+              q.put({"type": "complete", "data": training_data})
+              q.put({"type": "done"})
+          except Exception as e:
+              import traceback
+              traceback.print_exc()
+              q.put({"type": "error", "message": str(e)})
+              q.put({"type": "done"})
+          finally:
+              thread_db.close()
+              
+      # Run training in background thread
+      t = threading.Thread(target=run_training)
+      t.start()
+      
+      # Yield from queue
+      while True:
+          try:
+              item = q.get(timeout=0.5)
+              if item.get("type") == "done":
+                  break
+              yield json.dumps(item) + "\n"
+          except queue.Empty:
+              if not t.is_alive():
+                  break
+
+  def delete_model(self, db: Session, idTraining: int):
+      import os
+      from app.database.models import Training
+      training = self.training_repository.get_by_id(db, idTraining, Training.idTraining)
+      if not training:
+          raise ValueError("Model not found")
+          
+      # Delete file if exists
+      if training.trainModelPath and os.path.exists(training.trainModelPath):
+          try:
+              os.remove(training.trainModelPath)
+          except Exception as e:
+              print(f"Error removing model file: {e}")
+              
+      self.training_repository.delete(db, training)
+      return True

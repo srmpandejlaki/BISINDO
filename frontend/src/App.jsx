@@ -21,11 +21,13 @@ import DashboardUser from "./features/dashboard-user/pages/DashboardUser";
 import LearningBisindo from "./features/learning-bisindo/pages/LearningBisindo";
 import TestBisindo from "./features/test-bisindo/pages/TestBisindo";
 import { SplitRatioProvider } from "./shared/context/SplitRatioContext";
+import { TrainingProvider } from "./shared/context/TrainingContext";
 
 function App() {
   return (
     <SplitRatioProvider>
-      <Routes>
+      <TrainingProvider>
+        <Routes>
       <Route path="/" element={<Navigate to="/user/dashboard" replace />} />
 
       {/* Login */}
@@ -60,6 +62,7 @@ function App() {
         element={<Navigate to="/user/dashboard" replace />}
       />
     </Routes>
+      </TrainingProvider>
     </SplitRatioProvider>
   );
 }

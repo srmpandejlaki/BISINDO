@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from app.database.dependencies import get_db
 from app.services.processing_service import ProcessingService
 
-from app.schemas.processing_schemas import AddRatio, TestRatiosConfig
+from app.schemas.processing_schemas import AddRatio, TestRatiosConfig, TrainModelConfig
 from fastapi.responses import StreamingResponse
 
 router = APIRouter(
@@ -105,3 +105,40 @@ def test_ratios(
     ),
     media_type="text/event-stream"
   )
+
+@router.post("/train/")
+def train_model(
+  config: TrainModelConfig,
+  db: Session = Depends(get_db)
+):
+  return StreamingResponse(
+    processing_service.train_model_generator(
+      db=db,
+      modelName=config.modelName,
+      lstm_units1=config.lstm_units1,
+      lstm_units2=config.lstm_units2,
+      dropout1=config.dropout1,
+      dropout2=config.dropout2,
+      dense_units=config.dense_units,
+      epochs=config.epochs,
+      batch_size=config.batch_size,
+      learning_rate=config.learning_rate
+    ),
+    media_type="text/event-stream"
+  )
+
+@router.delete("/models/{idTraining}")
+def delete_model(
+  idTraining: int,
+  db: Session = Depends(get_db)
+):
+  try:
+    processing_service.delete_model(db, idTraining)
+    return {
+      "success": True,
+      "message": "Model deleted successfully"
+    }
+  except ValueError as e:
+    raise HTTPException(status_code=404, detail=str(e))
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=str(e))

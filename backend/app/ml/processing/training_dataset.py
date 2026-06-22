@@ -115,6 +115,13 @@ class TrainingDataset:
             history
         )
 
+        from sklearn.metrics import classification_report, confusion_matrix
+        report = classification_report(y_true, y_pred, output_dict=True)
+        cm = confusion_matrix(y_true, y_pred)
+        results["confusionMatrix"] = cm.tolist()
+        results["macroAverage"] = float(report["macro avg"]["f1-score"])
+        results["weightedAverage"] = float(report["weighted avg"]["f1-score"])
+
         return (
             model,
             encoder,
