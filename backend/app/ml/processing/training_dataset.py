@@ -17,7 +17,8 @@ class TrainingDataset:
         dense_units,
         epochs,
         batch_size,
-        learning_rate
+        learning_rate,
+        test_size=0.2
     ):
         self.dataset_path = dataset_path
 
@@ -32,8 +33,9 @@ class TrainingDataset:
         self.epochs = epochs
         self.batch_size = batch_size
         self.learning_rate = learning_rate
+        self.test_size = test_size
 
-    def train(self):
+    def train(self, epoch_callback=None):
 
         loader = DatasetLoader(
             self.dataset_path
@@ -48,7 +50,7 @@ class TrainingDataset:
         X_train, X_test, y_train, y_test = train_test_split(
             X,
             y_encoded,
-            test_size=0.2,
+            test_size=self.test_size,
             random_state=42,
             stratify=y
         )
@@ -72,12 +74,22 @@ class TrainingDataset:
             learning_rate=self.learning_rate
         )
 
+        from tensorflow.keras.callbacks import Callback
+
+        callbacks = []
+        if epoch_callback:
+            class KerasProgressCallback(Callback):
+                def on_epoch_end(self, epoch, logs=None):
+                    epoch_callback(epoch + 1, logs or {})
+            callbacks.append(KerasProgressCallback())
+
         history = model.fit(
             X_train,
             y_train,
             validation_split=0.2,
             epochs=self.epochs,
             batch_size=self.batch_size,
+            callbacks=callbacks,
             verbose=1
         )
 

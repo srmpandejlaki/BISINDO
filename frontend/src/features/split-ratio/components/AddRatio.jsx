@@ -1,35 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { add_ratio, get_all_ratio, delete_ratio } from "../utils/split_ratio_api";
+import React, { useState } from "react";
+import { add_ratio, delete_ratio } from "../utils/split_ratio_api";
 
-function AddRatioSection() {
+function AddRatioSection({ ratios, loading, error, fetchRatios, testingStatus }) {
   const [trainVal, setTrainVal] = useState("");
   const [testVal, setTestVal] = useState("");
-  const [ratios, setRatios] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Ambil semua ratio dari backend saat komponen dimuat
-  const fetchRatios = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await get_all_ratio();
-      if (response && response.success) {
-        setRatios(response.data);
-      } else {
-        setError("Gagal memuat data ratio.");
-      }
-    } catch (err) {
-      setError("Terjadi kesalahan koneksi ke server.");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRatios();
-  }, []);
 
   // Handler untuk menambah ratio
   const handleAdd = async (e) => {
@@ -72,8 +46,7 @@ function AddRatioSection() {
     try {
       const result = await delete_ratio(id);
       if (result && result.success) {
-        // Hapus dari state lokal secara langsung agar UI responsif
-        setRatios(ratios.filter((item) => item.idRatioDataSplit !== id));
+        fetchRatios(); // Refresh tabel setelah berhasil menghapus
       } else {
         alert("Gagal menghapus ratio.");
       }
@@ -82,6 +55,8 @@ function AddRatioSection() {
       alert("Terjadi kesalahan saat menghapus ratio.");
     }
   };
+
+  const isTesting = testingStatus === "testing";
 
   return (
     <div className="add-ratio-section">
@@ -92,11 +67,12 @@ function AddRatioSection() {
             <label>Train:</label>
             <input
               type="number"
-              placeholder="60, 70, 80"
+              placeholder="60"
               value={trainVal}
               onChange={(e) => setTrainVal(e.target.value)}
               min="0"
               max="100"
+              disabled={isTesting}
               required
             />
           </div>
@@ -104,15 +80,16 @@ function AddRatioSection() {
             <label>Test:</label>
             <input
               type="number"
-              placeholder="40, 30, 20"
+              placeholder="40"
               value={testVal}
               onChange={(e) => setTestVal(e.target.value)}
               min="0"
               max="100"
+              disabled={isTesting}
               required
             />
           </div>
-          <button type="submit">Tambah Ratio</button>
+          <button type="submit" disabled={isTesting}>Tambah Ratio</button>
         </form>
       </div>
 
@@ -121,7 +98,7 @@ function AddRatioSection() {
         {loading ? (
           <p>Memuat data ratio...</p>
         ) : error ? (
-          <p className="error-message" style={{ color: "red" }}>{error}</p>
+          <p className="error-message text-error">{error}</p>
         ) : (
           <table>
             <thead>
@@ -142,11 +119,14 @@ function AddRatioSection() {
 
                   return (
                     <tr key={item.idRatioDataSplit}>
-                      <td>{train}</td>
-                      <td>{test}</td>
-                      <td>{item.bestRatio ? "⭐" : "-"}</td>
-                      <td>
-                        <button onClick={() => handleDelete(item.idRatioDataSplit)}>
+                      <td className="text-center">{train}</td>
+                      <td className="text-center">{test}</td>
+                      <td className="text-center">{item.bestRatio ? "⭐" : "-"}</td>
+                      <td className="text-center">
+                        <button 
+                          onClick={() => handleDelete(item.idRatioDataSplit)}
+                          disabled={isTesting}
+                        >
                           Hapus
                         </button>
                       </td>
@@ -155,7 +135,7 @@ function AddRatioSection() {
                 })
               ) : (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: "center" }}>
+                  <td colSpan="4" className="text-center">
                     Tidak ada data ratio
                   </td>
                 </tr>
