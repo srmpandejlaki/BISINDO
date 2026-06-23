@@ -4,6 +4,7 @@ from app.api.routes.data_collection_route import router as data_collection_route
 from app.api.routes.preprocessing_route import router as preprocessing_router
 from app.api.routes.processing_route import router as processing_router
 from app.api.routes.user_route import router as user_router
+from app.api.routes.testing_route import router as testing_router
 
 api_router = APIRouter()
 
@@ -17,6 +18,10 @@ api_router.include_router(
 
 api_router.include_router(
     processing_router
+)
+
+api_router.include_router(
+    testing_router
 )
 
 api_router.include_router(

@@ -3,7 +3,7 @@
 .evaluation-page {
   display: grid;
   gap: 20px;
-  grid-template-rows: auto 1fr 1fr;
+  // grid-template-rows: auto 1fr 1fr;
   grid-template-areas:
     "title title"
     "training testing"
@@ -11,7 +11,65 @@
 
   .title {
     grid-area: title;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+
+    p {
+      margin: 5px 0 0 0;
+      color: #6c757d;
+    }
   }
+}
+
+.model-selection {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .select-label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #495057;
+  }
+
+  .model-select {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    min-width: 200px;
+  }
+
+  .btn-model {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+}
+
+.error-message {
+  padding: 15px;
+  background-color: #fff5f5;
+  border: 1px solid #ffc9c9;
+  border-radius: 6px;
+  color: #d9534f;
+}
+
+.evaluation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.training-vs-testing {
+  display: flex;
+  gap: 20px;
 }
 
 .evaluation-training {
@@ -26,6 +84,107 @@
   grid-area: perbandingan;
 }
 
+.evaluation-training, .evaluation-testing {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+
+  h3 {
+    margin: 0 0 15px 0;
+    color: #333;
+    padding-bottom: 8px;
+  }
+}
+.evaluation-training h3 {
+  border-bottom: 2px solid #0056b3;
+}
+.evaluation-testing h3 {
+  border-bottom: 2px solid #28a745;
+}
+
+.parameter-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  background-color: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 0.85rem;
+
+  p {
+    margin: 3px 0;
+  }
+}
+
+.metrics-table {
+  margin-bottom: 20px;
+
+  table {
+    font-size: 0.85rem;
+    text-align: left;
+
+    thead tr {
+      border-bottom: 2px solid #dee2e6;
+      background-color: #f8f9fa;
+    }
+    tbody tr {
+      border-bottom: 1px solid #eee;
+    }
+
+    th, td {
+      padding: 8px;
+    }
+  }
+}
+
+.text-right {
+  text-align: right;
+}
+
 .confusion-metrix {
   margin-top: 20px;
+}
+
+.act-pred {
+  width: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.label-col {
+  width: 20px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: #666;
+}
+
+.label-row {
+  width: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  color: #666;
+}
+
+.matrix-cell {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border: 1px solid #f0f0f0;
 }

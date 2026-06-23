@@ -16,7 +16,40 @@ class ProcessingService:
     self.ratio_repository = RatioDataRepository()
 
   def get_all_models(self, db: Session):
-    return self.training_repository.get_all(db)
+    models = self.training_repository.get_all(db)
+    result = []
+    for m in models:
+        result.append({
+            "idTraining": m.idTraining,
+            "idDataset": m.idDataset,
+            "idRatioDataSplit": m.idRatioDataSplit,
+            "modelName": m.modelName,
+            "LSTMUnits1": m.LSTMUnits1,
+            "LSTMUnits2": m.LSTMUnits2,
+            "dropout1": m.dropout1,
+            "dropout2": m.dropout2,
+            "denseUnits": m.denseUnits,
+            "epochs": m.epochs,
+            "batchSize": m.batchSize,
+            "learningRate": m.learningRate,
+            "accuracy": m.accuracy,
+            "precision": m.precision,
+            "recall": m.recall,
+            "f1score": m.f1score,
+            "confusionMatrix": m.confusionMatrix,
+            "weightedAverage": m.weightedAverage,
+            "macroAverage": m.macroAverage,
+            "trainLoss": m.trainLoss,
+            "valLoss": m.valLoss,
+            "mcc": m.mcc,
+            "trainModelPath": m.trainModelPath,
+            "createdAt": m.createdAt.isoformat() if m.createdAt else None,
+            "datasetName": m.dataset.datasetName if m.dataset else None,
+            "totalData": m.dataset.totalData if m.dataset else 0,
+            "totalLabel": m.dataset.totalLabel if m.dataset else 0,
+            "trainRatio": m.ratio_data_split.trainRatio if m.ratio_data_split else None
+        })
+    return result
   
   # Ratio Data
   def get_all_ratio(self, db: Session):

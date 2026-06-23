@@ -22,6 +22,14 @@ class Evaluation(Base):
   recall = Column(Float)
   f1score = Column(Float)
   confusionMatrix = Column(JSON)
+
+  
+  weightedAverage = Column(Float)
+  macroAverage = Column(Float)
+
+  mcc = Column(Float)
+  rocAuc = Column(Float)
+  
   createdAt = Column(
     DateTime, 
     nullable=False,
