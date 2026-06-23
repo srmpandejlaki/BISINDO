@@ -5,7 +5,8 @@ from fastapi import (
     Depends,
     HTTPException,
     File,
-    UploadFile
+    UploadFile,
+    WebSocket
 )
 from sqlalchemy.orm import Session
 
@@ -91,3 +92,14 @@ def get_evaluation_by_training_id(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.websocket("/realtime/{idTraining}")
+async def realtime_inference(
+    websocket: WebSocket,
+    idTraining: int
+):
+    db = next(get_db())
+    try:
+        await testing_service.realtime_inference_websocket(websocket, idTraining, db)
+    finally:
+        db.close()
