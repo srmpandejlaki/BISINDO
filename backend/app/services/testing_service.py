@@ -22,6 +22,7 @@ class TestingService:
     def __init__(self):
         self.training_repository = TrainingRepository()
         self.evaluation_repository = EvaluationRepository()
+        self.model_cache = {}
 
     def load_dataset_with_filenames(self, dataset_path: str):
         X = []
@@ -260,9 +261,9 @@ class TestingService:
                     coords = np.array(coords, dtype=np.float32)
                     
                     if hand_label == "Left":
-                        landmarks[63:] = coords
-                    elif hand_label == "Right":
                         landmarks[:63] = coords
+                    elif hand_label == "Right":
+                        landmarks[63:] = coords
                         
             sequence.append(landmarks)
             
@@ -278,43 +279,44 @@ class TestingService:
         sequence = sequence[indices]
         
         # Normalization
+        def normalize_scale_local(hand):
+            wrist = hand[0]
+            ref_point = hand[9]  # middle finger MCP
+            scale = np.linalg.norm(ref_point - wrist)
+            if scale > 0:
+                hand = hand / scale
+            return hand
+
         normalized_sequence = []
         for frame in sequence:
             frame = frame.copy()
-            left_hand = frame[:63].reshape(21, 3)
-            right_hand = frame[63:].reshape(21, 3)
+            left = frame[:63].reshape(21, 3)
+            right = frame[63:].reshape(21, 3)
             
-            left_exists = np.any(left_hand)
-            right_exists = np.any(right_hand)
+            left_present = not np.all(left == 0)
+            right_present = not np.all(right == 0)
             
-            if left_exists:
-                anchor = left_hand[0]
-            elif right_exists:
-                anchor = right_hand[0]
-            else:
-                anchor = np.zeros(3, dtype=np.float32)
+            if left_present and right_present:
+                wrist_ref = right[0]
+                ref_point = right[9]
+                scale = np.linalg.norm(ref_point - wrist_ref)
                 
-            if left_exists:
-                left_hand = left_hand - anchor
-            if right_exists:
-                right_hand = right_hand - anchor
+                left = left - wrist_ref
+                right = right - wrist_ref
                 
-            all_points = []
-            if left_exists:
-                all_points.append(left_hand)
-            if right_exists:
-                all_points.append(right_hand)
+                if scale > 0:
+                    left = left / scale
+                    right = right / scale
+            elif left_present:
+                wrist_left = left[0]
+                left = left - wrist_left
+                left = normalize_scale_local(left)
+            elif right_present:
+                wrist_right = right[0]
+                right = right - wrist_right
+                right = normalize_scale_local(right)
                 
-            if len(all_points) > 0:
-                all_points = np.vstack(all_points)
-                max_distance = np.max(np.linalg.norm(all_points, axis=1))
-                if max_distance > 0:
-                     if left_exists:
-                         left_hand = left_hand / max_distance
-                     if right_exists:
-                         right_hand = right_hand / max_distance
-                         
-            normalized_frame = np.concatenate([left_hand.flatten(), right_hand.flatten()])
+            normalized_frame = np.concatenate([left.flatten(), right.flatten()])
             normalized_sequence.append(normalized_frame)
             
         return np.array(normalized_sequence, dtype=np.float32)
@@ -370,25 +372,38 @@ class TestingService:
         # =========================================
         dataset = db.query(Dataset).filter(Dataset.idDataset == training.idDataset).first()
 
-        if dataset and dataset.preprocessingResultPath and os.path.exists(dataset.preprocessingResultPath):
-            labels = sorted(os.listdir(dataset.preprocessingResultPath))
+        label_json_path = os.path.join(
+            "app",
+            "ml",
+            "models",
+            "labels.json"
+        )
+
+        if os.path.exists(label_json_path):
+            with open(label_json_path, "r") as f:
+                label_map = json.load(f)
+
+            labels = [
+                label
+                for label, _
+                in sorted(label_map.items(), key=lambda x: x[1])
+            ]
         else:
-            label_json_path = os.path.join("app", "ml", "models", "labels.json")
-            if os.path.exists(label_json_path):
-                with open(label_json_path, "r") as f:
-                    label_map = json.load(f)
-                labels = sorted(list(label_map.keys()))
-            else:
-                labels = [chr(i) for i in range(ord('A'), ord('Z') + 1)]
+            labels = [chr(i) for i in range(ord("A"), ord("Z") + 1)]
 
         # =========================================
         # 3. LOAD MODEL
         # =========================================
-        K.clear_session()
-        model = load_model(training.trainModelPath)
+        model_path = training.trainModelPath
+
+        if model_path not in self.model_cache:
+            self.model_cache[model_path] = load_model(model_path)
+
+        model = self.model_cache[model_path]
 
         sequence_length = model.input_shape[1] if model.input_shape[1] else 60
         sequence = deque(maxlen=sequence_length)
+        hands_history = deque(maxlen=sequence_length)
 
         # =========================================
         # 4. MEDIAPIPE
@@ -449,15 +464,16 @@ class TestingService:
                         # URUTAN HARUS SAMA TRAINING:
                         # Right = [:63], Left = [63:]
                         # =========================================
-                        if label == "Right":
+                        if label == "Left":
                             landmarks[:63] = coords.flatten()
                             detected_hands += 1
 
-                        elif label == "Left":
+                        elif label == "Right":
                             landmarks[63:] = coords.flatten()
                             detected_hands += 1
 
                 sequence.append(landmarks)
+                hands_history.append(detected_hands)
 
                 # =========================================
                 # PREDICTION
@@ -469,8 +485,8 @@ class TestingService:
                     for frame in sequence:
                         frame = frame.copy()
 
-                        left = frame[63:].reshape(21, 3)
-                        right = frame[:63].reshape(21, 3)
+                        left = frame[:63].reshape(21, 3)
+                        right = frame[63:].reshape(21, 3)
 
                         left_present = not np.all(left == 0)
                         right_present = not np.all(right == 0)
@@ -519,11 +535,13 @@ class TestingService:
                     confidence = float(prediction[predicted_class])
                     predicted_label = labels[predicted_class]
 
+                    avg_hands_detected = round(np.mean(hands_history))
+
                     await websocket.send_json({
                         "success": True,
                         "predicted_label": predicted_label,
                         "confidence": confidence,
-                        "hands_detected": detected_hands
+                        "hands_detected": avg_hands_detected
                     })
 
                 else:

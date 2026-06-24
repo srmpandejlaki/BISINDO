@@ -7,7 +7,7 @@ import words from "../utils/words";
 // ==========================================
 const WS_BASE_URL = import.meta.env.VITE_WS_URL || "ws://127.0.0.1:8000/bisindo/api";
 const FRAME_INTERVAL_MS = 100;        // ~10 FPS
-const CONFIDENCE_THRESHOLD = 0.70;     // 70%
+const CONFIDENCE_THRESHOLD = 0.50;     // 50%
 const COUNTDOWN_SECONDS = 3;
 const MATCH_HOLD_MS = 300;             // dikurangi agar lebih responsif dalam batas 2 detik
 const ACTIVE_LIMIT_SECONDS = 2;        // waktu maksimal tebak per huruf
@@ -298,6 +298,9 @@ function TestBisindo() {
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const wrongAttemptsRef = useRef(0);
 
+  // Hasil per huruf: null = belum, "correct" = benar, "wrong" = salah
+  const [letterResults, setLetterResults] = useState([]);
+
   const [repeatMessage, setRepeatMessage] = useState(null);
 
   const [showEvaluation, setShowEvaluation] = useState(false);
@@ -317,6 +320,14 @@ function TestBisindo() {
     setLetterTimerActive(false);
     setRepeatMessage(null); // Reset pesan ulangi
 
+    // Simpan hasil huruf saat ini (benar/salah) sebelum lanjut
+    const currentLetterIndex = currentIndexRef.current;
+    setLetterResults(prev => {
+      const updated = [...prev];
+      updated[currentLetterIndex] = isCorrect ? "correct" : "wrong";
+      return updated;
+    });
+
     if (isCorrect) {
       playBeep();
     }
@@ -329,15 +340,18 @@ function TestBisindo() {
       const durationMs = endTime - (startTimeRef.current || endTime);
       const totalLetters = targetWord.length;
 
-      // Akurasi = huruf benar / total percobaan
-      const totalAttempts = totalLetters + newWrongAttempts;
-      const accuracy = totalAttempts > 0 ? (totalLetters / totalAttempts) * 100 : 0;
+      // Akurasi = huruf benar / total huruf
+      const correctLetters = totalLetters - newWrongAttempts;
+      const accuracy = totalLetters > 0
+        ? (Math.max(0, correctLetters) / totalLetters) * 100
+        : 0;
 
       setEvaluationData({
         word: targetWord,
         level: level,
         score: newScore,
         totalLetters,
+        correctLetters: Math.max(0, correctLetters),
         wrongAttempts: newWrongAttempts,
         accuracy: accuracy.toFixed(1),
         duration: Math.round(durationMs / 1000),
@@ -506,6 +520,12 @@ function TestBisindo() {
     setWrongAttempts(0);
     setRepeatMessage(null);
 
+    // Reset refs secara langsung agar tidak menunggu useEffect sync
+    currentIndexRef.current = 0;
+    scoreRef.current = 0;
+    wrongAttemptsRef.current = 0;
+
+    setLetterResults([]);
     predictionBufferRef.current = [];
 
     setPrediction({
@@ -648,11 +668,12 @@ function TestBisindo() {
             {targetWord.split("").map((letter, index) => (
               <div
                 key={index}
-                className={`
-                  result-letter
-                  ${index < currentIndex ? "correct" : ""}
-                  ${index === currentIndex && testStarted ? "active" : ""}
-                `}
+                className={[
+                  "result-letter",
+                  letterResults[index] === "correct" ? "correct" : "",
+                  letterResults[index] === "wrong" ? "wrong" : "",
+                  index === currentIndex && testStarted && !letterResults[index] ? "active" : "",
+                ].join(" ").trim()}
               >
                 {letter}
               </div>
@@ -769,11 +790,15 @@ function TestBisindo() {
                 <span>{evaluationData.level}</span>
               </div>
               <div className="detail-row">
-                <span>Jumlah Huruf</span>
+                <span>Total Huruf</span>
                 <span>{evaluationData.totalLetters}</span>
               </div>
               <div className="detail-row">
-                <span>Salah Tebak</span>
+                <span>Huruf Benar</span>
+                <span>{evaluationData.correctLetters}</span>
+              </div>
+              <div className="detail-row">
+                <span>Huruf Salah</span>
                 <span>{evaluationData.wrongAttempts}</span>
               </div>
             </div>
