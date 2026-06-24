@@ -72,7 +72,7 @@ function TestBisindo() {
   const canvasRef = useRef(null);
 
   const frameIntervalRef = useRef(null);
-
+  const isAccumulatingRef = useRef(false);
 
   const predictionBufferRef = useRef([]);
   const currentIndexRef = useRef(0);
@@ -82,6 +82,9 @@ function TestBisindo() {
   // =========================
   // STATE
   // =========================
+  const [isAccumulating, setIsAccumulating] = useState(false);
+  const [accumulatingProgress, setAccumulatingProgress] = useState(0);
+
   const [cameraActive, setCameraActive] = useState(false);
   const [testStarted, setTestStarted] = useState(false);
   
@@ -95,6 +98,7 @@ function TestBisindo() {
   });
 
   // sync refs
+  useEffect(() => { isAccumulatingRef.current = isAccumulating; }, [isAccumulating]);
   useEffect(() => { currentIndexRef.current = currentIndex; }, [currentIndex]);
   useEffect(() => { scoreRef.current = score; }, [score]);
   useEffect(() => { predictionRef.current = prediction; }, [prediction]);
@@ -202,7 +206,20 @@ function TestBisindo() {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      if (!data.success || data.accumulating) return;
+      if (!data.success) return;
+
+      // 🔧 Tangkap status accumulating dari backend
+      if (data.accumulating) {
+        setIsAccumulating(true);
+        setAccumulatingProgress(
+          Math.round((data.frames_count / data.required_frames) * 100)
+        );
+        return;
+      }
+
+      // Backend sudah siap
+      setIsAccumulating(false);
+      setAccumulatingProgress(0);
 
       const newPred = {
         label: data.predicted_label?.toUpperCase(),
@@ -361,6 +378,10 @@ function TestBisindo() {
       // Pindah ke huruf berikutnya
       predictionBufferRef.current = [];
 
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify({ reset: true }));
+      }
+
       setPrediction({
         label: "...",
         confidence: 0,
@@ -403,6 +424,9 @@ function TestBisindo() {
 
     let time = ACTIVE_LIMIT_SECONDS;
     letterTimerIntervalRef.current = setInterval(() => {
+      // 🔧 Jangan kurangi timer jika backend masih accumulating
+      if (isAccumulatingRef.current) return;
+
       time = Math.max(0, parseFloat((time - 0.1).toFixed(1)));
       setLetterTimer(time);
       if (time <= 0) {
@@ -630,6 +654,21 @@ function TestBisindo() {
                 muted
                 style={{ display: cameraActive ? "block" : "none" }}
               />
+
+              {/* 🔧 Accumulating Overlay — tampil saat backend reload buffer */}
+              {cameraActive && testStarted && !countdownActive && isAccumulating && (
+                <div className="accumulating-overlay">
+                  <div className="acc-spinner" />
+                  <p className="acc-text">Memuat ulang deteksi...</p>
+                  <div className="acc-progress-bar">
+                    <div
+                      className="acc-progress-fill"
+                      style={{ width: `${accumulatingProgress}%` }}
+                    />
+                  </div>
+                  <p className="acc-hint">{accumulatingProgress}% — Tahan posisi tangan Anda</p>
+                </div>
+              )}
 
               {/* Countdown Overlay */}
               {countdown !== null && (

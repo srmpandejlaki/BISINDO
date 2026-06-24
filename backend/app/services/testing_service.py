@@ -432,6 +432,16 @@ class TestingService:
         try:
             while True:
                 data = await websocket.receive_bytes()
+
+                try:
+                    msg = json.loads(data)
+                    if msg.get("reset"):
+                        sequence.clear()
+                        hands_history.clear()
+                        continue
+                except Exception:
+                    pass  # bukan JSON, lanjutkan proses frame biasa
+                
                 nparr = np.frombuffer(data, np.uint8)
                 frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
