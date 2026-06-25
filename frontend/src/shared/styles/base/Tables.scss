@@ -10,6 +10,7 @@ table {
   border-radius: 6px;
   border: 1px solid custom.$primary-color;
   overflow: hidden;
+  font-size: 0.9rem;
 }
 
 thead {
@@ -17,13 +18,9 @@ thead {
   border-bottom: 2px solid custom.$primary-color;
 }
 
-th, td {
+th, td, tr {
   border: 1px solid custom.$primary-color;
   padding: 6px;
-}
-
-th, tr {
-  border-bottom: 1px solid custom.$primary-color;
 }
 
 // custom

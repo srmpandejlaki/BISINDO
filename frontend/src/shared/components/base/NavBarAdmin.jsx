@@ -9,7 +9,7 @@ function NavBarAdmin() {
   
   return (
     <nav>
-      <h3>Sistem Pembelajaran Alfabet Bahasa Isyarat Indonesia (BISINDO)</h3>
+      <h3 className="title">Sistem Pembelajaran Alfabet Bahasa Isyarat Indonesia (BISINDO)</h3>
       <ul>
         <li><NavLink to="/admin/dashboard">Beranda</NavLink></li>
         <li><NavLink to="/admin/data-collection">Pengumpulan Dataset</NavLink></li>

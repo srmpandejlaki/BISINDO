@@ -2,11 +2,14 @@
 $primary-color: #333;
 $secondary-color: #fff;
 $tertiary-color: #cccccc;
+$desc-color: #666;
 
 // Section
 .section-upload, 
 .section-preview,
-.section-dataset{
+.section-dataset,
+.lists-dataset,
+.parameter-setting {
   background-color: $secondary-color;
   padding: 1rem;
   border-radius: 8px;
@@ -23,6 +26,16 @@ h2 {
   font-size: 1.2rem;
   margin-bottom: 0.5rem;
 }
+h3 {
+  margin-bottom: 4px;
+  font-size: 1.1rem;
+}
+
+.desc {
+  margin: 0;
+  font-size: 0.85rem;
+  color: $desc-color;
+}
 .white {
   color: $secondary-color;
 }
@@ -35,12 +48,14 @@ h2 {
   background-color: $primary-color;
   color: $secondary-color;
   cursor: pointer;
+  font-weight: bold;
   transition: background-color 0.2s ease-in-out;
 }
 
 .button:hover {
   background-color: #6c757d;
 }
+
 .submit:hover {
   background-color: #1f9c2b;
   // background-color: #25c032;

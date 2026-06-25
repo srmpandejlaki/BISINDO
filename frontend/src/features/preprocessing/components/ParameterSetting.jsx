@@ -13,7 +13,12 @@ function ParameterSetting({
 
   return (
     <div className="parameter-setting">
-      <h3 className="section-title">Parameter Setting</h3>
+      <div className="pengantar">
+        <h2>Konfigurasi Parameter Prapemrosesan Data</h2>
+        <p className="desc">
+          Konfigurasi berikut digunakan untuk memproses data yang telah diupload.
+        </p>
+      </div>
 
       <div className="params-grid">
         {/* === Data Config === */}
@@ -30,6 +35,7 @@ function ParameterSetting({
               }
             />
           </div>
+
           <div className="param-row">
             <label>Feature Size</label>
             <input
@@ -43,117 +49,203 @@ function ParameterSetting({
           </div>
         </div>
 
-        {/* === Augmentation Config === */}
+
+        {/* === Preprocessing Config === */}
         <div className="param-group">
-          <h4 className="group-title">Augmentasi Data</h4>
+          <div className="pengantar margin-bottom">
+            <h4 className="group-title">Normalisasi</h4>
+            <p className="desc">Tahap untuk menyamakan representasi data skeleton tangan.</p>
+          </div>
           <div className="param-row toggle-row">
-            <label>Aktifkan Augmentasi</label>
+            <label>Normalisasi Ukuran Tangan</label>
             <label className="toggle-switch">
               <input
                 type="checkbox"
-                checked={config.use_augmentation}
+                checked={config.use_normalize_scale}
                 onChange={(e) =>
-                  handleChange("use_augmentation", e.target.checked)
+                  handleChange("use_normalize_scale", e.target.checked)
                 }
               />
               <span className="toggle-slider"></span>
             </label>
           </div>
 
-          <div
-            className={`augmentation-params ${
-              !config.use_augmentation ? "disabled-section" : ""
-            }`}
-          >
-            <div className="param-row">
-              <label>Noise Level</label>
+          <div className="param-row toggle-row">
+            <label>Normalisasi Posisi</label>
+            <label className="toggle-switch">
               <input
-                type="number"
-                step="0.001"
-                min="0.001"
-                max="0.05"
-                value={config.noise_level}
-                disabled={!config.use_augmentation}
+                type="checkbox"
+                checked={config.use_normalize_wrist}
                 onChange={(e) =>
-                  handleChange("noise_level", parseFloat(e.target.value) || 0.01)
+                  handleChange("use_normalize_wrist", e.target.checked)
                 }
               />
-            </div>
-            <div className="param-row">
-              <label>Scale Range Min</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0.5"
-                max="1.0"
-                value={config.scale_range_min}
-                disabled={!config.use_augmentation}
-                onChange={(e) =>
-                  handleChange(
-                    "scale_range_min",
-                    parseFloat(e.target.value) || 0.9
-                  )
-                }
-              />
-            </div>
-            <div className="param-row">
-              <label>Scale Range Max</label>
-              <input
-                type="number"
-                step="0.01"
-                min="1.0"
-                max="1.5"
-                value={config.scale_range_max}
-                disabled={!config.use_augmentation}
-                onChange={(e) =>
-                  handleChange(
-                    "scale_range_max",
-                    parseFloat(e.target.value) || 1.1
-                  )
-                }
-              />
-            </div>
+              <span className="toggle-slider"></span>
+            </label>
           </div>
         </div>
 
-        {/* === Frame Dropout Config === */}
         <div className="param-group">
-          <h4 className="group-title">Frame Dropout</h4>
+          <div className="pengantar margin-bottom">
+            <h4 className="group-title">Penyesuaian Sequence</h4>
+            <p className="desc">
+              LSTM membutuhkan panjang sequence yang konsisten.
+            </p>
+          </div>
           <div className="param-row toggle-row">
-            <label>Aktifkan Frame Dropout</label>
+            <label>Zero Padding</label>
             <label className="toggle-switch">
               <input
                 type="checkbox"
-                checked={config.use_frame_dropout}
+                checked={config.use_pad_sequence}
                 onChange={(e) =>
-                  handleChange("use_frame_dropout", e.target.checked)
+                  handleChange("use_pad_sequence", e.target.checked)
                 }
               />
               <span className="toggle-slider"></span>
             </label>
           </div>
+        </div>
+      </div>
 
-          <div
-            className={`dropout-params ${
-              !config.use_frame_dropout ? "disabled-section" : ""
-            }`}
-          >
-            <div className="param-row">
-              <label>Dropout Probability</label>
-              <input
-                type="number"
-                step="0.01"
-                min="0.01"
-                max="0.5"
-                value={config.frame_dropout_prob}
-                disabled={!config.use_frame_dropout}
-                onChange={(e) =>
-                  handleChange(
-                    "frame_dropout_prob",
-                    parseFloat(e.target.value) || 0.1
-                  )
-                }
-              />
+      <div className="param-group">
+        <div className="pengantar margin-bottom">
+          <h4 className="group-title">Augmentasi Data</h4>
+          <p className="desc">
+            Tahap untuk menambah variasi data training.
+          </p>
+        </div>
+        
+        <div className="toggle-input-container">
+          <div className="toggle-input">
+            <div className="param-row toggle-row">
+              <label>Tambah Noise Guissian</label>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={config.use_add_noise}
+                  onChange={(e) =>
+                    handleChange("use_add_noise", e.target.checked)
+                  }
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+            <div
+              className={`augmentation-params ${
+                !config.use_add_noise ? "disabled-section" : ""
+              }`}
+            >
+              <div className="param-row">
+                <label>Noise Level</label>
+                <input
+                  type="number"
+                  step="0.001"
+                  min="0.001"
+                  max="0.05"
+                  value={config.noise_level}
+                  disabled={!config.use_add_noise}
+                  onChange={(e) =>
+                    handleChange("noise_level", parseFloat(e.target.value) || 0.01)
+                  }
+                />
+              </div>
+            </div>
+          </div>
+            
+          <div className="toggle-input">
+            <div className="param-row toggle-row">
+              <label>Scaling Acak</label>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={config.use_random_scale}
+                  onChange={(e) =>
+                    handleChange("use_random_scale", e.target.checked)
+                  }
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+            <div
+              className={`augmentation-params ${
+                !config.use_random_scale ? "disabled-section" : ""
+              }`}
+            >
+              <div className="param-row">
+                <label>Scale Range Min</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.5"
+                  max="1.0"
+                  value={config.scale_range_min}
+                  disabled={!config.use_random_scale}
+                  onChange={(e) =>
+                    handleChange(
+                      "scale_range_min",
+                      parseFloat(e.target.value) || 0.9
+                    )
+                  }
+                />
+              </div>
+              <div className="param-row">
+                <label>Scale Range Max</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="1.0"
+                  max="1.5"
+                  value={config.scale_range_max}
+                  disabled={!config.use_random_scale}
+                  onChange={(e) =>
+                    handleChange(
+                      "scale_range_max",
+                      parseFloat(e.target.value) || 1.1
+                    )
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="toggle-input">
+            <div className="param-row toggle-row">
+              <label>Aktifkan Frame Dropout</label>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={config.use_frame_dropout}
+                  onChange={(e) =>
+                    handleChange("use_frame_dropout", e.target.checked)
+                  }
+                />
+                <span className="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div
+              className={`dropout-params ${
+                !config.use_frame_dropout ? "disabled-section" : ""
+              }`}
+            >
+              <div className="param-row">
+                <label>Dropout Probability</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  max="0.5"
+                  value={config.frame_dropout_prob}
+                  disabled={!config.use_frame_dropout}
+                  onChange={(e) =>
+                    handleChange(
+                      "frame_dropout_prob",
+                      parseFloat(e.target.value) || 0.1
+                    )
+                  }
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -162,7 +254,7 @@ function ParameterSetting({
       {/* === Action Button === */}
       <div className="action-section">
         <button
-          className="btn-start-preprocessing"
+          className="button btn-start-preprocessing"
           onClick={onStartPreprocessing}
           disabled={isLoading || !selectedDatasetId}
         >

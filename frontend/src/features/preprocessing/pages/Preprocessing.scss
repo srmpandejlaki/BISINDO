@@ -1,3 +1,5 @@
+@use '@/shared/styles/base/custom.scss';
+
 .preprocessing-admin {
   display: flex;
   flex-direction: column;
@@ -6,67 +8,13 @@
 
 // === Lists Dataset ===
 .lists-dataset {
-  background-color: #f8f9fa;
-  padding: 20px;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-
-  .pengantar {
-    margin-bottom: 16px;
-
-    h3 {
-      margin: 0 0 4px 0;
-      font-size: 1.1rem;
-      color: #1a1a2e;
-    }
-
-    p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: #666;
-    }
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-
-    th {
-      // background-color: #1a1a2e;
-      color: #1a1a2e;
-      padding: 10px 14px;
-      text-align: left;
-      font-weight: 600;
-
-      &:first-child {
-        border-radius: 8px 0 0 0;
-      }
-
-      &:last-child {
-        border-radius: 0 8px 0 0;
-        text-align: center;
-      }
-    }
-
-    td {
-      padding: 10px 14px;
-      border-bottom: 1px solid #e8e8e8;
-
-      &:last-child {
-        text-align: center;
-      }
-    }
-
-    // tr.selected-row {
-    //   background-color: #e8f0fe;
-    // }
-
-    // tbody tr:hover {
-    //   background-color: #f0f4ff;
-    //   cursor: pointer;
-    // }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  // background-color: #f8f9fa;
+  // padding: 20px;
+  // border: 1px solid #e0e0e0;
+  // border-radius: 12px;
 }
 
 .status-badge {
@@ -81,22 +29,23 @@
   color: #155724;
 }
 
-// .status-pending {
-//   background-color: #fff3cd;
-//   color: #856404;
-// }
+.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
 
 // === Parameter Setting ===
 .parameter-setting {
-  background-color: #f8f9fa;
-  padding: 24px;
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 
-  .section-title {
-    margin: 0 0 20px 0;
-    font-size: 1.1rem;
-    color: #1a1a2e;
+  .pengantar {
+    display: flex;
+    flex-direction: column;
+  }
+  .margin-bottom {
+    margin-bottom: 16px;
   }
 }
 
@@ -104,21 +53,19 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
-  margin-bottom: 24px;
 }
 
 .param-group {
   background-color: #fff;
   padding: 16px;
   border-radius: 10px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid custom.$primary-color;
 
   .group-title {
     margin: 0 0 14px 0;
     font-size: 0.95rem;
-    color: #1a1a2e;
     padding-bottom: 8px;
-    border-bottom: 2px solid #e8f0fe;
+    border-bottom: 2px solid #7f7f7f;
   }
 }
 
@@ -148,7 +95,7 @@
 
     &:focus {
       outline: none;
-      border-color: #4a6cf7;
+      border-color: #9b9b9b;
     }
 
     &:disabled {
@@ -187,7 +134,7 @@
       position: absolute;
       height: 18px;
       width: 18px;
-      left: 3px;
+      right: 3px;
       bottom: 3px;
       background-color: #fff;
       transition: 0.3s;
@@ -196,7 +143,7 @@
   }
 
   input:checked + .toggle-slider {
-    background-color: #4a6cf7;
+    background-color: custom.$primary-color;
   }
 
   input:checked + .toggle-slider::before {
@@ -207,6 +154,14 @@
 .disabled-section {
   opacity: 0.5;
   pointer-events: none;
+}
+
+.toggle-input-container {
+  display: flex;
+  justify-content: space-between;
+}
+.toggle-input {
+  width: 250px;
 }
 
 // Action
@@ -223,18 +178,10 @@
 }
 
 .btn-start-preprocessing {
-  padding: 10px 28px;
-  background-color: #4a6cf7;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
 
   &:hover:not(:disabled) {
-    background-color: #3a5ce5;
+    background-color: #0b0b0b;
     transform: translateY(-1px);
   }
 
@@ -243,7 +190,7 @@
   }
 
   &:disabled {
-    background-color: #a0b4f7;
+    background-color: #bcbcbc;
     cursor: not-allowed;
   }
 }

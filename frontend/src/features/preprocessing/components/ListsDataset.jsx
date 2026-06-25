@@ -2,11 +2,7 @@ import React from "react";
 
 function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
   return (
-    <div className="lists-dataset">
-      <div className="pengantar">
-        <h3>Daftar Dataset</h3>
-        <p>Pilih dataset yang ingin dilakukan preprocessing</p>
-      </div>
+    <div className="table-dataset">
       <table>
         <thead>
           <tr>
@@ -29,10 +25,10 @@ function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
               key={dataset.idDataset}
               className={selectedDatasetId === dataset.idDataset ? "selected-row" : ""}
             >
-              <td>{index + 1}</td>
-              <td>{dataset.datasetName}</td>
-              <td>{dataset.totalData}</td>
-              <td>
+              <td className="text-center">{index + 1}.</td>
+              <td className="padding-cell">{dataset.datasetName}</td>
+              <td className="text-center">{dataset.totalData}</td>
+              <td className="text-center">
                 <span
                   className={`status-badge ${
                     dataset.preprocessingResultPath
@@ -45,12 +41,13 @@ function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
                     : "Belum diproses"}
                 </span>
               </td>
-              <td>
+              <td className="text-center">
                 <input
                   type="radio"
                   name="dataset-select"
                   checked={selectedDatasetId === dataset.idDataset}
                   onChange={() => onSelectDataset(dataset.idDataset)}
+                  disabled={dataset.preprocessingResultPath}
                 />
               </td>
             </tr>

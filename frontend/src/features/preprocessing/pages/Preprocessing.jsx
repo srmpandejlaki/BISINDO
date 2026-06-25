@@ -65,13 +65,19 @@ function PreprocessingPage() {
 
   return (
     <div className="content preprocessing-admin">
-      <h1>Preprocessing</h1>
+      <h1>Prapemrosesan Data</h1>
 
-      <ListsDataset
-        datasets={datasets}
-        selectedDatasetId={selectedDatasetId}
-        onSelectDataset={setSelectedDatasetId}
-      />
+      <div className="lists-dataset">
+        <div className="pengantar">
+          <h2>Daftar Dataset</h2>
+          <p className="desc">Pilih dataset yang ingin diproses.</p>
+        </div>
+        <ListsDataset
+          datasets={datasets}
+          selectedDatasetId={selectedDatasetId}
+          onSelectDataset={setSelectedDatasetId}
+        />
+      </div>
 
       <ParameterSetting
         config={config}
