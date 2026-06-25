@@ -52,7 +52,7 @@ function App() {
             element={<DetailDataset />}
           />
           <Route path="/admin/preprocessing" element={<Preprocessing />} />
-          <Route path="/admin/processing" element={<Processing />} />
+          <Route path="/admin/processing/training" element={<Processing />} />
           <Route path="/admin/processing/ratio" element={<SplitRatio />} />
           <Route path="/admin/testing" element={<TestingPage />} />
           <Route path="/admin/evaluation" element={<EvaluationPage />} />

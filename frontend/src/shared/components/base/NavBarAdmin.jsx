@@ -1,38 +1,33 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 
 function NavBarAdmin() {
+  const location = useLocation();
+
+  const processingActive =
+    location.pathname.startsWith("/admin/processing");
+  
   return (
     <nav>
-      <h3>Panel Admin Sistem Pembelajaran Alfabet Bahasa Isyarat Indonesia (BISINDO)</h3>
+      <h3>Sistem Pembelajaran Alfabet Bahasa Isyarat Indonesia (BISINDO)</h3>
       <ul>
-        <li><Link to="/admin/dashboard">Dashboard</Link></li>
+        <li><NavLink to="/admin/dashboard">Beranda</NavLink></li>
+        <li><NavLink to="/admin/data-collection">Pengumpulan Dataset</NavLink></li>
+        <li><NavLink to="/admin/preprocessing">Prapemrosesan Data</NavLink></li>
         <li>
-          <p>Pengumpulan Data</p>
+          <p className={processingActive ? "active" : ""}>Pemrosesan Data</p>
           <ul className="submenu">
-            <li><Link to="/admin/data-collection">Pengaturan Parameter Hand Skeleton</Link></li>
-            <li><Link to="/admin/data-collection">Daftar Dataset</Link></li>
+            <li><NavLink to="/admin/data-collection">Pengaturan Parameter Hand Skeleton</NavLink></li>
+            <li><NavLink to="/admin/processing/ratio">Pengaturan Rasio Pembagian Data</NavLink></li>
+            <li><NavLink to="/admin/processing/training">Pelatihan Model</NavLink></li>
           </ul>
         </li>
-        <li>
-          <p>Preprocessing</p>
-          <ul className="submenu">
-            <li><Link to="/admin/preprocessing">Preprocess Data</Link></li>
-          </ul>
-        </li>
-        <li>
-          <p>Processing</p>
-          <ul className="submenu">
-            <li><Link to="/admin/processing/ratio">Pengaturan Rasio Data Split</Link></li>
-            <li><Link to="/admin/processing">Training</Link></li>
-          </ul>
-        </li>
-        <li><Link to="/admin/testing">Testing</Link></li>
-        <li><Link to="/admin/evaluation">Evaluasi Performa Model</Link></li>
+        <li><NavLink to="/admin/testing">Pengujian Model</NavLink></li>
+        <li><NavLink to="/admin/evaluation">Evaluasi Performa Model</NavLink></li>
       </ul>
       <ul>
-        <li><Link to="/user/dashboard">Kunjungi Website BISINDO</Link></li>
-        <li><Link to="/admin/login">Logout</Link></li>
+        <li><NavLink to="/user/dashboard">Kunjungi Website BISINDO</NavLink></li>
+        <li><NavLink to="/admin/login">Keluar</NavLink></li>
       </ul>
     </nav>
   )

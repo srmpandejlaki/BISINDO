@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+.admin-layout, .user-layout {
+  font-family: 'Poppins', sans-serif; 
+}
+
 ul {
   list-style-type: none;
 }
@@ -20,10 +24,6 @@ a {
   &:hover {
     text-decoration: underline;
   }
-
-  &.active {
-    font-weight: bold;
-  }
 }
 
 // text
@@ -37,7 +37,7 @@ a {
 .admin-layout {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 290px 1fr;
 }
 
 nav {
@@ -46,10 +46,17 @@ nav {
   top: 0;
   background-color: #333;
   color: white;
+  // font-size: 1.1rem;
   padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+nav a.active {
+  font-weight: bold;
+}
+.active {
+  font-weight: bold;
 }
 
 .submenu {

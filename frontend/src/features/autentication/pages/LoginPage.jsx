@@ -75,7 +75,7 @@ function LoginPage() {
 
           {/* Username */}
           <div className="form-group">
-            <label htmlFor="login-username">Username</label>
+            <label htmlFor="login-username">Nama Pengguna</label>
             <div className="input-wrapper">
               <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -96,7 +96,7 @@ function LoginPage() {
 
           {/* Password */}
           <div className="form-group">
-            <label htmlFor="login-password">Password</label>
+            <label htmlFor="login-password">Kata Sandi</label>
             <div className="input-wrapper">
               <svg className="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
