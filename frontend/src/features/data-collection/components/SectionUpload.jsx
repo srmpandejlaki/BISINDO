@@ -69,9 +69,9 @@ function SectionUpload({
 
   return (
     <div className="section-upload">
-      <h2>Upload Dataset</h2>
+      <h2>Unggah Dataset</h2>
       <p>
-        Upload dataset Anda di sini menggunakan
+        Unggah dataset Anda di sini menggunakan
         format ZIP.
       </p>
 
@@ -83,12 +83,13 @@ function SectionUpload({
         />
 
         <button
+          className="button submit"
           type="submit"
           disabled={loading}
         >
           {loading
-            ? "Uploading..."
-            : "Upload"}
+            ? "Mengunggah..."
+            : "Unggah"}
         </button>
       </form>
     </div>

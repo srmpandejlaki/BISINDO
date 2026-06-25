@@ -1,0 +1,55 @@
+// Color
+$primary-color: #333;
+$secondary-color: #fff;
+$tertiary-color: #cccccc;
+
+// Section
+.section-upload, 
+.section-preview,
+.section-dataset{
+  background-color: $secondary-color;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 2px solid $primary-color;
+  // border: 1px solid #dee2e6;
+  // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.23);
+}
+
+h1 {
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
+}
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+.white {
+  color: $secondary-color;
+}
+
+// Button
+.button {
+  border: 0;
+  border-radius: 24px;
+  padding: 0.4rem 0.8rem;
+  background-color: $primary-color;
+  color: $secondary-color;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover {
+  background-color: #6c757d;
+}
+.submit:hover {
+  background-color: #1f9c2b;
+  // background-color: #25c032;
+}
+.edit:hover {
+  // background-color: #1f3e9c;
+  background-color: #2554c0;
+}
+.delete:hover {
+  // background-color: #9c1f1f;
+  background-color: #c02534;
+}

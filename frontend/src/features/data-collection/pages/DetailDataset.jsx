@@ -12,7 +12,7 @@ function DetailDataset() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 14;
 
   const loadDetailDataset = async (id) => {
     try {
@@ -39,55 +39,45 @@ function DetailDataset() {
 
   return (
     <div className="content detail-dataset">
-      <h1>Detail Dataset</h1>
+      <h2>Detail Dataset</h2>
 
-      <table>
-        <thead>
-          <tr>
-            <th>No.</th>
-            <th>Name</th>
-            <th>Label</th>
-            <th>Sequence Length</th>
-            <th>Preview</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map((dataset, index) => (
-            <tr key={index}>
-              <td className="text-center">{startIndex + index + 1}.</td>
-              <td>{dataset.dataName || dataset.dataFilePath?.replace(/\\/g, "/").split("/").pop()}</td>
-              <td className="text-center">{dataset.idLabel}</td>
-              <td className="text-center">{dataset.sequenceLength}</td>
-              <td className="text-center">
-                <button 
-                  onClick={() => setPreviewId(dataset.idRawData)}
-                  style={{
-                    padding: "6px 12px",
-                    backgroundColor: "#007bff",
-                    color: "#ffffff",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    fontSize: "0.7rem",
-                    transition: "background-color 0.2s"
-                  }}
-                  onMouseOver={(e) => e.target.style.backgroundColor = "#0056b3"}
-                  onMouseOut={(e) => e.target.style.backgroundColor = "#007bff"}
-                >
-                  Lihat Preview
-                </button>
-              </td>
-              <td className="text-center"></td>
+      <div className="table-dataset">
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Name</th>
+              <th>Label</th>
+              <th>Sequence Length</th>
+              <th>Preview</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginatedData.map((dataset, index) => (
+              <tr key={index}>
+                <td className="text-center">{startIndex + index + 1}.</td>
+                <td className="padding-cell">{dataset.dataName || dataset.dataFilePath?.replace(/\\/g, "/").split("/").pop()}</td>
+                <td className="text-center">{dataset.idLabel}</td>
+                <td className="text-center">{dataset.sequenceLength}</td>
+                <td className="text-center">
+                  <button 
+                    onClick={() => setPreviewId(dataset.idRawData)}
+                    className="button edit"
+                  >
+                    Lihat Preview
+                  </button>
+                </td>
+                <td className="text-center"></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <div className="pagination-display">
         <Link to="/admin/data-collection">
-          <button className="back-btn" >Kembali</button>
+          <button className="button" >Kembali</button>
         </Link>
         <div className="pagination">
           <div 
@@ -114,7 +104,7 @@ function DetailDataset() {
           <div className="total-data">
             <p className="info-total">Total Data: {detailDataset.length}</p>
           </div>
-          <button className="download-btn">Download</button>
+          <button className="button submit">Download</button>
         </div>   
       </div>
 
@@ -150,36 +140,13 @@ function DetailDataset() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ color: "#fff", margin: 0, fontSize: "1.2rem", fontWeight: "600" }}>Hand Skeleton Preview</h3>
+            <h2 className="white">Hand Skeleton Preview</h2>
             <img 
               src={`${BASE_URL}/datasets/raw-data/${previewId}/preview`}
               alt="Hand Skeleton Preview" 
-              style={{ 
-                width: "280px", 
-                height: "280px", 
-                backgroundColor: "#000", 
-                borderRadius: "8px",
-                objectFit: "contain",
-                border: "1px solid #444"
-              }} 
+              className="img-preview"
             />
-            <button 
-              style={{
-                padding: "8px 20px",
-                backgroundColor: "#dc3545",
-                color: "#fff",
-                border: "none",
-                borderRadius: "6px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                fontSize: "0.9rem",
-                transition: "background-color 0.2s"
-              }}
-              onClick={() => setPreviewId (null)}
-              onMouseOver={(e) => e.target.style.backgroundColor = "#c82333"}
-
-              onMouseOut={(e) => e.target.style.backgroundColor = "#dc3545"}
-            >
+            <button className="button delete" onClick={() => setPreviewId (null)} >
               Tutup
             </button>
           </div>

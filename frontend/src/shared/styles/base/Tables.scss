@@ -1,35 +1,40 @@
+@use '@/shared/styles/base/custom.scss';
 
-
-.table-dataset {
-  margin-top: 20px;
-}
+// .table-dataset {
+//   margin-top: 20px;
+// }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  border: 1px solid custom.$primary-color;
+  overflow: hidden;
 }
 
-thead, td {
-  background-color: #edf2f7;
+thead {
+  background-color: custom.$tertiary-color;
+  border-bottom: 2px solid custom.$primary-color;
 }
 
 th, td {
-  border: 1px solid #cbd5e0;
+  border: 1px solid custom.$primary-color;
   padding: 6px;
 }
 
-th {
-  border-bottom: 1px solid #cbd5e0;
-}
-.th-head {
-  background-color: #edf2f7;
-}
-.tr-sub {
-  background-color: #f7fafc;
+th, tr {
+  border-bottom: 1px solid custom.$primary-color;
 }
 
-tr {
-  border-bottom: 1px solid #e2e8f0;
-  background-color: #f7fafc;
+// custom
+.table-label, 
+.table-dataset {
+  border: 2px solid custom.$primary-color;
+  border-radius: 8px;
+}
+
+.btn-column {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
 }

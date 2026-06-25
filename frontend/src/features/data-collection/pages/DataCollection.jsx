@@ -45,7 +45,7 @@ function DataCollection() {
 
   return (
     <div className="content data-collection">
-      <h1>Data Collection</h1>
+      <h1>Pengumpulan Data</h1>
       <div className="section-atas">
         <SectionUpload 
           onUploadSuccess={loadDatasets} 
@@ -54,7 +54,9 @@ function DataCollection() {
         <SectionPreview preview={previewData} />
         <TableLabel />
       </div>
+      <h2>Table Dataset</h2>
       <TableDataset datasets={dataset} />
+      <p className="info-total">Total Dataset: {dataset.length}</p>
     </div>
   )
 }

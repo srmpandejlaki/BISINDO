@@ -3,8 +3,6 @@ import React from "react";
 function TableLabel() {
   return (
     <div className="table-label">
-      <h3>Table Label</h3>
-
       <table>
         <thead>
           <tr>
@@ -14,8 +12,32 @@ function TableLabel() {
         </thead>
         <tbody>
           <tr>
-            <td>A</td>
-            <td>100</td>
+            <td className="text-center">A</td>
+            <td className="text-center">100</td>
+          </tr>
+          <tr>
+            <td className="text-center">A</td>
+            <td className="text-center">100</td>
+          </tr>
+          <tr>
+            <td className="text-center">A</td>
+            <td className="text-center">100</td>
+          </tr>
+          <tr>
+            <td className="text-center">A</td>
+            <td className="text-center">100</td>
+          </tr>
+          <tr>
+            <td className="text-center">A</td>
+            <td className="text-center">100</td>
+          </tr>
+          <tr>
+            <td className="text-center">A</td>
+            <td className="text-center">100</td>
+          </tr>
+          <tr>
+            <td className="text-center">A</td>
+            <td className="text-center">100</td>
           </tr>
         </tbody>
       </table>
