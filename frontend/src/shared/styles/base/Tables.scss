@@ -25,7 +25,9 @@ th, td, tr {
 
 // custom
 .table-label, 
-.table-dataset {
+.table-dataset,
+.table,
+.table-wrapper {
   border: 2px solid custom.$primary-color;
   border-radius: 8px;
 }

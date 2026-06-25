@@ -26,7 +26,7 @@ function ParameterTest({ runTestRatios, testingStatus, testingError }) {
       <h3>Parameter untuk Pengujian Ratio Data Split Terbaik</h3>
       <form className="form-ratio" onSubmit={handleSubmit}>
         <div className="input">
-          <label>Epochs:</label>
+          <label>Epoch:</label>
           <input
             type="number"
             placeholder="10"
@@ -62,8 +62,8 @@ function ParameterTest({ runTestRatios, testingStatus, testingError }) {
             required
           />
         </div>
-        <button type="submit" disabled={isTesting}>
-          {isTesting ? "Menguji..." : "Test"}
+        <button className="button" type="submit" disabled={isTesting}>
+          {isTesting ? "Menguji..." : "Mulai Pengujian"}
         </button>
       </form>
 

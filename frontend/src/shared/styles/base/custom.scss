@@ -9,7 +9,10 @@ $desc-color: #666;
 .section-preview,
 .section-dataset,
 .lists-dataset,
-.parameter-setting {
+.parameter-setting,
+.add-form,
+.parameter-test-ratio,
+.table-ratio {
   background-color: $secondary-color;
   padding: 1rem;
   border-radius: 8px;
@@ -67,4 +70,12 @@ h3 {
 .delete:hover {
   // background-color: #9c1f1f;
   background-color: #c02534;
+}
+
+// Input
+input {
+  border: 1px solid $primary-color;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
 }

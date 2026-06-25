@@ -137,7 +137,7 @@ function ResultRatio({ ratios, liveProgress, testingStatus, currentRatioTesting,
                   {testedRatios.map((r) => (
                     <td
                       key={`acc-avg-${r.idRatioDataSplit}`}
-                      style={{ color: r.bestRatio ? "#dd6b20" : "inherit" }}
+                      style={{ fontWeight: r.bestRatio ? "bold" : "inherit" }}
                     >
                       {r.accuracy !== null ? `${(r.accuracy * 100).toFixed(0)}%` : "-"}
                     </td>
