@@ -17,11 +17,12 @@ function ProcessingPage() {
     finalResults,
     startModelTraining,
     deleteModel,
+    datasets,
   } = useTraining();
 
   return (
     <div className="content processing-page">
-      <h1>Processing Page</h1>
+      <h1>Pelatihan Model</h1>
       <SectionDataset 
         models={models} 
         bestRatio={bestRatio} 
@@ -30,6 +31,7 @@ function ProcessingPage() {
         deleteModel={deleteModel}
       />
       <SectionPreparation 
+        datasets={datasets}
         models={models} 
         bestRatio={bestRatio} 
         trainingStatus={trainingStatus}

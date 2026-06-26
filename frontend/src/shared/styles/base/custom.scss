@@ -12,7 +12,8 @@ $desc-color: #666;
 .parameter-setting,
 .add-form,
 .parameter-test-ratio,
-.table-ratio {
+.table-ratio,
+.section-preparation {
   background-color: $secondary-color;
   padding: 1rem;
   border-radius: 8px;
@@ -78,4 +79,11 @@ input {
   padding: 0.4rem 0.8rem;
   border-radius: 4px;
   font-size: 0.9rem;
+}
+
+// Confusion Matrix
+.matrix-grid {
+  overflow-x: auto;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
 }

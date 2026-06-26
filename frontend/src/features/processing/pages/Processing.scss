@@ -1,4 +1,4 @@
-
+@use '@/shared/styles/base/custom.scss';
 
 .processing-page {
   display: flex;
@@ -6,24 +6,18 @@
   gap: 20px;
 }
 
-.section-preparation {
+.form-training {
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 1rem;
 
   grid-template-areas: 
-    "title title"
-    "split-data parameter-model"
-    "pilih-model parameter-training";
+    "ratio-model parameter-model"
+    "ratio-model parameter-training";
 
-  h2 {
-    grid-area: title;
-  }
   button {
-    width: fit-content;
     justify-self: end;
     grid-column: 2;
-    padding: 5px;
   }
   
   select, input {
@@ -41,11 +35,8 @@
     width: 100px;
   }
 }
-.split-data {
-  grid-area: split-data;
-}
-.pilih-model {
-  grid-area: pilih-model;
+.ratio-model{
+  grid-area: ratio-model;
 }
 .parameter-model {
   grid-area: parameter-model;
@@ -58,12 +49,35 @@
   padding-block: 0.5rem;
 }
 
+.ratio-model {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  input, select {
+    width: 180px;
+    margin-bottom: 1rem;
+  }
+}
+
+.split-rasio {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid custom.$primary-color;
+  border-radius: 8px;
+  width: fit-content;
+}
+
 // parameter model
 .parameter-model-items, .parameter-training-items {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1rem 3rem;
   margin-top: 1rem;
+
+  .long-input {
+    width: 180px;
+  }
 }
 
 .parameter-items {
@@ -74,5 +88,61 @@
   
   label {
     min-width: 100px;
+  }
+}
+
+.detail-model {
+  display: grid;
+  gap: 1rem;
+
+  grid-template-columns: 470px 1fr;
+  grid-template-areas: 
+    "title title"
+    "model-info model-info"
+    "parameter confusion-matrix"
+    "parameter confusion-matrix"
+    "btn btn";
+
+  .title {
+    grid-area: title;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+.model-info{
+  grid-area: model-info;
+}
+.btn {
+  grid-area: btn;
+}
+
+.parameter {
+  grid-area: parameter;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .table {
+    width: 100%;
+    height: max-content;
+  }
+}
+
+.confusion-matrix {
+  grid-area: confusion-matrix;
+
+  .container {
+    overflow-x: auto;
+    // border: 1px solid #dee2e6;
+    border: 2px solid custom.$primary-color;
+    border-radius: 6px;
+  }
+  .main-table {
+    width: fit-content;
+    padding: 10px;
+  }
+  .row {
+    display: flex;
   }
 }

@@ -1,10 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { get_all_models, get_best_ratio, delete_model } from "@/features/processing/utils/processing_api";
+import { get_all_datasets } from "../utils/general_api";
 import { BASE_URL } from "@/shared/utils/index-api";
 
 const TrainingContext = createContext(null);
 
 export function TrainingProvider({ children }) {
+  const [datasets, setDatasets] = useState([]);
   const [models, setModels] = useState([]);
   const [bestRatio, setBestRatio] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -31,6 +33,15 @@ export function TrainingProvider({ children }) {
     }
   };
 
+  const fetchDatasets = async () => {
+    try {
+      const response = await get_all_datasets();
+      setDatasets(response);
+    } catch (err) {
+      console.error("Error fetching datasets", err);
+    }
+  }
+
   const fetchBestRatio = async () => {
     try {
       const response = await get_best_ratio();
@@ -41,6 +52,7 @@ export function TrainingProvider({ children }) {
   };
 
   useEffect(() => {
+    fetchDatasets();
     fetchModels();
     fetchBestRatio();
   }, []);
@@ -135,6 +147,7 @@ export function TrainingProvider({ children }) {
         finalResults,
         startModelTraining,
         deleteModel,
+        datasets,
       }}
     >
       {children}

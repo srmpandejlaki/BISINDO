@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
-function SectionPreparation({ models, bestRatio, trainingStatus, startModelTraining, trainingError }) {
+function SectionPreparation({ datasets, models, bestRatio, trainingStatus, startModelTraining, trainingError }) {
+  
   const [modelType, setModelType] = useState("new");
   const [selectedModelId, setSelectedModelId] = useState("");
   
@@ -16,6 +17,9 @@ function SectionPreparation({ models, bestRatio, trainingStatus, startModelTrain
   const [epochs, setEpochs] = useState(5);
   const [batchSize, setBatchSize] = useState(32);
   const [learningRate, setLearningRate] = useState(0.001);
+  const [optimizer, setOptimizer] = useState("adam");
+  const [denseActivation, setDenseActivation] = useState("relu");
+  const [lossFunction, setLossFunction] = useState("categorical_crossentropy");
 
   // Auto-fill values when existing model is selected
   useEffect(() => {
@@ -31,6 +35,9 @@ function SectionPreparation({ models, bestRatio, trainingStatus, startModelTrain
         setEpochs(selected.epochs || 5);
         setBatchSize(selected.batchSize || 32);
         setLearningRate(selected.learningRate || 0.001);
+        setOptimizer(selected.optimizer || "adam");
+        setDenseActivation(selected.denseActivation || "relu");
+        setLossFunction(selected.lossFunction || "categorical_crossentropy");
       }
     } else if (modelType === "new") {
       // Reset to defaults for new model
@@ -43,6 +50,7 @@ function SectionPreparation({ models, bestRatio, trainingStatus, startModelTrain
       setEpochs(5);
       setBatchSize(32);
       setLearningRate(0.001);
+      setOptimizer("adam");
     }
   }, [modelType, selectedModelId, models]);
 
@@ -77,55 +85,73 @@ function SectionPreparation({ models, bestRatio, trainingStatus, startModelTrain
     <div className="section-preparation">
       <h2>Section Preparation</h2>
       
-      <div className="split-data">
-        <h4>Split Data</h4>
-        <p>training menggunakan rasio terbaik</p>
-        <p className="split-rasio">{bestRatio?.trainRatio || "Belum ditentukan"}</p>
-      </div>
+      <form className="form-training" onSubmit={handleSubmit}>
+        <div className="ratio-model">
+          <div className="split-data">
+            <h4>Split Data</h4>
+            <p>training menggunakan rasio terbaik</p>
+            <p className="split-rasio">{bestRatio?.trainRatio || "Belum ditentukan"}</p>
+          </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="pilih-model">
-          <h4>Pemilihan Model</h4>
-          <select 
-            value={modelType} 
-            onChange={(e) => setModelType(e.target.value)}
-            disabled={isTraining}
-          >
-            <option value="new">Model Baru</option>
-            <option value="existing">Model yang sudah ada</option>
-          </select>
+          <div className="pilih-model">
+            <h4>Pemilihan Model</h4>
+            <select 
+              value={modelType} 
+              onChange={(e) => setModelType(e.target.value)}
+              disabled={isTraining}
+            >
+              <option value="new">Model Baru</option>
+              <option value="existing">Model yang sudah ada</option>
+            </select>
 
-          {modelType === "existing" && (
-            <div className="opsi-model mt-3">
-              <h4>Opsi Model</h4>
-              <select 
-                value={selectedModelId} 
-                onChange={(e) => setSelectedModelId(e.target.value)}
-                disabled={isTraining}
-              >
-                <option value="">Pilih Model</option>
-                {models.map((model) => (
-                  <option key={model.idTraining} value={model.idTraining}>
-                    {model.modelName} (Acc: {(model.accuracy * 100).toFixed(1)}%)
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+            {modelType === "existing" && (
+              <div className="pilih-model">
+                <h4>Opsi Model</h4>
+                <select 
+                  value={selectedModelId} 
+                  onChange={(e) => setSelectedModelId(e.target.value)}
+                  disabled={isTraining}
+                >
+                  <option value="">Pilih Model</option>
+                  {models.map((model) => (
+                    <option key={model.idTraining} value={model.idTraining}>
+                      {model.modelName} (Acc: {(model.accuracy * 100).toFixed(1)}%)
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-          {modelType === "new" && (
-            <div className="input-group mt-3">
-              <label>Nama Model Baru :</label>
-              <input 
-                type="text" 
-                placeholder="Masukkan nama model..." 
-                value={modelName}
-                onChange={(e) => setModelName(e.target.value)}
-                disabled={isTraining}
-                required
-              />
-            </div>
-          )}
+            {modelType === "new" && (
+              <div className="opsi-model">
+                <h4>Nama Model Baru</h4>
+                <input 
+                  type="text" 
+                  placeholder="Masukkan nama model..." 
+                  value={modelName}
+                  onChange={(e) => setModelName(e.target.value)}
+                  disabled={isTraining}
+                  required
+                />
+              </div>
+            )}
+          </div>
+
+          <div className="pilih-model">
+            <h4>Pilih Dataset</h4>
+            <select 
+              value={selectedModelId} 
+              onChange={(e) => setSelectedModelId(e.target.value)}
+              disabled={isTraining}
+            >
+              <option value="">Pilih Dataset</option>
+              {datasets.map((dataset) => (
+                <option key={dataset.idDataset} value={dataset.idDataset}>
+                  {dataset.datasetName}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="parameter-model">
@@ -203,7 +229,7 @@ function SectionPreparation({ models, bestRatio, trainingStatus, startModelTrain
           <p>atur parameter untuk training model</p>
           <div className="parameter-training-items">
             <div className="parameter-items">
-              <label>Epochs :</label>
+              <label>Epoch :</label>
               <input 
                 type="number" 
                 placeholder="5" 
@@ -236,6 +262,34 @@ function SectionPreparation({ models, bestRatio, trainingStatus, startModelTrain
                 // min={0.00001}
               />
             </div>
+            <div className="parameter-items">
+              <label>Dense Activation :</label>
+              <input 
+                type="text" 
+                value={denseActivation}
+                // onChange={(e) => setLearningRate(Number(e.target.value))}
+                disabled={isDisabled}
+              />
+            </div>
+            <div className="parameter-items">
+              <label>Optimizer :</label>
+              <input 
+                type="text" 
+                value={optimizer}
+                // onChange={(e) => setLearningRate(Number(e.target.value))}
+                disabled={isDisabled}
+              />
+            </div>
+            <div className="parameter-items">
+              <label>Loss Function :</label>
+              <input 
+                className="long-input"
+                type="text" 
+                value={lossFunction}
+                // onChange={(e) => setLearningRate(Number(e.target.value))}
+                disabled={isDisabled}
+              />
+            </div>
           </div>
         </div>
 
@@ -248,7 +302,7 @@ function SectionPreparation({ models, bestRatio, trainingStatus, startModelTrain
         {modelType === "new" && (
           <button 
             type="submit" 
-            className={`btn-train mt-4 ${isTraining ? "running" : ""}`}
+            className={`button ${isTraining ? "running" : ""}`}
             disabled={isTraining}
           >
             {isTraining ? "Proses Training..." : "Mulai Training"}

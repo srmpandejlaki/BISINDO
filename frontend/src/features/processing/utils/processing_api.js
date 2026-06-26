@@ -48,6 +48,30 @@ export const get_best_ratio = async () => {
   }
 };
 
+export const get_model_by_id = async (idTraining) => {
+  try {
+    const response = await fetch(`${BASE_URL}/processing/models/${idTraining}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch model. ", response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    if (data && data.success) {
+      return data.data;
+    }
+    return null;
+    
+  } catch (error) {
+    console.log("Error fetching model", error);
+    return null;
+  }
+};
+
 export const delete_model = async (idTraining) => {
   try {
     const response = await fetch(`${BASE_URL}/processing/models/${idTraining}`, {
@@ -68,4 +92,4 @@ export const delete_model = async (idTraining) => {
   }
 };
 
-// Trigger hot reload
+// Trigger hot reload

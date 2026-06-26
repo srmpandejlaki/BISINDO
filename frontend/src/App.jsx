@@ -13,6 +13,7 @@ import DetailDataset from "./features/data-collection/pages/DetailDataset";
 import Preprocessing from "./features/preprocessing/pages/Preprocessing";
 import SplitRatio from "./features/split-ratio/pages/SplitRatio";
 import Processing from "./features/processing/pages/Processing";
+import DetailModel from "./features/processing/pages/DetailModel";
 import TestingPage from "./features/testing/pages/Testing";
 import EvaluationPage from "./features/evaluation/pages/Evaluation";
 
@@ -52,6 +53,7 @@ function App() {
             element={<DetailDataset />}
           />
           <Route path="/admin/preprocessing" element={<Preprocessing />} />
+          <Route path="/admin/preprocessing/:idTraining/detail_model" element={<DetailModel />} />
           <Route path="/admin/processing/training" element={<Processing />} />
           <Route path="/admin/processing/ratio" element={<SplitRatio />} />
           <Route path="/admin/testing" element={<TestingPage />} />

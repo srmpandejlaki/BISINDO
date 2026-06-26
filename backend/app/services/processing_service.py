@@ -426,6 +426,14 @@ class ProcessingService:
               if not t.is_alive():
                   break
 
+  def get_model_by_id(self, db: Session, idTraining: int):
+      model = self.training_repository.get_by_id(db, idTraining, Training.idTraining)
+      
+      if not model:
+          raise ValueError("Model not found")
+      
+      return self.training_repository.get_by_id(db, idTraining, Training.idTraining)
+
   def delete_model(self, db: Session, idTraining: int):
       import os
       from app.database.models import Training

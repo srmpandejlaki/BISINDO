@@ -127,6 +127,24 @@ def train_model(
     media_type="text/event-stream"
   )
 
+@router.get("/models/{idTraining}")
+def get_model_by_id(
+  idTraining: int,
+  db: Session = Depends(get_db)
+):
+  dataset = processing_service.get_model_by_id(db, idTraining)
+
+  if not dataset:
+    raise HTTPException(
+      status_code=404, 
+      detail="Model not found"
+    )
+  
+  return {
+    "success": True,
+    "data": dataset
+  }
+
 @router.delete("/models/{idTraining}")
 def delete_model(
   idTraining: int,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, NavLink } from "react-router-dom";
 import IconPanahKiri from "../../../assets/icons/carbon_next-filled.svg";
 import IconPanahKanan from "../../../assets/icons/carbon_next-filled-right.svg";
 import { get_dataset_by_id_dataset } from "../utils/data_collection_api";
@@ -76,9 +76,9 @@ function DetailDataset() {
       </div>
 
       <div className="pagination-display">
-        <Link to="/admin/data-collection">
+        <NavLink to="/admin/data-collection">
           <button className="button" >Kembali</button>
-        </Link>
+        </NavLink>
         <div className="pagination">
           <div 
             className="left"
