@@ -44,12 +44,12 @@ def get_next_filename(label):
 
     files = [
         f for f in os.listdir(label_folder)
-        if f.endswith(".avi")
+        if f.endswith(".mp4")
     ]
 
     next_number = len(files) + 1
 
-    filename = f"{label}_{next_number:03d}.avi"
+    filename = f"{label}_{next_number:03d}.mp4"
 
     return os.path.join(label_folder, filename)
 
@@ -63,7 +63,7 @@ def count_label_data(label):
 
     return len([
         f for f in os.listdir(label_folder)
-        if f.endswith(".avi")
+        if f.endswith(".mp4")
     ])
 
 
@@ -223,7 +223,7 @@ while True:
 
         writer = cv2.VideoWriter(
             filepath,
-            cv2.VideoWriter_fourcc(*"XVID"),
+            cv2.VideoWriter_fourcc(*"mp4v"),
             TARGET_FPS,
             (width, height)
         )
