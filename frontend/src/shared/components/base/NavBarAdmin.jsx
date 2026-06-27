@@ -17,7 +17,7 @@ function NavBarAdmin() {
         <li>
           <p className={processingActive ? "active" : ""}>Pemrosesan Data</p>
           <ul className="submenu">
-            <li><NavLink to="/admin/data-collection">Pengaturan Parameter Hand Skeleton</NavLink></li>
+            <li><NavLink to="/admin/processing/hand-skeleton">Hand Skeleton</NavLink></li>
             <li><NavLink to="/admin/processing/ratio">Pengaturan Rasio Pembagian Data</NavLink></li>
             <li><NavLink to="/admin/processing/training">Pelatihan Model</NavLink></li>
           </ul>

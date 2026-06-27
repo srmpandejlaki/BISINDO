@@ -1,0 +1,55 @@
+@use '@/shared/styles/base/custom.scss';
+
+.hand-skeleton-page {
+  display: grid;
+  gap: 20px;
+
+  grid-template-columns: 400px 1fr;
+  grid-template-areas: 
+    "title title"
+    "config dataset"
+    "output process-landmark";
+
+  h1 {
+    grid-area: title;
+  }
+  .btn {
+    grid-column: 2;
+    justify-self: flex-end;
+  }
+}
+.info-configuration {
+  grid-area: config;
+}
+.info-output {
+  grid-area: output;
+}
+.section-dataset {
+  grid-area: dataset;
+}
+.process-landmark {
+  grid-area: process-landmark;
+}
+
+.info-configuration, .info-output {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .configuration {
+    p {
+      font-size: 15px;
+      margin-bottom: 0.5rem;
+      display: flex;
+    }
+  
+    p span:first-child {
+      font-weight: bold;
+      width: 240px;
+    }
+  
+    p span:last-child::before {
+      content: ": ";
+    }
+  }
+}

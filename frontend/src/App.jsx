@@ -11,6 +11,7 @@ import DashboardAdmin from "./features/dashboard-admin/pages/DashboardAdmin";
 import DataCollection from "./features/data-collection/pages/DataCollection";
 import DetailDataset from "./features/data-collection/pages/DetailDataset";
 import Preprocessing from "./features/preprocessing/pages/Preprocessing";
+import HandSkeleton from "./features/hand-skeleton/pages/HandSkeleton";
 import SplitRatio from "./features/split-ratio/pages/SplitRatio";
 import Processing from "./features/processing/pages/Processing";
 import DetailModel from "./features/processing/pages/DetailModel";
@@ -54,8 +55,9 @@ function App() {
           />
           <Route path="/admin/preprocessing" element={<Preprocessing />} />
           <Route path="/admin/preprocessing/:idTraining/detail_model" element={<DetailModel />} />
-          <Route path="/admin/processing/training" element={<Processing />} />
+          <Route path="/admin/processing/hand-skeleton" element={<HandSkeleton />} />
           <Route path="/admin/processing/ratio" element={<SplitRatio />} />
+          <Route path="/admin/processing/training" element={<Processing />} />
           <Route path="/admin/testing" element={<TestingPage />} />
           <Route path="/admin/evaluation" element={<EvaluationPage />} />
         </Route>
