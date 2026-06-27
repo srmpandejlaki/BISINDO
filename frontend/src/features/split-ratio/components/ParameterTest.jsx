@@ -1,23 +1,12 @@
-import React, { useState } from "react";
+import React from "react";
 
-function ParameterTest({ runTestRatios, testingStatus, testingError }) {
-  const [epochs, setEpochs] = useState("10");
-  const [batchSize, setBatchSize] = useState("16");
-  const [learningRate, setLearningRate] = useState("0.001");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!epochs || !batchSize || !learningRate) {
-      alert("Semua parameter harus diisi!");
-      return;
-    }
-    
-    runTestRatios({
-      epochs: parseInt(epochs),
-      batch_size: parseInt(batchSize),
-      learning_rate: parseFloat(learningRate),
-    });
-  };
+function ParameterTest({ 
+  epochs, setEpochs, 
+  batchSize, setBatchSize, 
+  learningRate, setLearningRate, 
+  handleSubmit, 
+  runTestRatios, 
+  testingStatus, testingError }) {
 
   const isTesting = testingStatus === "testing";
 

@@ -60,3 +60,23 @@ export const delete_ratio = async (id) => {
     return [];
   }
 };
+
+export const get_dataset_preprocess = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/preprocessing/dataset-preprocess/`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch datasets. ", response.status, response.statusText);
+      return [];
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.log("Error fetching datasets", error);
+    return [];
+  }
+}

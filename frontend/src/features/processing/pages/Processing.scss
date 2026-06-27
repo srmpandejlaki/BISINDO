@@ -128,6 +128,9 @@
     height: max-content;
   }
 }
+.table-parameter th {
+  width: 50%;
+}
 
 .confusion-matrix {
   grid-area: confusion-matrix;

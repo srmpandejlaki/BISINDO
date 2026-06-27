@@ -10,6 +10,7 @@ function TableRatio({ ratios, loading, error, fetchRatios, testingStatus}) {
     try {
       const result = await delete_ratio(id);
       if (result && result.success) {
+        alert("Ratio berhasil dihapus.");
         fetchRatios(); // Refresh tabel setelah berhasil menghapus
       } else {
         alert("Gagal menghapus ratio.");

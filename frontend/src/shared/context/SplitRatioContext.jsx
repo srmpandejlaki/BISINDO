@@ -1,13 +1,19 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { get_all_ratio } from "@/features/split-ratio/utils/split_ratio_api";
+import { get_all_ratio, get_dataset_preprocess } from "@/features/split-ratio/utils/split_ratio_api";
 import { BASE_URL } from "@/shared/utils/index-api";
 
 const SplitRatioContext = createContext(null);
 
 export function SplitRatioProvider({ children }) {
+  const [datasets, setDatasets] = useState([]);
   const [ratios, setRatios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  const [selectedDatasetId, setSelectedDatasetId] = useState(null);
+  const [epochs, setEpochs] = useState("10");
+  const [batchSize, setBatchSize] = useState("16");
+  const [learningRate, setLearningRate] = useState("0.001");
   
   const [liveProgress, setLiveProgress] = useState({});
   const [testingStatus, setTestingStatus] = useState("idle"); // 'idle' | 'testing' | 'completed' | 'error'
@@ -33,9 +39,41 @@ export function SplitRatioProvider({ children }) {
     }
   };
 
+  const fetchDatasets = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await get_dataset_preprocess();
+      if (response && response.success) {
+        setDatasets(response.data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
   useEffect(() => {
     fetchRatios();
+    fetchDatasets();
   }, []);
+
+  const handleSelectedId = (idDataset) => {
+    setSelectedDatasetId(idDataset);
+  };
+  
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!epochs || !batchSize || !learningRate) {
+      alert("Semua parameter harus diisi!");
+      return;
+    }
+    
+    runTestRatios({
+      epochs: parseInt(epochs),
+      batch_size: parseInt(batchSize),
+      learning_rate: parseFloat(learningRate),
+    });
+  };
 
   const runTestRatios = async (config) => {
     setTestingStatus("testing");
@@ -104,6 +142,16 @@ export function SplitRatioProvider({ children }) {
   return (
     <SplitRatioContext.Provider
       value={{
+        datasets,
+        selectedDatasetId,
+        handleSelectedId,
+        epochs,
+        setEpochs,
+        batchSize,
+        setBatchSize,
+        learningRate,
+        setLearningRate,
+        handleSubmit,
         ratios,
         setRatios,
         loading,

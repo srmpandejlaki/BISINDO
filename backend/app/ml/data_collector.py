@@ -126,6 +126,8 @@ while True:
     if not ret:
         break
 
+    frame = cv2.flip(frame, 1)  # Mirror
+
     display = frame.copy()
 
     cv2.putText(
@@ -189,6 +191,8 @@ while True:
 
                 ret, frame = cap.read()
 
+                frame = cv2.flip(frame, 1)  # Mirror
+
                 temp = frame.copy()
 
                 cv2.putText(
@@ -234,6 +238,8 @@ while True:
 
             if not ret:
                 break
+
+            frame = cv2.flip(frame, 1)  # Mirror
 
             writer.write(frame)
 

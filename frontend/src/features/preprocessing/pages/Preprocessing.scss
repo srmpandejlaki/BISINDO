@@ -43,6 +43,10 @@
   .pengantar {
     display: flex;
     flex-direction: column;
+
+    span {
+      font-weight: bolder;
+    }
   }
   .margin-bottom {
     margin-bottom: 16px;

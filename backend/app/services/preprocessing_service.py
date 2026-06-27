@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 import os
 
 from app.repositories import DatasetRepository, LabelRepository, RawDataRepository
-from app.database.models import Dataset, Label, RawData
+from app.database.models import Dataset
 
 from app.ml.preprocessing.preprocess import PreprocessDataset
 
@@ -65,3 +65,6 @@ class PreprocessingService:
       "dataset": dataset,
       "result": result
     }
+  
+  def get_datasets_preprocess(self, db: Session):
+    return self.dataset_repository.get_datasets_preprocess(db)

@@ -68,3 +68,18 @@ def run_preprocessing(
             status_code=500,
             detail=f"Preprocessing gagal: {str(e)}"
         )
+
+@router.get("/dataset-preprocess/")
+def get_dataset_preprocess(
+    db: Session = Depends(get_db)
+):
+    try:
+        result = preprocessing_service.get_datasets_preprocess(db)
+        return {
+            "success": True,
+            "data": result
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

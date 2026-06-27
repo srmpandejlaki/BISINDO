@@ -17,13 +17,23 @@ function DetailModel() {
     }
   }
 
+  const { confusionMatrix, createdAt } = model || {};
+
+  const formattedDate = createdAt 
+  ? new Date(createdAt).toLocaleDateString("id-ID", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    })
+  : "";
+
   useEffect(() => {
     if (idTraining) {
       loadModel(idTraining);
     }
   }, [idTraining]);
-
-  const { confusionMatrix } = model || {};
 
   const cm = typeof confusionMatrix === "string" ? JSON.parse(confusionMatrix) : confusionMatrix;
   const N = cm && Array.isArray(cm) ? cm.length : 0;
@@ -36,8 +46,8 @@ function DetailModel() {
   return (
     <div className="content detail-model">
       <div className="title">
-        <h2>Detail Hasil Model {model.modelName}</h2>
-        <p>Tanggal Pelatihan Model {model.createdAt}</p>
+        <h2>Informasi Detail Model {model.modelName}</h2>
+        <p>Tanggal Melatih Model {formattedDate}</p>
       </div>
 
       <div className="model-info">
@@ -45,12 +55,12 @@ function DetailModel() {
       </div>
 
       <div className="parameter">
-        <div className="table">
+        <div className="table table-parameter">
           <table>
             <thead>
               <tr>
                 <th>Parameter Model</th>
-                <th>Value</th>
+                <th>Nilai</th>
               </tr>
             </thead>
             <tbody>
@@ -78,12 +88,12 @@ function DetailModel() {
           </table>
         </div>
 
-        <div className="table">
+        <div className="table table-parameter">
           <table>
             <thead>
               <tr>
                 <th>Parameter Training</th>
-                <th>Value</th>
+                <th>Nilai</th>
               </tr>
             </thead>
             <tbody>
@@ -121,7 +131,7 @@ function DetailModel() {
               <tr>
                 <th>Akurasi</th>
                 <th>Train Loss</th>
-                <th>Vall Loss</th>
+                <th>Val Loss</th>
               </tr>
             </thead>
             <tbody>

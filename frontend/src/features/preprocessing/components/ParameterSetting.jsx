@@ -16,7 +16,7 @@ function ParameterSetting({
       <div className="pengantar">
         <h2>Konfigurasi Parameter Prapemrosesan Data</h2>
         <p className="desc">
-          Konfigurasi berikut digunakan untuk memproses data yang telah diupload.
+          Konfigurasi berikut digunakan untuk memproses data yang telah diupload. <span>Pengaturan ini tidak bisa diubah.</span>
         </p>
       </div>
 

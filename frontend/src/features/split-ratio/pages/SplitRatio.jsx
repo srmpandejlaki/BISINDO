@@ -8,6 +8,16 @@ import { useSplitRatio } from "@/shared/context/SplitRatioContext";
 
 function SplitRatio() {
   const {
+    datasets,
+    selectedDatasetId,
+    handleSelectedId,
+    epochs,
+    setEpochs,
+    batchSize,
+    setBatchSize,
+    learningRate,
+    setLearningRate,
+    handleSubmit,
     ratios,
     loading,
     error,
@@ -43,17 +53,24 @@ function SplitRatio() {
         />
 
         <TableDataPreprocess 
-          // ratios={ratios} 
-          // loading={loading} 
-          // error={error} 
-          // fetchRatios={fetchRatios}
-          // testingStatus={testingStatus}
+          loading={loading} 
+          error={error}
+          datasets={datasets}
+          selectedDatasetId={selectedDatasetId}
+          onSelectDataset={handleSelectedId}
         />
       </div>
       
       <div className="parameter-section">
         <h3>Pengujian Ratio Data Split</h3>
         <ParameterTest 
+          epochs={epochs}
+          setEpochs={setEpochs}
+          batchSize={batchSize}
+          setBatchSize={setBatchSize}
+          learningRate={learningRate}
+          setLearningRate={setLearningRate}
+          handleSubmit={handleSubmit}
           runTestRatios={runTestRatios} 
           testingStatus={testingStatus}
           testingError={testingError}
