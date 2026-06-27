@@ -1,25 +1,43 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import usePagination from "@/shared/hooks/usePagination";
+import Pagination from "@/shared/components/base/Pagination";
 
 function TestingResult({ isLoading, error, testResults }) {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const itemsPerPage = 10;
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Ambil predictions jika mode dataset
+  const predictions =
+    testResults?.mode === "dataset"
+      ? testResults.predictions
+      : [];
+
+  const {
+    paginatedData,
+    totalPages,
+    totalItems,
+    startIndex,
+  } = usePagination(
+    predictions,
+    currentPage,
+    itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [testResults]);
+
   if (isLoading) {
     return (
-      <div className="testing-result" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "300px" }}>
-        <div className="spinner" style={{
-          width: "50px",
-          height: "50px",
-          border: "5px solid #f3f3f3",
-          borderTop: "5px solid #28a745",
-          borderRadius: "50%",
-          animation: "spin 1s linear infinite"
-        }}></div>
-        <style>{`
-          @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-          }
-        `}</style>
-        <p style={{ marginTop: "20px", fontWeight: "600", color: "#495057" }}>Memproses Pengujian Model...</p>
-        <p style={{ margin: "5px 0 0 0", fontSize: "0.8rem", color: "#6c757d", textAlign: "center" }}>
+      <div className="testing-result testing-processing">
+        <div className="spinner"></div>
+        <p className="p1">Memproses Pengujian Model...</p>
+        <p className="p2">
           Ekstraksi MediaPipe (jika menggunakan video) dan komputasi metrik evaluasi sedang berjalan.
         </p>
       </div>
@@ -28,18 +46,18 @@ function TestingResult({ isLoading, error, testResults }) {
 
   if (error) {
     return (
-      <div className="testing-result" style={{ padding: "20px", backgroundColor: "#fff5f5", border: "1px solid #ffc9c9", borderRadius: "8px", minHeight: "300px" }}>
-        <h4 style={{ color: "#d9534f", marginTop: 0 }}>Gagal Melakukan Pengujian</h4>
-        <p style={{ color: "#495057", fontSize: "0.9rem" }}>{error}</p>
+      <div className="testing-result testing-error">
+        <h4>Gagal Melakukan Pengujian</h4>
+        <p>{error}</p>
       </div>
     );
   }
 
   if (!testResults) {
     return (
-      <div className="testing-result" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", color: "#6c757d", minHeight: "300px", border: "2px dashed #dee2e6" }}>
-        <p style={{ margin: 0, fontWeight: "500" }}>Belum Ada Data Pengujian</p>
-        <p style={{ margin: "5px 0 0 0", fontSize: "0.8rem", color: "#adb5bd" }}>Konfigurasikan model & mode pengujian lalu klik Start Testing.</p>
+      <div className="testing-result testing-empty">
+        <p className="p1">Belum Ada Data Pengujian</p>
+        <p className="p2">Konfigurasikan model & mode pengujian lalu klik Start Testing.</p>
       </div>
     );
   }
@@ -47,62 +65,62 @@ function TestingResult({ isLoading, error, testResults }) {
   const { mode } = testResults;
 
   if (mode === "dataset") {
-    const { summary, predictions } = testResults;
+    const { summary } = testResults;
 
     return (
-      <div className="testing-result" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div className="testing-result testing-dataset">
         {/* Header */}
-        <div style={{ borderBottom: "1px solid #e9ecef", paddingBottom: "10px" }}>
-          <h4 style={{ margin: 0, color: "#333" }}>Testing Result (Dataset Uji)</h4>
+        <div className="testing-header">
+          <h4>Hasil Pengujian</h4>
         </div>
 
         {/* Summary Metrik */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: "10px" }}>
-          <div style={{ backgroundColor: "#e8f4fd", padding: "12px", borderRadius: "6px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.8rem", color: "#0056b3", display: "block" }}>Accuracy</span>
-            <strong style={{ fontSize: "1.3rem", color: "#0056b3" }}>{(summary.accuracy * 100).toFixed(1)}%</strong>
+        <div className="testing-summary">
+          <div>
+            <span>Accuracy</span>
+            <strong>{(summary.accuracy * 100).toFixed(1)}%</strong>
           </div>
-          <div style={{ backgroundColor: "#f0fdf4", padding: "12px", borderRadius: "6px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.8rem", color: "#166534", display: "block" }}>Precision</span>
-            <strong style={{ fontSize: "1.3rem", color: "#166534" }}>{(summary.precision * 100).toFixed(1)}%</strong>
+          <div>
+            <span>Precision</span>
+            <strong>{(summary.precision * 100).toFixed(1)}%</strong>
           </div>
-          <div style={{ backgroundColor: "#fffbeb", padding: "12px", borderRadius: "6px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.8rem", color: "#9a3412", display: "block" }}>Recall</span>
-            <strong style={{ fontSize: "1.3rem", color: "#9a3412" }}>{(summary.recall * 100).toFixed(1)}%</strong>
+          <div>
+            <span>Recall</span>
+            <strong>{(summary.recall * 100).toFixed(1)}%</strong>
           </div>
-          <div style={{ backgroundColor: "#faf5ff", padding: "12px", borderRadius: "6px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.8rem", color: "#6b21a8", display: "block" }}>F1-Score</span>
-            <strong style={{ fontSize: "1.3rem", color: "#6b21a8" }}>{(summary.f1score * 100).toFixed(1)}%</strong>
+          <div>
+            <span>F1-Score</span>
+            <strong>{(summary.f1score * 100).toFixed(1)}%</strong>
           </div>
-          <div style={{ backgroundColor: "#f8fafc", padding: "12px", borderRadius: "6px", textAlign: "center" }}>
-            <span style={{ fontSize: "0.8rem", color: "#475569", display: "block" }}>MCC</span>
-            <strong style={{ fontSize: "1.3rem", color: "#475569" }}>{summary.mcc.toFixed(3)}</strong>
+          <div>
+            <span>MCC</span>
+            <strong>{summary.mcc.toFixed(3)}</strong>
           </div>
         </div>
 
         {/* Detailed Predictions Table */}
         <div>
-          <h5 style={{ margin: "0 0 10px 0", color: "#495057" }}>Log Prediksi Data Uji ({predictions.length} sampel)</h5>
-          <div style={{ maxHeight: "350px", overflowY: "auto", border: "1px solid #dee2e6", borderRadius: "6px" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.85rem" }}>
+          <h5>Log Prediksi Data Uji ({totalItems.length} sampel)</h5>
+          <div className=" table testing-table">
+            <table>
               <thead style={{ backgroundColor: "#f8f9fa", position: "sticky", top: 0, zIndex: 1, borderBottom: "2px solid #dee2e6" }}>
                 <tr>
-                  <th style={{ padding: "10px", borderBottom: "1px solid #dee2e6", width: "40px" }}>No</th>
-                  <th style={{ padding: "10px", borderBottom: "1px solid #dee2e6" }}>File Name</th>
-                  <th style={{ padding: "10px", borderBottom: "1px solid #dee2e6", width: "80px", textAlign: "center" }}>Label Asli</th>
-                  <th style={{ padding: "10px", borderBottom: "1px solid #dee2e6", width: "80px", textAlign: "center" }}>Prediksi</th>
-                  <th style={{ padding: "10px", borderBottom: "1px solid #dee2e6", width: "80px", textAlign: "right" }}>Confidence</th>
-                  <th style={{ padding: "10px", borderBottom: "1px solid #dee2e6", width: "80px", textAlign: "center" }}>Keterangan</th>
+                  <th style={{ width: "40px"}}>No</th>
+                  <th>File Name</th>
+                  <th style={{ width: "80px"}}>Label Asli</th>
+                  <th style={{ padding: "10px", width: "80px"}}>Prediksi</th>
+                  <th style={{ padding: "10px", width: "80px"}}>Confidence</th>
+                  <th style={{ padding: "10px", width: "80px"}}>Keterangan</th>
                 </tr>
               </thead>
               <tbody>
-                {predictions.map((p) => (
+                {paginatedData.map((p, index) => (
                   <tr key={p.no} style={{ borderBottom: "1px solid #eee", backgroundColor: p.keterangan === "Salah" ? "#fff8f8" : "#fff" }}>
-                    <td style={{ padding: "10px" }}>{p.no}</td>
+                    <td style={{ padding: "10px", textAlign: "center" }}>{startIndex + index + 1}.</td>
                     <td style={{ padding: "10px", color: "#666", wordBreak: "break-all" }}>{p.name}</td>
                     <td style={{ padding: "10px", textAlign: "center", fontWeight: "600" }}>{p.label_asli}</td>
                     <td style={{ padding: "10px", textAlign: "center", fontWeight: "600", color: p.keterangan === "Salah" ? "#dc3545" : "#28a745" }}>{p.prediksi}</td>
-                    <td style={{ padding: "10px", textAlign: "right", color: "#333" }}>{p.confidence}</td>
+                    <td style={{ padding: "10px", textAlign: "center", color: "#333" }}>{p.confidence}</td>
                     <td style={{ padding: "10px", textAlign: "center" }}>
                       <span style={{
                         padding: "3px 8px",
@@ -121,6 +139,16 @@ function TestingResult({ isLoading, error, testResults }) {
             </table>
           </div>
         </div>
+
+        {totalPages > 1 && (
+          <div className="pagination-display">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          </div>
+        )}
       </div>
     );
   }

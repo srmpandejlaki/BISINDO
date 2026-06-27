@@ -85,7 +85,7 @@
 }
 
 // pagination
-.pagination-display, .pagination {
+.pagination-dataset {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -100,11 +100,6 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-}
-
-.pagination {
-    height: 50px;
-    gap: 1.5rem;
 }
 
 .img-preview {

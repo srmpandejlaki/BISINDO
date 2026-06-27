@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, NavLink } from "react-router-dom";
-import IconPanahKiri from "../../../assets/icons/carbon_next-filled.svg";
-import IconPanahKanan from "../../../assets/icons/carbon_next-filled-right.svg";
+import usePagination from "@/shared/hooks/usePagination";
+import Pagination from "@/shared/components/base/Pagination";
 import { get_dataset_by_id_dataset } from "../utils/data_collection_api";
 import { BASE_URL } from "../../../shared/utils/index-api";
 
@@ -26,16 +26,26 @@ function DetailDataset() {
   };
 
   // Pagination logic
-  const totalPages = Math.max(1, Math.ceil(detailDataset.length / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = detailDataset.slice(startIndex, startIndex + itemsPerPage);
-  
+  const {
+      paginatedData,
+      totalPages,
+      totalItems,
+      startIndex,
+    } = usePagination(
+      detailDataset,
+      currentPage,
+      itemsPerPage
+    );
+
   useEffect(() => { 
-    if (idDataset) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      loadDetailDataset(idDataset);
-    }
+    if (!idDataset) return;
+
+    loadDetailDataset(idDataset);
   }, [idDataset]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [detailDataset]);
 
   return (
     <div className="content detail-dataset">
@@ -55,7 +65,7 @@ function DetailDataset() {
           </thead>
           <tbody>
             {paginatedData.map((dataset, index) => (
-              <tr key={index}>
+              <tr key={dataset.idRawData}>
                 <td className="text-center">{startIndex + index + 1}.</td>
                 <td className="padding-cell">{dataset.dataName || dataset.dataFilePath?.replace(/\\/g, "/").split("/").pop()}</td>
                 <td className="text-center">{dataset.idLabel}</td>
@@ -75,34 +85,22 @@ function DetailDataset() {
         </table>
       </div>
 
-      <div className="pagination-display">
+      <div className="pagination-dataset">
         <NavLink to="/admin/data-collection">
           <button className="button" >Kembali</button>
         </NavLink>
-        <div className="pagination">
-          <div 
-            className="left"
-            style={{ cursor: currentPage > 1 ? 'pointer' : 'not-allowed', opacity: currentPage > 1 ? 1 : 0.5 }}
-            onClick={() => currentPage > 1 && setCurrentPage(currentPage - 1)}
-          >
-            <img src={IconPanahKiri} className="blackIcon" alt="Sebelumnya" />
-            {/* <p>Sebelumnya</p> */}
+        {totalPages > 1 && (
+          <div className="pagination-display">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           </div>
-          <div className="pages-count">
-            <p>Halaman {currentPage} dari {totalPages}</p>
-          </div>
-          <div 
-            className="right"
-            style={{ cursor: currentPage < totalPages ? 'pointer' : 'not-allowed', opacity: currentPage < totalPages ? 1 : 0.5 }}
-            onClick={() => currentPage < totalPages && setCurrentPage(currentPage + 1)}
-          >
-            {/* <p>Setelahnya</p> */}
-            <img src={IconPanahKanan} className="blackIcon" alt="Setelahnya" />
-          </div>
-        </div> 
+        )}
         <div className="right-section">
           <div className="total-data">
-            <p className="info-total">Total Data: {detailDataset.length}</p>
+            <p className="info-total">Total Data: {totalItems}</p>
           </div>
           <button className="button submit">Download</button>
         </div>   

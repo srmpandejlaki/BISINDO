@@ -57,8 +57,8 @@ function TestingPage() {
   return (
     <div className="content testing-page">
       <div className="title">
-        <h2>Testing Page</h2>
-        <p>Uji model saraf LSTM BISINDO menggunakan dataset uji terpisah atau unggah berkas baru.</p>
+        <h2>Pengujian Model</h2>
+        <p>Uji model yang telah dibuat menggunakan dataset uji terpisah atau unggah berkas baru.</p>
       </div>
 
       <TestingPreparation
@@ -80,7 +80,7 @@ function TestingPage() {
         testResults={testResults}
       />
 
-      <button className="detail-evaluation" onClick={handleViewEvaluation} style={{ cursor: "pointer" }}>
+      <button className="button detail-evaluation" onClick={handleViewEvaluation} style={{ cursor: "pointer" }}>
         Lihat Detail Evaluasi
       </button>
     </div>

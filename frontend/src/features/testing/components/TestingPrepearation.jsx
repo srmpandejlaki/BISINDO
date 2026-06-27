@@ -49,12 +49,12 @@ function TestingPreparation({
   };
 
   return (
-    <div className="testing-preparation" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-      <h3 style={{ margin: 0, color: "#333", fontSize: "1.2rem", fontWeight: "600" }}>Testing Preparation</h3>
+    <div className="testing-preparation">
+      <h3>Pengaturan Pengujian</h3>
 
       {/* Model Selection */}
       <div className="option-model" style={{ marginBlock: "5px" }}>
-        <label htmlFor="model" style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>Model:</label>
+        <label htmlFor="model">Model:</label>
         <select
           name="model"
           id="model"
@@ -64,7 +64,6 @@ function TestingPreparation({
             setUploadFile(null); // Clear file on model change
           }}
           disabled={isLoading}
-          style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
         >
           {models.map((m) => (
             <option key={m.idTraining} value={m.idTraining}>
@@ -76,8 +75,8 @@ function TestingPreparation({
       </div>
 
       {/* Mode Selection */}
-      <div className="option-mode" style={{ marginBlock: "5px" }}>
-        <label htmlFor="testing-mode" style={{ fontWeight: "500", marginBottom: "5px", display: "block" }}>Testing Mode:</label>
+      <div className="option-mode">
+        <label htmlFor="testing-mode">Testing Mode:</label>
         <select
           name="testing-mode"
           id="testing-mode"
@@ -87,7 +86,6 @@ function TestingPreparation({
             setUploadFile(null); // Clear file on mode change
           }}
           disabled={isLoading}
-          style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
         >
           <option value="dataset">Menggunakan Dataset Uji</option>
           <option value="upload">Upload File (.npy / Video)</option>
@@ -96,12 +94,12 @@ function TestingPreparation({
 
       {/* Total Data Info (Dataset Mode) */}
       {testingMode === "dataset" && (
-        <div className="total-data" style={{ padding: "10px", backgroundColor: "#e9ecef", borderRadius: "4px" }}>
-          <p style={{ margin: 0, fontSize: "0.9rem", color: "#495057" }}>
+        <div className="total-data">
+          <p className="data-uji">
             <strong>Total Data Uji:</strong> {totalTestData}
           </p>
           {selectedModel && (
-            <p style={{ margin: "5px 0 0 0", fontSize: "0.8rem", color: "#6c757d" }}>
+            <p className="dataset-name">
               Dataset: {selectedModel.datasetName} | Ratio: {selectedModel.trainRatio} (Test: {(testPercent * 100).toFixed(0)}%)
             </p>
           )}
@@ -155,21 +153,11 @@ function TestingPreparation({
       )}
 
       <button
-        className="start-testing"
+        className="button submit"
         onClick={onStartTesting}
         disabled={isLoading || models.length === 0}
         style={{
-          width: "100%",
-          padding: "10px",
-          backgroundColor: isLoading ? "#6c757d" : "#28a745",
-          color: "#fff",
-          border: "none",
-          borderRadius: "4px",
-          fontWeight: "600",
           cursor: isLoading || models.length === 0 ? "not-allowed" : "pointer",
-          marginTop: "10px",
-          justifyContent: "center",
-          alignItems: "center"
         }}
       >
         {isLoading ? "Running Test..." : "Start Testing"}
