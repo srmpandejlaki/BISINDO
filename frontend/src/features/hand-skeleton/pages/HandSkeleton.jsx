@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import InfoConfiguration from "../components/InfoConfiguration";
 import InfoOutput from "../components/InfoOutput";
 import ListsDataPrep from "../components/ListsDataPrep";
-import DetailLandmark from "./DetailLandmark";
+// import DetailLandmark from "./DetailLandmark";
 
 import { get_all_datasets } from "@/shared/utils/general_api";
+// import { get_dataset_landmark } from "../utils/hand_skeleton_api";
 
 function HandSkeleton() {
   const [datasets, setDatasets] = useState([]);
+  // const [dataLandmark, setDataLandmark] = useState(null);
 
   const fetchDatasets = async () => {
     try {
@@ -20,8 +22,20 @@ function HandSkeleton() {
     }
   };
 
+  // const fetchLandmark = async () => {
+  //   try {
+  //     const response = await get_dataset_landmark();
+  //     if (response && response.success) {
+  //       setDataLandmark(response.data);
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
+
   useEffect(() => {
     fetchDatasets();
+    // fetchLandmark();
   }, []);
 
   return (
@@ -36,9 +50,10 @@ function HandSkeleton() {
         <ListsDataPrep datasets={datasets} />
       </div>
 
-      <div className="section process-landmark">
+      {/* <div className="section process-landmark">
         <h2>Detail Landmark</h2>
-      </div>
+        <DetailLandmark dataLandmark={dataLandmark} />
+      </div> */}
 
       <div className="btn">
         <button className="button">Ekstraksi Hand Skeleton</button>

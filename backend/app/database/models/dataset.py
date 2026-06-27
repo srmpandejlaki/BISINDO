@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 
@@ -15,8 +15,9 @@ class Dataset(Base):
   datasetName = Column(String(99))
   totalLabel = Column(Integer)
   totalData = Column(Integer)
-  folderPath = Column(String(999))
-  preprocessingResultPath = Column(String(999))
+  datasetFolderPath = Column(String(999))
+  isPreprocessed = Column(Boolean, default=False)
+  landmarkFolderPath = Column(String(999))
   createdAt = Column(
     DateTime,
     nullable=False,

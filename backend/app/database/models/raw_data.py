@@ -23,6 +23,7 @@ class RawData(Base):
   dataName = Column(String(99))
   sequenceLength = Column(Integer)
   dataFilePath = Column(String(999))
+  landmarkFilePath = Column(String(999))
   createdAt = Column(
     DateTime(timezone=True),
     nullable=False,

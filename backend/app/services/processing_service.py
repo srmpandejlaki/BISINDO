@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 import os
 
-from app.repositories import TrainingRepository, LabelRepository, RatioDataRepository
+from app.repositories import TrainingRepository, LabelRepository, RatioDataRepository, DatasetRepository
 from app.database.models import Training, Label, RatioDataSplit
 
 from app.schemas.processing_schemas import AddRatio
@@ -14,7 +14,16 @@ class ProcessingService:
     self.training_repository = TrainingRepository()
     self.label_repository = LabelRepository()
     self.ratio_repository = RatioDataRepository()
+    self.dataset_repository = DatasetRepository()
 
+# Hand Skeleton
+  def get_datasets_landmark(self, db: Session):
+    return self.dataset_repository.get_datasets_landmark(db)
+  
+  def get_datasets_landmark_by_id(self, db: Session, idDataset: int):
+    return self.dataset_repository.get_datasets_landmark_by_id(db, idDataset)
+
+# Model
   def get_all_models(self, db: Session):
     models = self.training_repository.get_all(db)
     result = []
@@ -51,22 +60,6 @@ class ProcessingService:
         })
     return result
   
-  # Ratio Data
-  def get_all_ratio(self, db: Session):
-    return self.ratio_repository.get_all(db)
-  
-  def add_ratio(self, db: Session, ratio_data: AddRatio):
-    db_ratio = RatioDataSplit(
-        trainRatio=ratio_data.trainRatio,
-        # bestRatio=False # opsional, bisa set default
-    )
-    return self.ratio_repository.create(db, db_ratio)
-  
-  def get_best_ratio(self, db: Session):
-    return self.ratio_repository.get_by_best_ratio(db, True)
-  
-  # def start_test_ratio(self, db: Session, dataset_path, bestRatio: bool):
-
   # Training
   def start_training(
       self,
@@ -108,6 +101,20 @@ class ProcessingService:
 
       return trainer.train()
 
+  # Ratio Data
+  def get_all_ratio(self, db: Session):
+    return self.ratio_repository.get_all(db)
+  
+  def add_ratio(self, db: Session, ratio_data: AddRatio):
+    db_ratio = RatioDataSplit(
+        trainRatio=ratio_data.trainRatio,
+        # bestRatio=False # opsional, bisa set default
+    )
+    return self.ratio_repository.create(db, db_ratio)
+  
+  def get_best_ratio(self, db: Session):
+    return self.ratio_repository.get_by_best_ratio(db, True)
+ 
   def delete_ratio(self, db: Session, idRatioDataSplit: int):
       ratio = self.ratio_repository.get_by_id(db, idRatioDataSplit, RatioDataSplit.idRatioDataSplit)
       if not ratio:

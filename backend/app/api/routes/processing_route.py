@@ -160,3 +160,35 @@ def delete_model(
     raise HTTPException(status_code=404, detail=str(e))
   except Exception as e:
     raise HTTPException(status_code=500, detail=str(e))
+
+# Hand Skeleton
+@router.get("/landmarks/")
+def get_datasets_landmark(
+  db: Session = Depends(get_db)
+):
+  try:
+    datasets = processing_service.get_datasets_landmark(db)
+    return {
+      "success": True,
+      "data": datasets
+    }
+  except ValueError as e:
+    raise HTTPException(status_code=404, detail=str(e))
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/landmarks/{idDataset}")
+def get_datasets_landmark_by_id(
+  idDataset: int,
+  db: Session = Depends(get_db)
+):
+  try:
+    dataset = processing_service.get_datasets_landmark_by_id(db, idDataset)
+    return {
+      "success": True,
+      "data": dataset
+    }
+  except ValueError as e:
+    raise HTTPException(status_code=404, detail=str(e))
+  except Exception as e:
+    raise HTTPException(status_code=500, detail=str(e))

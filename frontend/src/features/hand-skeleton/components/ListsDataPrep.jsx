@@ -3,6 +3,8 @@ import React from "react";
 function ListsDataPrep(
   { datasets = [], selectedDatasetId, onSelectDataset }
 ) {
+  
+  console.log("Datasets:", datasets);
   return (
     <div className="table-dataset">
       <table>
@@ -18,7 +20,7 @@ function ListsDataPrep(
         <tbody>
           {datasets.length === 0 && (
             <tr className="text-center">
-              <td colSpan="5">Tidak ada data</td>
+              <td colSpan="5">Belum ada data</td>
             </tr>
           )}
 
@@ -33,12 +35,12 @@ function ListsDataPrep(
               <td className="text-center">
                 <span
                   className={`status-badge ${
-                    dataset.preprocessingResultPath
+                    dataset.landmarkFolderPath
                       ? "status-done"
                       : "status-pending"
                   }`}
                 >
-                  {dataset.preprocessingResultPath
+                  {dataset.landmarkFolderPath
                     ? "Sudah diproses"
                     : "Belum diproses"}
                 </span>
@@ -49,7 +51,7 @@ function ListsDataPrep(
                   name="dataset-select"
                   checked={selectedDatasetId === dataset.idDataset}
                   onChange={() => onSelectDataset(dataset.idDataset)}
-                  disabled={dataset.preprocessingResultPath}
+                  disabled={dataset.landmarkFolderPath}
                 />
               </td>
             </tr>

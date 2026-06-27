@@ -47,7 +47,7 @@ function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
                   name="dataset-select"
                   checked={selectedDatasetId === dataset.idDataset}
                   onChange={() => onSelectDataset(dataset.idDataset)}
-                  disabled={dataset.preprocessingResultPath}
+                  disabled={dataset.isPreprocessed === true}
                 />
               </td>
             </tr>
