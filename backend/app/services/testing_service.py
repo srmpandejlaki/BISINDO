@@ -15,13 +15,12 @@ from sklearn.metrics import (
     classification_report
 )
 
-from app.database.models import Training, Dataset, RatioDataSplit, Evaluation
-from app.repositories import TrainingRepository, EvaluationRepository
+from app.database.models import Training, Dataset, RatioDataSplit
+from app.repositories import TrainingRepository
 
 class TestingService:
     def __init__(self):
         self.training_repository = TrainingRepository()
-        self.evaluation_repository = EvaluationRepository()
         self.model_cache = {}
 
     def load_dataset_with_filenames(self, dataset_path: str):
@@ -45,9 +44,9 @@ class TestingService:
                 
         return np.array(X), np.array(y), filenames
 
-    def test_model_on_dataset(self, db: Session, idTraining: int):
+    def test_model_on_dataset(self, db: Session, idTrainTest: int):
         # 1. Fetch Training record
-        training = db.query(Training).filter(Training.idTraining == idTraining).first()
+        training = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
         if not training:
             raise ValueError("Model training record not found")
             
@@ -135,11 +134,11 @@ class TestingService:
         confusionMatrix = cm.tolist()
 
         # 10. Save or update evaluation in DB
-        eval_record = db.query(Evaluation).filter(Evaluation.idTraining == idTraining).first()
+        eval_record = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
         if not eval_record:
             import datetime
-            eval_record = Evaluation(
-                idTraining=idTraining,
+            eval_record = Training(
+                idTrainTest=idTrainTest,
                 createdAt=datetime.datetime.now()
             )
             db.add(eval_record)
@@ -171,9 +170,9 @@ class TestingService:
             "predictions": predictions_details
         }
 
-    def test_model_on_upload(self, db: Session, idTraining: int, file_path: str, filename: str):
+    def test_model_on_upload(self, db: Session, idTrainTest: int, file_path: str, filename: str):
         # 1. Fetch Training record
-        training = db.query(Training).filter(Training.idTraining == idTraining).first()
+        training = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
         if not training:
             raise ValueError("Model training record not found")
             
@@ -321,14 +320,13 @@ class TestingService:
             
         return np.array(normalized_sequence, dtype=np.float32)
 
-    def get_evaluation_by_training_id(self, db: Session, idTraining: int):
-        eval_record = db.query(Evaluation).filter(Evaluation.idTraining == idTraining).first()
+    def get_evaluation_by_training_id(self, db: Session, idTrainTest: int):
+        eval_record = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
         if not eval_record:
             return None
             
         return {
-            "idEvaluation": eval_record.idEvaluation,
-            "idTraining": eval_record.idTraining,
+            "idTrainTest": eval_record.idTrainTest,
             "accuracy": eval_record.accuracy,
             "precision": eval_record.precision,
             "recall": eval_record.recall,
@@ -340,7 +338,7 @@ class TestingService:
             "createdAt": eval_record.createdAt.isoformat() if eval_record.createdAt else None
         }
 
-    async def realtime_inference_websocket(self, websocket, idTraining: int, db: Session):
+    async def realtime_inference_websocket(self, websocket, idTrainTest: int, db: Session):
         from fastapi import WebSocketDisconnect
         import cv2
         import mediapipe as mp
@@ -354,10 +352,10 @@ class TestingService:
         # =========================================
         # 1. GET TRAINING MODEL
         # =========================================
-        if idTraining == 0:
-            training = db.query(Training).order_by(Training.idTraining.desc()).first()
+        if idTrainTest == 0:
+            training = db.query(Training).order_by(Training.idTrainTest.desc()).first()
         else:
-            training = db.query(Training).filter(Training.idTraining == idTraining).first()
+            training = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
 
         if not training:
             await websocket.close(code=4004, reason="Training tidak ditemukan")

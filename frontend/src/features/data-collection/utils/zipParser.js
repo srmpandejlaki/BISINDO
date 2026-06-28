@@ -18,7 +18,7 @@ export const parseZipDataset = async (zipFile) => {
   zip.forEach((path, file) => {
     if (file.dir) return;
 
-    if (!path.endsWith(".npy")) return;
+    if (!path.endsWith(".avi") && !path.endsWith(".mp4")) return;
 
     totalData++;
   });

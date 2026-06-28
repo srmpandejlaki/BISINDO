@@ -1,10 +1,15 @@
 from sqlalchemy.orm import Session
 from pathlib import Path
 
+import cv2
 import numpy as np
+from fastapi.responses import FileResponse
+import zipfile
+import tempfile
+import os
 
 from app.repositories import DatasetRepository, LabelRepository, RawDataRepository
-from app.database.models import Dataset, Label, RawData
+from app.database.models import Dataset, RawData
 
 from app.utils.zip_extractor import extract_zip
 
@@ -15,10 +20,24 @@ class DataCollectionService:
         self.raw_data_repository = RawDataRepository()
         self.label_repository = LabelRepository()
 
-    # Dataset
-    def get_all_datasets(self, db):
-        return self.dataset_repository.get_all(db)
+    # GET all Dataset (multiple)
+    def get_all_datasets(self, db: Session):
+
+        results = self.dataset_repository.get_all_with_total_data(db)
+
+        datasets = []
+
+        for dataset, total_data in results:
+            datasets.append({
+                "idDataset": dataset.idDataset,
+                "datasetName": dataset.datasetName,
+                "datasetFolderPath": dataset.datasetFolderPath,
+                "totalData": total_data
+            })
+
+        return datasets
     
+    # GET Dataset by id (single)
     def get_dataset_by_id(self, db: Session, idDataset: int):
         dataset = (self.dataset_repository.get_by_id(db, idDataset))
 
@@ -27,125 +46,47 @@ class DataCollectionService:
         
         return self.dataset_repository.get_by_id(db, idDataset)
     
-    def create_dataset_from_zip(
+    # GET Raw Data by id Dataset
+    def get_raw_data_by_id_dataset(
         self,
         db: Session,
-        zip_path: str
+        idDataset: int
     ):
-        try:
-            # Extract ZIP
-            dataset_folder = extract_zip(zip_path)
+        dataset = self.dataset_repository.get_by_id(
+            db,
+            idDataset,
+            Dataset.idDataset
+        )
 
-            dataset_path = Path(dataset_folder)
+        if not dataset:
+            raise ValueError("Dataset not found")
 
-            dataset_name = dataset_path.name
+        raw_datas = self.raw_data_repository.get_by_id_dataset(
+            db,
+            idDataset
+        )
 
-            # Ambil semua folder label
-            label_folders = [
-                folder
-                for folder in dataset_path.iterdir()
-                if folder.is_dir()
-            ]
-
-            total_label = len(label_folders)
-
-            if total_label == 0:
-                raise ValueError(
-                    "Dataset tidak memiliki folder label."
-                )
-
-            # Hitung seluruh file .npy
-            total_data = sum(
-                len(list(folder.glob("*.npy")))
-                for folder in label_folders
-            )
-
-            if total_data == 0:
-                raise ValueError(
-                    "Dataset tidak memiliki file .npy."
-                )
-
-            # Simpan dataset
-            dataset = Dataset(
-                datasetName=dataset_name,
-                folderPath=str(dataset_path),
-                totalData=total_data,
-                totalLabel=total_label
-            )
-
-            db.add(dataset)
-            db.flush()
-
-            # Proses setiap folder label
-            for label_folder in label_folders:
-
-                label_name = (
-                    label_folder.name.upper()
-                )
-
-                label = (
-                    self.label_repository
-                    .get_by_name(
-                        db,
-                        label_name
-                    )
-                )
-
-                if not label:
-                    raise ValueError(
-                        f"Label '{label_name}' tidak ditemukan."
-                    )
-
-                npy_files = label_folder.glob("*.npy")
-
-                for npy_file in npy_files:
-
-                    try:
-                        sequence = np.load(
-                            npy_file,
-                            allow_pickle=False
-                        )
-                    except Exception:
-                        raise ValueError(
-                            f"File '{npy_file.name}' tidak valid atau rusak."
-                        )
-
-                    # Validasi sequence kosong
-                    if sequence.shape[0] == 0:
-                        raise ValueError(
-                            f"File '{npy_file.name}' tidak memiliki sequence."
-                        )
-
-                    # Validasi minimal dimensi data
-                    if len(sequence.shape) < 2:
-                        raise ValueError(
-                            f"Format data pada '{npy_file.name}' tidak valid."
-                        )
-
-                    sequence_length = (
-                        sequence.shape[0]
-                    )
-
-                    raw_data = RawData(
-                        idDataset=dataset.idDataset,
-                        idLabel=label.idLabel,
-                        sequenceLength=sequence_length,
-                        dataFilePath=str(
-                            npy_file
-                        )
-                    )
-
-                    db.add(raw_data)
-
-            db.commit()
-            db.refresh(dataset)
-
-            return dataset
-
-        except Exception:
-            db.rollback()
-            raise
-
+        return [
+            {
+                "idRawData": raw_data.idRawData,
+                "dataName": raw_data.dataName,
+                "dataFilePath": raw_data.dataFilePath,
+                "labelName": raw_data.label.labelName
+            }
+            for raw_data in raw_datas
+        ]
+    
+    # GET Raw Data by id
+    def get_raw_data_by_id(self, db: Session, idRawData: int):
+        return self.raw_data_repository.get_by_id(db, idRawData, RawData.idRawData)
+    
+    # def update_raw_data_by_id(self, db: Session, idRawData: int):
+    #     return self.raw_data_repository.update(db, idRawData)
+    
+    # def delete_raw_data_by_id(self, db: Session, idRawData: int):
+    #     return self.raw_data_repository.delete_by_id(db, idRawData)
+    
+    # Delete Dataset
     def delete_dataset(
         self,
         db: Session,
@@ -165,23 +106,209 @@ class DataCollectionService:
 
         return self.dataset_repository.delete(db, dataset)
     
-    # Raw Data
-    def get_raw_data_by_id_dataset(self, db: Session, idDataset: int):
-        raw_data_by_id = (
-            self.raw_data_repository.get_by_id_dataset(db, idDataset)
+    # Helper Method
+    def _save_raw_data(
+        self,
+        db: Session,
+        dataset: Dataset,
+        dataset_path: Path,
+    ):
+        VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv"}
+
+        # Ambil semua folder label
+        label_folders = [
+            folder
+            for folder in dataset_path.iterdir()
+            if folder.is_dir()
+        ]
+
+        if not label_folders:
+            raise ValueError("Dataset tidak memiliki folder label.")
+
+        total_data = 0
+
+        for label_folder in label_folders:
+
+            label_name = label_folder.name.upper()
+
+            label = self.label_repository.get_by_name(
+                db,
+                label_name
+            )
+
+            if not label:
+                raise ValueError(
+                    f"Label '{label_name}' tidak ditemukan."
+                )
+
+            video_files = [
+                file
+                for file in label_folder.iterdir()
+                if file.is_file()
+                and file.suffix.lower() in VIDEO_EXTENSIONS
+            ]
+
+            total_data += len(video_files)
+
+            for video_file in video_files:
+
+                # Cek apakah nama data sudah ada pada dataset yang sama
+                existing = self.raw_data_repository.get_by_name_and_dataset(
+                    db,
+                    dataset.idDataset,
+                    video_file.stem
+                )
+
+                if existing:
+                    raise ValueError(
+                        f"Data '{video_file.stem}' sudah ada pada dataset."
+                    )
+
+                raw_data = RawData(
+                    idDataset=dataset.idDataset,
+                    idLabel=label.idLabel,
+                    dataName=video_file.stem,
+                    dataFilePath=str(video_file),
+                    landmarkDataPath=None,
+                    sequenceLength=None
+                )
+
+                db.add(raw_data)
+
+        if total_data == 0:
+            raise ValueError(
+                "Dataset tidak memiliki file video yang didukung."
+            )
+    
+    # POST Dataset Baru
+    def create_dataset_from_zip(
+        self,
+        db: Session,
+        zip_path: str
+    ):
+        try:
+
+            dataset_folder = extract_zip(zip_path)
+
+            dataset_path = Path(dataset_folder)
+
+            dataset_name = dataset_path.name
+
+            existing = self.dataset_repository.get_by_name(
+                db,
+                dataset_name
+            )
+
+            if existing:
+                raise ValueError(
+                    "Nama dataset sudah digunakan."
+                )
+
+            dataset = Dataset(
+                datasetName=dataset_name,
+                datasetFolderPath=str(dataset_path),
+            )
+
+            db.add(dataset)
+            db.flush()
+
+            self._save_raw_data(
+                db,
+                dataset,
+                dataset_path
+            )
+
+            db.commit()
+            db.refresh(dataset)
+
+            return dataset
+
+        except Exception:
+            db.rollback()
+            raise
+    
+    # POST Raw Data to Dataset
+    def add_data_to_dataset(
+        self,
+        db: Session,
+        id_dataset: int,
+        zip_path: str
+    ):
+        try:
+
+            dataset = self.dataset_repository.get_by_id(
+                db,
+                id_dataset
+            )
+
+            if not dataset:
+                raise ValueError(
+                    "Dataset tidak ditemukan."
+                )
+
+            dataset_folder = extract_zip(zip_path)
+
+            dataset_path = Path(dataset_folder)
+
+            self._save_raw_data(
+                db,
+                dataset,
+                dataset_path
+            )
+
+            db.commit()
+            db.refresh(dataset)
+
+            return dataset
+
+        except Exception:
+            db.rollback()
+            raise
+    
+    def download_dataset(
+        self,
+        db: Session,
+        idDataset: int
+    ):
+        dataset = self.dataset_repository.get_by_id(
+            db,
+            idDataset,
+            Dataset.idDataset
         )
 
-        if  not raw_data_by_id:
-            raise ValueError("Raw data not found")
-        
-        return self.raw_data_repository.get_by_id_dataset(db, idDataset)
-    
-    def get_raw_data_by_id(self, db: Session, idRawData: int):
-        return self.raw_data_repository.get_by_id(db, idRawData, RawData.idRawData)
-    
-    # def update_raw_data_by_id(self, db: Session, idRawData: int):
-    #     return self.raw_data_repository.update(db, idRawData)
-    
-    # def delete_raw_data_by_id(self, db: Session, idRawData: int):
-    #     return self.raw_data_repository.delete_by_id(db, idRawData)
-    
+        if not dataset:
+            raise ValueError(
+                "Dataset tidak ditemukan."
+            )
+
+        raw_data_list = self.raw_data_repository.get_by_id_dataset(
+            db,
+            idDataset
+        )
+
+        temp_zip = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".zip"
+        )
+
+        with zipfile.ZipFile(temp_zip.name, "w") as zipf:
+
+            for raw_data in raw_data_list:
+
+                label_name = raw_data.label.labelName
+
+                arcname = os.path.join(
+                    label_name,
+                    os.path.basename(raw_data.dataFilePath)
+                )
+
+                zipf.write(
+                    raw_data.dataFilePath,
+                    arcname
+                )
+
+        return FileResponse(
+            temp_zip.name,
+            filename=f"{dataset.datasetName}.zip",
+            media_type="application/zip"
+        )

@@ -13,8 +13,6 @@ class Dataset(Base):
   )
   
   datasetName = Column(String(99))
-  totalLabel = Column(Integer)
-  totalData = Column(Integer)
   datasetFolderPath = Column(String(999))
   isPreprocessed = Column(Boolean, default=False)
   landmarkFolderPath = Column(String(999))

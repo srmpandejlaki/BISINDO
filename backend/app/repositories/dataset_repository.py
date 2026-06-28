@@ -1,10 +1,30 @@
-from app.database.models import Dataset
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from app.database.models import Dataset, RawData
 from app.repositories import BaseRepository
 
 class DatasetRepository(BaseRepository):
 
   def __init__(self):
     super().__init__(Dataset)
+
+  def get_all_with_total_data(self, db: Session):
+    return (
+        db.query(
+            Dataset,
+            func.count(RawData.idRawData).label("totalData")
+        )
+        .outerjoin(
+            RawData,
+            Dataset.idDataset == RawData.idDataset
+        )
+        .group_by(Dataset.idDataset)
+        .all()
+    )
+  
+  def get_by_name(self, db, datasetName: str):
+    return db.query(Dataset).filter(Dataset.datasetName == datasetName).first()
 
   def get_datasets_preprocess(self, db):
     return db.query(Dataset).filter(Dataset.isPreprocessed == True).all()

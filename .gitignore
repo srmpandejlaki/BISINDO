@@ -43,6 +43,7 @@ tensorboard/
 # Alembic Cache
 # =========================
 *.py[cod]
+migration/
 
 # =========================
 # Logs
