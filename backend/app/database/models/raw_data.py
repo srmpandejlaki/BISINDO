@@ -22,6 +22,7 @@ class RawData(Base):
   )
   dataName = Column(String(99))
   dataFilePath = Column(String(999))
+  preprocessedFilePath = Column(String(999))
   landmarkFilePath = Column(String(999))
   createdAt = Column(
     DateTime(timezone=True),

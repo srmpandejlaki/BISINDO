@@ -31,12 +31,12 @@ function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
               <td className="text-center">
                 <span
                   className={`status-badge ${
-                    dataset.preprocessingResultPath
+                    dataset.preprocessedFolderPath
                       ? "status-done"
                       : "status-pending"
                   }`}
                 >
-                  {dataset.preprocessingResultPath
+                  {dataset.preprocessedFolderPath
                     ? "Sudah diproses"
                     : "Belum diproses"}
                 </span>
@@ -47,7 +47,7 @@ function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
                   name="dataset-select"
                   checked={selectedDatasetId === dataset.idDataset}
                   onChange={() => onSelectDataset(dataset.idDataset)}
-                  disabled={dataset.isPreprocessed === true}
+                  disabled={dataset.preprocessedFolderPath !== null}
                 />
               </td>
             </tr>

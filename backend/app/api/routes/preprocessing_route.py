@@ -21,53 +21,51 @@ preprocessing_service = PreprocessingService()
 
 # Pydantic Schema
 class PreprocessingConfig(BaseModel):
-    sequence_length: int = 60
-    feature_size: int = 126
-    use_augmentation: bool = True
-    noise_level: float = 0.01
-    scale_range_min: float = 0.9
-    scale_range_max: float = 1.1
-    use_frame_dropout: bool = False
-    frame_dropout_prob: float = 0.1
+    target_frame: int = 60
 
 
-# Run preprocessing
-@router.post("/{idDataset}/run")
-def run_preprocessing(
+@router.get("/{idDataset}/status")
+def get_preprocessing_status(
     idDataset: int,
-    config: PreprocessingConfig,
     db: Session = Depends(get_db)
 ):
     try:
-        result = preprocessing_service.preprocess_dataset(
+
+        result = preprocessing_service.get_preprocessing_status(
             db,
-            idDataset,
-            config.model_dump()
+            idDataset
         )
 
         return {
             "success": True,
-            "message": "Preprocessing berhasil",
-            "data": {
-                "dataset_name": result["dataset"].datasetName,
-                "output_path": result["result"]["output_path"],
-                "total_processed": result["result"]["total_processed"],
-                "total_augmented": result["result"]["total_augmented"],
-                "total_skipped": result["result"]["total_skipped"]
-            }
+            "data": result
         }
 
     except ValueError as e:
         raise HTTPException(
-            status_code=400,
+            status_code=404,
             detail=str(e)
         )
+    
+# Run preprocessing
+@router.post("/{idDataset}/preprocess")
+def preprocess_dataset(
+    idDataset: int,
+    config: PreprocessingConfig,
+    db: Session = Depends(get_db)
+):
 
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Preprocessing gagal: {str(e)}"
-        )
+    result = preprocessing_service.preprocess_dataset(
+        db,
+        idDataset,
+        config.target_frame
+    )
+
+    return {
+        "success": True,
+        "message": "Preprocessing berhasil.",
+        "data": result
+    }
 
 @router.get("/dataset-preprocess/")
 def get_dataset_preprocess(

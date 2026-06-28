@@ -36,3 +36,57 @@ class RawDataRepository(BaseRepository):
             )
             .first()
         )
+    
+    def update_preprocessed_path(
+        self,
+        db: Session,
+        raw_data,
+        output_path: str
+    ):
+        raw_data.preprocessedFilePath = output_path
+
+        db.add(raw_data)
+        db.flush()
+        db.refresh(raw_data)
+        return raw_data
+    
+    def get_not_preprocessed_by_dataset(
+        self,
+        db: Session,
+        idDataset: int
+    ):
+        return (
+            db.query(RawData)
+            .filter(
+                RawData.idDataset == idDataset,
+                RawData.preprocessedFilePath == None
+            )
+            .all()
+        )
+    
+    def count_total_by_dataset(
+        self,
+        db: Session,
+        idDataset: int
+    ):
+        return (
+            db.query(RawData)
+            .filter(
+                RawData.idDataset == idDataset
+            )
+            .count()
+        )
+    
+    def count_preprocessed_by_dataset(
+        self,
+        db: Session,
+        idDataset: int
+    ):
+        return (
+            db.query(RawData)
+            .filter(
+                RawData.idDataset == idDataset,
+                RawData.preprocessedFilePath != None
+            )
+            .count()
+        )

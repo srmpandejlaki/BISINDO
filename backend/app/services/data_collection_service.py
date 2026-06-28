@@ -32,6 +32,7 @@ class DataCollectionService:
                 "idDataset": dataset.idDataset,
                 "datasetName": dataset.datasetName,
                 "datasetFolderPath": dataset.datasetFolderPath,
+                "preprocessedFolderPath": dataset.preprocessedFolderPath,
                 "totalData": total_data
             })
 
@@ -71,6 +72,7 @@ class DataCollectionService:
                 "idRawData": raw_data.idRawData,
                 "dataName": raw_data.dataName,
                 "dataFilePath": raw_data.dataFilePath,
+                "preprocessedFilePath": raw_data.preprocessedFilePath,
                 "labelName": raw_data.label.labelName
             }
             for raw_data in raw_datas
@@ -109,7 +111,6 @@ class DataCollectionService:
         db: Session,
         dataset_id: int
     ):
-
         dataset = (
             self.dataset_repository
             .get_by_id(
@@ -186,8 +187,8 @@ class DataCollectionService:
                     idLabel=label.idLabel,
                     dataName=video_file.stem,
                     dataFilePath=str(video_file),
-                    landmarkDataPath=None,
-                    sequenceLength=None
+                    preprocessedFilePath=None,
+                    landmarkDataPath=None
                 )
 
                 db.add(raw_data)

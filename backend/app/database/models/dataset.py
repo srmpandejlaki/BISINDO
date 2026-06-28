@@ -14,7 +14,7 @@ class Dataset(Base):
   
   datasetName = Column(String(99))
   datasetFolderPath = Column(String(999))
-  isPreprocessed = Column(Boolean, default=False)
+  preprocessedFolderPath = Column(String(999))
   landmarkFolderPath = Column(String(999))
   createdAt = Column(
     DateTime,

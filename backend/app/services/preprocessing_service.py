@@ -1,70 +1,129 @@
-from sqlalchemy.orm import Session
-
 import os
 
-from app.repositories import DatasetRepository, LabelRepository, RawDataRepository
-from app.database.models import Dataset
+from sqlalchemy.orm import Session
 
-from app.ml.preprocessing.preprocess import PreprocessDataset
+from app.database.models.dataset import Dataset
+from app.repositories import RawDataRepository, DatasetRepository
+from app.ml.preprocessing.preprocess import VideoPreprocessor
+
 
 class PreprocessingService:
-  def __init__(self):
-    self.dataset_repository = DatasetRepository()
-    self.raw_data_repository = RawDataRepository()
-    self.label_repository = LabelRepository()
 
-  def preprocess_dataset(self, db: Session, idDataset: int, config: dict):
-    # Get dataset
-    dataset = self.dataset_repository.get_by_id(db, idDataset, Dataset.idDataset)
+    def __init__(self):
+        self.dataset_repository = DatasetRepository()
+        self.raw_data_repository = RawDataRepository()
 
-    if not dataset:
-      raise ValueError("Dataset not found")
+    def get_preprocessing_status(
+        self,
+        db: Session,
+        idDataset: int
+    ):
+        dataset = self.dataset_repository.get_by_id(
+            db,
+            idDataset,
+            Dataset.idDataset
+        )
 
-    # Get all raw data for this dataset
-    raw_data_list = self.raw_data_repository.get_by_id_dataset(db, idDataset)
+        if not dataset:
+            raise ValueError("Dataset tidak ditemukan")
 
-    if not raw_data_list:
-      raise ValueError("Dataset tidak memiliki raw data")
+        total = self.raw_data_repository.count_total_by_dataset(
+            db,
+            idDataset
+        )
 
-    # Setup paths
-    input_path = dataset.folderPath
-    output_path = os.path.join("storage", "preprocessed", dataset.datasetName)
+        preprocessed = self.raw_data_repository.count_preprocessed_by_dataset(
+            db,
+            idDataset
+        )
 
-    # Extract config
-    sequence_length = config.get("sequence_length", 60)
-    feature_size = config.get("feature_size", 126)
-    use_augmentation = config.get("use_augmentation", True)
-    noise_level = config.get("noise_level", 0.01)
-    scale_range_min = config.get("scale_range_min", 0.9)
-    scale_range_max = config.get("scale_range_max", 1.1)
-    use_frame_dropout = config.get("use_frame_dropout", False)
-    frame_dropout_prob = config.get("frame_dropout_prob", 0.1)
+        return {
+            "idDataset": dataset.idDataset,
+            "datasetName": dataset.datasetName,
+            "totalVideo": total,
+            "preprocessed": preprocessed,
+            "remaining": total - preprocessed
+        }
 
-    # Initialize preprocessor
-    preprocessor = PreprocessDataset(
-      input_path=input_path,
-      output_path=output_path,
-      sequence_length=sequence_length,
-      feature_size=feature_size,
-      use_augmentation=use_augmentation,
-      noise_level=noise_level,
-      scale_range=(scale_range_min, scale_range_max),
-      use_frame_dropout=use_frame_dropout,
-      frame_dropout_prob=frame_dropout_prob
-    )
+    def preprocess_dataset(
+        self,
+        db: Session,
+        idDataset: int,
+        target_frame: int = 60
+    ):
+        dataset = self.dataset_repository.get_by_id(
+            db,
+            idDataset,
+            Dataset.idDataset
+        )
 
-    # Run preprocessing
-    result = preprocessor.preprocess(raw_data_list)
+        if not dataset:
+            raise ValueError("Dataset tidak ditemukan.")
 
-    # Update dataset with preprocessing result path
-    dataset.preprocessingResultPath = output_path
-    db.commit()
-    db.refresh(dataset)
+        raw_data_list = self.raw_data_repository.get_not_preprocessed_by_dataset(
+            db,
+            idDataset
+        )
 
-    return {
-      "dataset": dataset,
-      "result": result
-    }
-  
-  def get_datasets_preprocess(self, db: Session):
-    return self.dataset_repository.get_datasets_preprocess(db)
+        if not raw_data_list:
+            raise ValueError("Dataset tidak memiliki data.")
+
+        output_folder = os.path.join(
+            "storage",
+            "preprocessed",
+            dataset.datasetName
+        )
+
+        os.makedirs(output_folder, exist_ok=True)
+        preprocessor = VideoPreprocessor(target_frame)
+
+        processed = 0
+        failed = 0
+        results = []
+
+        for raw_data in raw_data_list:
+            try:
+                filename = os.path.basename(raw_data.dataFilePath)
+
+                output_path = os.path.join(
+                    output_folder,
+                    filename
+                )
+
+                result = preprocessor.preprocess(
+                    raw_data.dataFilePath,
+                    output_path
+                )
+
+                self.raw_data_repository.update_preprocessed_path(
+                    db,
+                    raw_data,
+                    output_path
+                )
+
+                processed += 1
+
+                results.append(result)
+
+            except Exception as e:
+                failed += 1
+
+                results.append({
+                    "input_path": raw_data.dataFilePath,
+                    "error": str(e)
+                })
+        self.dataset_repository.update_preprocessing_result(
+            db,
+            dataset,
+            output_path
+        )
+
+        db.commit()
+        db.refresh(dataset)
+
+        return {
+            "dataset": dataset,
+            "processed": processed,
+            "failed": failed,
+            "results": results
+        }

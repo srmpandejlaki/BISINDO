@@ -140,7 +140,7 @@ def delete_dataset(
 @router.put("/{idDataset}")
 def update_dataset_name(
     idDataset: int,
-    datasetName: str = Body(...),
+    datasetName: str = Body(..., embed=True),
     db: Session = Depends(get_db)
 ):
     return dataset_service.update_dataset_name(

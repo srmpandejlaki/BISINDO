@@ -27,7 +27,7 @@ class DatasetRepository(BaseRepository):
     return db.query(Dataset).filter(Dataset.datasetName == datasetName).first()
 
   def get_datasets_preprocess(self, db):
-    return db.query(Dataset).filter(Dataset.isPreprocessed == True).all()
+    return db.query(Dataset).filter(Dataset.preprocessedFolderPath != None).all()
   
   def get_datasets_landmark(self, db):
     return db.query(Dataset).filter(Dataset.landmarkFolderPath != None).all()
@@ -36,7 +36,7 @@ class DatasetRepository(BaseRepository):
     return db.query(Dataset).filter(Dataset.idDataset == idDataset).filter(Dataset.landmarkFolderPath != None).first()
 
   def update_dataset_name(self, db, idDataset: int, datasetName: str):
-    dataset = self.get_by_id(db, idDataset, "idDataset")
+    dataset = self.get_by_id(db, idDataset, Dataset.idDataset)
 
     if not dataset:
         return None
@@ -47,3 +47,16 @@ class DatasetRepository(BaseRepository):
     db.refresh(dataset)
 
     return dataset
+  
+  def update_preprocessing_result(
+      self,
+      db: Session,
+      dataset,
+      folder_path: str
+  ):
+      dataset.preprocessedFolderPath = folder_path
+
+      db.commit()
+      db.refresh(dataset)
+
+      return dataset

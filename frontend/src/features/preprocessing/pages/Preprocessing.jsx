@@ -3,7 +3,10 @@ import ListsDataset from "../components/ListsDataset";
 import ParameterSetting from "../components/ParameterSetting";
 
 import { get_all_datasets } from "../../../shared/utils/general_api";
-import { run_preprocessing } from "../utils/preprocessing_api";
+import { 
+  run_preprocessing, 
+  get_preprocessing_status
+} from "../utils/preprocessing_api";
 
 import "./Preprocessing.scss";
 
@@ -13,16 +16,10 @@ function PreprocessingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState(null);
 
   const [config, setConfig] = useState({
-    sequence_length: 60,
-    feature_size: 126,
-    use_augmentation: true,
-    noise_level: 0.01,
-    scale_range_min: 0.9,
-    scale_range_max: 1.1,
-    use_frame_dropout: false,
-    frame_dropout_prob: 0.1,
+    target_frame: 60,
   });
 
   const loadDatasets = async () => {
@@ -44,6 +41,25 @@ function PreprocessingPage() {
     loadDatasets();
   }, []);
 
+  useEffect(() => {
+    setResult(null);
+    setError(null);
+
+    if (!selectedDatasetId) return;
+    async function loadStatus() {
+      try {
+        const data = await get_preprocessing_status(
+          selectedDatasetId
+        );
+        setStatus(data);
+      } catch (err) {
+        console.error(err);
+        setStatus(null);
+      }
+    }
+    loadStatus();
+  }, [selectedDatasetId]);
+
   const handleStartPreprocessing = async () => {
     if (!selectedDatasetId) return;
 
@@ -54,6 +70,12 @@ function PreprocessingPage() {
     try {
       const response = await run_preprocessing(selectedDatasetId, config);
       setResult(response.data);
+      const newStatus =
+          await get_preprocessing_status(
+              selectedDatasetId
+          );
+
+      setStatus(newStatus);
       // Refresh datasets to update status
       await loadDatasets();
     } catch (err) {
@@ -87,16 +109,82 @@ function PreprocessingPage() {
         selectedDatasetId={selectedDatasetId}
       />
 
+      {
+        status && (
+          <div className="dataset-status">
+            <h3>Status Dataset</h3>
+            <p>
+              <strong>Total Video :</strong>
+              {status.totalVideo}
+            </p>
+            <p>
+              <strong>Sudah Dipraproses :</strong>
+              {status.preprocessed}
+            </p>
+            <p>
+              <strong>Belum Dipraproses :</strong>
+              {status.remaining}
+            </p>
+            <p>
+              <strong>Progress :</strong>
+              {status.totalVideo === 0
+                  ? "0%"
+                  : `${Math.round(
+                        (status.preprocessed /
+                        status.totalVideo) * 100
+                    )}%`
+              }
+            </p>
+          </div>
+        )
+      }
+
       {/* Result Section */}
       {result && (
         <div className="result-section result-success">
-          <h3>Preprocessing Berhasil</h3>
-          <div className="result-details">
-            <p><strong>Dataset:</strong> {result.dataset_name}</p>
-            <p><strong>Output Path:</strong> {result.output_path}</p>
-            <p><strong>Total Diproses:</strong> {result.total_processed}</p>
-            <p><strong>Total Augmentasi:</strong> {result.total_augmented}</p>
-            <p><strong>Total Dilewati:</strong> {result.total_skipped}</p>
+          <div>
+            <h3>Preprocessing Berhasil</h3>
+            <div className="result-details">
+              <p>
+                <strong>Dataset:</strong> {result.dataset.datasetName}
+              </p>
+              <p>
+                <strong>Total Berhasil:</strong> {result.processed}
+              </p>
+              <p>
+                <strong>Total Gagal:</strong> {result.failed}
+              </p>
+            </div>
+          </div>
+          <div>
+            <h4>Detail</h4>
+            <table>
+              <thead>
+                <tr>
+                  <th>Video</th>
+                  <th>Frame Awal</th>
+                  <th>Frame Akhir</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {result.results?.map((item, index) => {
+                  if (!item) return null;
+                  return (
+                    <tr key={index}>
+                      <td>
+                        {item.input_path
+                          ? item.input_path.split(/[/\\]/).pop()
+                          : "-"}
+                      </td>
+                      <td>{item.original_frame_count ?? "-"}</td>
+                      <td>{item.processed_frame_count ?? "-"}</td>
+                      <td>{item.error ? "❌" : "✅"}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
