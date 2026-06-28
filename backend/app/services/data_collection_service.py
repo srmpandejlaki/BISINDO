@@ -86,6 +86,23 @@ class DataCollectionService:
     # def delete_raw_data_by_id(self, db: Session, idRawData: int):
     #     return self.raw_data_repository.delete_by_id(db, idRawData)
     
+    def update_dataset_name(
+        self,
+        db,
+        idDataset: int,
+        datasetName: str
+    ):
+        dataset = self.dataset_repository.update_dataset_name(
+            db,
+            idDataset,
+            datasetName
+        )
+
+        if not dataset:
+            raise ValueError("Dataset not found")
+
+        return dataset
+    
     # Delete Dataset
     def delete_dataset(
         self,
@@ -265,6 +282,7 @@ class DataCollectionService:
             db.rollback()
             raise
     
+    # Download Dataset by ID
     def download_dataset(
         self,
         db: Session,

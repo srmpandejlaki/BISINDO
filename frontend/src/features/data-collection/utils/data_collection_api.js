@@ -86,6 +86,27 @@ export const delete_dataset = async (idDataset) => {
   }
 };
 
+export const update_dataset_name = async (idDataset, datasetName) => {
+  try {
+    const response = await fetch(`${BASE_URL}/datasets/${idDataset}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ datasetName }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to fetch datasets. ", response.status, response.statusText);
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.log("Error fetching datasets", error);
+    return [];
+  }
+};
+
 export const download_dataset = async (idDataset) => {
   const response = await fetch(
     `${BASE_URL}/datasets/${idDataset}/download`

@@ -4,6 +4,11 @@
 //   margin-top: 20px;
 // }
 
+.table-section {
+  height: 100%;
+  margin-block: 0.5rem;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -32,6 +37,9 @@ th, td, tr {
   border-radius: 8px;
 }
 
+.padding-cell {
+  padding-left: 1.5rem;
+}
 .btn-column {
   display: flex;
   gap: 1rem;

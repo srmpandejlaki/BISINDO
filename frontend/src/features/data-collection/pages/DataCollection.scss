@@ -73,10 +73,6 @@
   }
 }
 
-.padding-cell {
-  padding-left: 1.5rem;
-}
-
 .detail-dataset {
   height: 100%;
   display: flex;
@@ -120,10 +116,21 @@
   align-items: center;
 }
 .modal {
-  width: 500px;
-  height: 500px;
-  background-color: #000;
+  width: 350px;
+  height: 400px;
+  background-color: custom.$secondary-color;
   border-radius: 8px;
-  object-fit: contain;
-  border: 1px solid #444;
+  // border: 2px solid custom.$primary-color;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  pre {
+    border: 1px solid custom.$primary-color;
+    border-radius: 8px;
+    padding: 0.5rem;
+  }
 }

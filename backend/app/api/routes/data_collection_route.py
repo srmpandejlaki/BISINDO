@@ -3,6 +3,7 @@ from fastapi import (
     Depends,
     File,
     UploadFile,
+    Body,
     HTTPException
 )
 
@@ -135,6 +136,18 @@ def delete_dataset(
             status_code=400,
             detail=str(e)
         )
+
+@router.put("/{idDataset}")
+def update_dataset_name(
+    idDataset: int,
+    datasetName: str = Body(...),
+    db: Session = Depends(get_db)
+):
+    return dataset_service.update_dataset_name(
+        db,
+        idDataset,
+        datasetName
+    )
 
 # Raw Data
 @router.get("/{idDataset}/detail-dataset")

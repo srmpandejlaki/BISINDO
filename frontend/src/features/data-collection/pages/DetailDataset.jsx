@@ -108,55 +108,56 @@ function DetailDataset() {
         </div>
       </div>
 
-      <div className="table-dataset">
-        <table>
-          <thead>
-            <tr>
-              <th>No.</th>
-              <th>Nama</th>
-              <th>Label</th>
-              <th>Preview</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {paginatedData.map((dataset, index) => (
-              <tr key={dataset.idRawData}>
-
-                <td className="text-center">
-                  {startIndex + index + 1}
-                </td>
-
-                <td className="padding-cell">
-                  {dataset.dataName}
-                </td>
-
-                <td className="text-center">
-                  {dataset.labelName}
-                </td>
-
-                <td className="text-center">
-                  <button
-                    className="button edit"
-                    onClick={() =>
-                      setPreviewId(dataset.idRawData)
-                    }
-                  >
-                    Preview
-                  </button>
-                </td>
-
-                <td className="text-center">
-
-                  {/* nanti tombol delete */}
-
-                </td>
-
+      <div className="table-section">
+        <div className="table-dataset">
+          <table>
+            <thead>
+              <tr>
+                <th>No.</th>
+                <th>Nama</th>
+                <th>Label</th>
+                <th>Preview</th>
+                <th style={{width: "280px"}}>Aksi</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {paginatedData.map((dataset, index) => (
+                <tr key={dataset.idRawData}>
+
+                  <td className="text-center">
+                    {startIndex + index + 1}.
+                  </td>
+
+                  <td className="text-center">
+                    {dataset.dataName}
+                  </td>
+
+                  <td className="text-center">
+                    {dataset.labelName}
+                  </td>
+
+                  <td className="text-center">
+                    <button
+                      className="button edit"
+                      onClick={() =>
+                        setPreviewId(dataset.idRawData)
+                      }
+                    >
+                      Preview
+                    </button>
+                  </td>
+
+                  <td className="btn-column">
+                    <button className="button">Ubah</button>
+                    <button className="button delete">Hapus</button>
+                  </td>
+
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="pagination-dataset">
@@ -214,12 +215,12 @@ function DetailDataset() {
             </p>
 
             <pre>
-              {`A/
-                A001.mp4
-                A002.mp4
+  {`A/
+  A001.mp4
+  A002.mp4
 
-              B/
-                B001.mp4`}
+B/
+  B001.mp4`}
             </pre>
 
             <input

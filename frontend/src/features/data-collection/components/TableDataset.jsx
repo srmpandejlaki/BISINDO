@@ -1,14 +1,45 @@
 import React from "react";
-import { delete_dataset } from "../utils/data_collection_api";
+import { delete_dataset, update_dataset_name } from "../utils/data_collection_api";
 import { NavLink } from "react-router-dom";
 
-function TableDataset({ datasets = [] }) {
+function TableDataset({ datasets = [], onDeleteSuccess, onUpdateSuccess }) {
   const handleDelete = async (idDataset) => {
+    const isConfirmed = window.confirm(
+        "Apakah Anda yakin ingin menghapus dataset ini?"
+    );
+
+    if (!isConfirmed) return;
+
     try {
-      const response = await delete_dataset(idDataset);
-      console.log("Datasets:", response);
+        await delete_dataset(idDataset);
+        onDeleteSuccess?.(idDataset);
     } catch (error) {
-      console.error("Error fetching data", error);
+        console.error(error);
+    }
+  };
+
+  const handleEdit = async (idDataset, oldName) => {
+    const newName = window.prompt(
+      "Masukkan nama dataset baru:",
+      oldName
+    );
+
+    if (newName === null) return; // User menekan Cancel
+
+    if (newName.trim() === "") {
+      alert("Nama dataset tidak boleh kosong.");
+      return;
+    }
+
+    if (newName === oldName) return;
+
+    try {
+      await update_dataset_name(idDataset, newName);
+
+      onUpdateSuccess?.(idDataset, newName);
+      // nanti refresh data di sini
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -26,12 +57,12 @@ function TableDataset({ datasets = [] }) {
         <tbody>
           {datasets.length === 0 && (
             <tr>
-              <td colSpan="5">Tidak ada data</td>
+              <td colSpan="4">Tidak ada data</td>
             </tr>
           )}
           
           {datasets.map((dataset, index) => (
-            <tr key={index}>
+            <tr key={dataset.idDataset}>
               <td className="text-center">{index + 1}.</td>
               <td className="padding-cell">{dataset.datasetName}</td>
               <td className="text-center">{dataset.totalData}</td>
@@ -39,8 +70,19 @@ function TableDataset({ datasets = [] }) {
                 <NavLink to={`/admin/data-collection/${dataset.idDataset}/detail_dataset`}>
                   <button className="button">detail</button>
                 </NavLink>
-                <button className="button edit">edit</button>
-                <button className="button delete" onClick={() => handleDelete(dataset.idDataset)}>hapus</button>
+                <button 
+                  className="button edit"
+                  onClick={() => handleEdit(dataset.idDataset, dataset.datasetName)}
+                >
+                  edit
+                </button>
+                <button 
+                  className="button delete" 
+                  onClick={() => handleDelete(dataset.idDataset)}
+                  disabled={dataset.isPreprocessed || dataset.landmarkFolderPath}
+                >
+                  hapus
+                </button>
               </td>
             </tr>
           ))}

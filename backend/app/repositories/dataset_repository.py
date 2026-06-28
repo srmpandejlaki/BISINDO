@@ -34,3 +34,16 @@ class DatasetRepository(BaseRepository):
 
   def get_datasets_landmark_by_id(self, db, idDataset: int):
     return db.query(Dataset).filter(Dataset.idDataset == idDataset).filter(Dataset.landmarkFolderPath != None).first()
+
+  def update_dataset_name(self, db, idDataset: int, datasetName: str):
+    dataset = self.get_by_id(db, idDataset, "idDataset")
+
+    if not dataset:
+        return None
+
+    dataset.datasetName = datasetName
+
+    db.commit()
+    db.refresh(dataset)
+
+    return dataset
