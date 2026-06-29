@@ -6,14 +6,21 @@ import TableLabel from "../components/TableLabel";
 import TableDataset from "../components/TableDataset";
 
 import { get_all_datasets } from "../../../shared/utils/general_api";
+import { get_label_with_total } from "../utils/data_collection_api";
 
 function DataCollection() {
   // useState
+  const [labels, setLabels] = useState([]);
   const [dataset, setDataset] = useState([]);
   const [_error, setError] = useState(null);
   const [previewData, setPreviewData] = useState(null);
 
   // function
+  const loadLabel = async () => {
+    const response = await get_label_with_total();
+    setLabels(response);
+  };
+
   const loadDatasets = async () => {
     try {
       const response = await get_all_datasets();
@@ -39,6 +46,7 @@ function DataCollection() {
 
   useEffect(() => {
     loadDatasets();
+    loadLabel();
   }, []);
 
   return (
@@ -53,18 +61,19 @@ function DataCollection() {
 
         <SectionPreview preview={previewData} />
 
-        <TableLabel />
+        <TableLabel labels={labels} />
       </div>
 
       <h2>Table Dataset</h2>
 
       <TableDataset
         datasets={dataset}
-        onDeleteSuccess={(idDataset) =>
+        onDeleteSuccess={(idDataset) =>{
           setDataset((prev) =>
             prev.filter((d) => d.idDataset !== idDataset)
-          )
-        }
+          );
+          loadLabel();
+        }}
         onUpdateSuccess={(idDataset, newName) =>
           setDataset((prev) =>
             prev.map((d) =>

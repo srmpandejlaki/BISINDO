@@ -25,6 +25,7 @@ class Dataset(Base):
   raw_data = relationship(
     "RawData",
     back_populates="dataset",
+    cascade="all, delete-orphan"
   )
   
   training = relationship(

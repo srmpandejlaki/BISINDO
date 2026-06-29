@@ -7,7 +7,7 @@ import mediapipe as mp
 # CONFIG
 # =========================================
 
-NPY_PATH = "dataset_processedV2/B/B_019.npy"
+NPY_PATH = "storage/landmarks/dataset_dummy/A_001.npy"
 SAVE_DIR = "saved_frames"
 
 WIDTH = 800

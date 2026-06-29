@@ -42,9 +42,6 @@ function LearningBisindo() {
 
       {openDetail && (
         <div className="detail-alfabet">
-          {console.log(
-            `${VIDEO_URL}/${openDetail.alfabet}/${openDetail.alfabet}_001.mp4`
-          )}
           <button
             className="button"
             onClick={() => setOpenDetail(null)}
@@ -53,7 +50,9 @@ function LearningBisindo() {
           </button>
 
           <div className="video-alfabet">
-            <video controls>
+            <video key={openDetail.alfabet} controls autoPlay
+              onError={() => console.warn(`Video untuk huruf ${openDetail.alfabet} tidak tersedia.`)}
+            >
               <source
                 src={`${VIDEO_URL}/${openDetail.alfabet}/${openDetail.alfabet}_001.mp4`}
                 type="video/mp4"

@@ -7,6 +7,7 @@ from fastapi import (
     HTTPException
 )
 
+from pathlib import Path
 from sqlalchemy.orm import Session
 from fastapi.responses import FileResponse
 import os
@@ -94,12 +95,14 @@ def create_dataset_from_zip(
     try:
 
         zip_path = save_uploaded_zip(file)
+        datasetName = Path(file.filename).stem
 
         dataset = (
             dataset_service
             .create_dataset_from_zip(
                 db,
-                zip_path
+                zip_path,
+                datasetName
             )
         )
 
@@ -216,9 +219,12 @@ def get_raw_data_preview(
             detail="Video not found"
         )
 
+    ext = os.path.splitext(raw_data.dataFilePath)[1].lower()
+    media_type = "video/mp4" if ext == ".mp4" else "video/avi"
+
     return FileResponse(
         raw_data.dataFilePath,
-        media_type="video/avi",
+        media_type=media_type,
         filename=os.path.basename(raw_data.dataFilePath)
     )
 

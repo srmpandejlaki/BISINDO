@@ -8,6 +8,7 @@ from fastapi import (
 from sqlalchemy.orm import Session
 import numpy as np
 import cv2
+import os
 
 from app.database.dependencies import get_db
 from app.services.processing_service import ProcessingService

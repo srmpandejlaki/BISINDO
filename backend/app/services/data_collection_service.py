@@ -200,7 +200,8 @@ class DataCollectionService:
     def create_dataset_from_zip(
         self,
         db: Session,
-        zip_path: str
+        zip_path: str,
+        datasetName: str
     ):
         try:
 
@@ -208,11 +209,9 @@ class DataCollectionService:
 
             dataset_path = Path(dataset_folder)
 
-            dataset_name = dataset_path.name
-
             existing = self.dataset_repository.get_by_name(
                 db,
-                dataset_name
+                datasetName
             )
 
             if existing:
@@ -221,7 +220,7 @@ class DataCollectionService:
                 )
 
             dataset = Dataset(
-                datasetName=dataset_name,
+                datasetName=datasetName,
                 datasetFolderPath=str(dataset_path),
             )
 

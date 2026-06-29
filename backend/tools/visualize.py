@@ -5,7 +5,7 @@ import os
 # =========================
 # CONFIG
 # =========================
-NPY_PATH = "storage/dataset_v2/A/1.npy"
+NPY_PATH = "storage/landmarks/dataset_dummy/A_001.npy"
 SAVE_DIR = "saved_frames"
 
 os.makedirs(SAVE_DIR, exist_ok=True)

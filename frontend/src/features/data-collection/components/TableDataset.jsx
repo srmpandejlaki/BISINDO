@@ -77,7 +77,7 @@ function TableDataset({ datasets = [], onDeleteSuccess, onUpdateSuccess }) {
                 <button 
                   className="button delete" 
                   onClick={() => handleDelete(dataset.idDataset)}
-                  disabled={!!dataset.preprocessedFolderPath}
+                  // disabled={!!dataset.preprocessedFolderPath}
                 >
                   hapus
                 </button>

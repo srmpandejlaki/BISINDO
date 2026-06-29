@@ -1,18 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { get_label_with_total } from "../utils/data_collection_api";
+import React from "react";
 
-function TableLabel() {
-  const [labels, setLabels] = useState([]);
-
-  const loadLabel = async () => {
-    const response = await get_label_with_total();
-    setLabels(response);
-  };
-
-  useEffect(() => {
-    loadLabel();
-  }, []);
-
+function TableLabel({ labels }) {
   return (
     <div className="table-label">
       <table>

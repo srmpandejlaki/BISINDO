@@ -279,19 +279,48 @@ B/
           >
 
             <h2>Preview Video</h2>
+            
+            {(() => {
+              const previewItem = detailDataset.find(d => d.idRawData === previewId);
+              const isAvi = previewItem?.dataFilePath?.toLowerCase().endsWith(".avi");
+              if (isAvi) {
+                return (
+                  <p style={{ color: "#d9534f", margin: "10px 0", fontSize: "14px", fontWeight: "500" }}>
+                    ⚠️ Format AVI tidak didukung browser modern. Gunakan dataset berformat MP4 untuk preview yang optimal.
+                  </p>
+                );
+              }
+              return null;
+            })()}
 
-            <video
-              controls
-              autoPlay
-              onLoadedData={() => console.log("Video berhasil dimuat")}
-              onError={(e) => console.log("Video error", e)}
-            >
-              <source
-                src={`${BASE_URL}/datasets/raw-data/${previewId}/preview`}
-                // type="video/mp4"
-              />
-              Browser Anda tidak mendukung video.
-            </video>
+            {(() => {
+              const previewItem = detailDataset.find(d => d.idRawData === previewId);
+              if (!previewItem) return null;
+              
+              // BASE_URL is http://localhost:8000/bisindo/api
+              // Replace /bisindo/api with /storage to get the static files url
+              const staticBase = BASE_URL.replace("/bisindo/api", "/storage");
+              
+              // dataFilePath is storage/datasets/... or storage\datasets\...
+              // Remove the leading 'storage/' or 'storage\' from dataFilePath
+              const relativePath = previewItem.dataFilePath.replace(/^storage[\\\/]/i, "").replace(/\\/g, "/");
+              const videoUrl = `${staticBase}/${relativePath}`;
+              
+              return (
+                <video
+                  key={previewId}
+                  controls
+                  autoPlay
+                  style={{ width: "100%", maxHeight: "320px" }}
+                >
+                  <source
+                    src={videoUrl}
+                    type="video/mp4"
+                  />
+                  Browser Anda tidak mendukung video.
+                </video>
+              );
+            })()}
 
             <button
               className="button delete"

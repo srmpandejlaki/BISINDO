@@ -11,6 +11,11 @@ function DetailLandmark() {
   const [detailDataset, setDetailDataset] = useState([]);
   const [datasetInfo, setDatasetInfo] = useState({});
   const [previewId, setPreviewId] = useState(null);
+  const [hasImageError, setHasImageError] = useState(false);
+
+  useEffect(() => {
+    setHasImageError(false);
+  }, [previewId]);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -163,26 +168,31 @@ function DetailLandmark() {
               className="landmark-preview-container"
               style={{
                 display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
                 justifyContent: "center",
                 margin: "20px 0",
+                minHeight: "200px"
               }}
             >
-              <img
-                src={`${BASE_URL}/processing/landmarks/raw-data/${previewId}/preview`}
-                alt="Landmark Preview"
-                style={{
-                  width: "200px",
-                  height: "200px",
-                  border: "1px solid #ccc",
-                  borderRadius: "8px",
-                  backgroundColor: "#000"
-                }}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  alert("Gagal memuat preview landmark.");
-                  setPreviewId(null);
-                }}
-              />
+              {hasImageError ? (
+                <div style={{ color: "#d9534f", fontSize: "14px", padding: "10px", border: "1px solid #d9534f", borderRadius: "8px", background: "#fdf7f7" }}>
+                  ⚠️ Gagal memuat landmark. Pastikan file landmark (.npy) ada dan tidak rusak.
+                </div>
+              ) : (
+                <img
+                  src={`${BASE_URL}/processing/landmarks/raw-data/${previewId}/preview`}
+                  alt="Landmark Preview"
+                  style={{
+                    width: "200px",
+                    height: "200px",
+                    border: "1px solid #ccc",
+                    borderRadius: "8px",
+                    backgroundColor: "#000"
+                  }}
+                  onError={() => setHasImageError(true)}
+                />
+              )}
             </div>
 
             <button
