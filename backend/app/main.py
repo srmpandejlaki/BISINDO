@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.api.router import api_router
 
@@ -7,6 +8,13 @@ app = FastAPI(
     title="BISINDO Alphabet Recognition API",
     description="API untuk deteksi alfabet BISINDO menggunakan MediaPipe dan LSTM",
     version="1.0.0",
+)
+
+# Mount static files
+app.mount(
+    "/storage",
+    StaticFiles(directory="storage"),
+    name="storage"
 )
 
 # CORS

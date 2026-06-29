@@ -1,27 +1,40 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import bisindoMaterials from "../utils/bisindo-materials";
+import { VIDEO_URL } from "../../../shared/utils/index-api";
 
 function LearningBisindo() {
   const [openDetail, setOpenDetail] = useState(null);
 
   return (
     <div className="content learning-bisindo-page">
-      <div className="learning-content" >
+      <div className="learning-content">
         <div className="head-page">
           <NavLink to="/user/dashboard">
-            <button>Kembali</button>
+            <button className="button">Kembali</button>
           </NavLink>
+
           <p>Belajar Alfabet BISINDO (Bahasa Isyarat Indonesia)</p>
+        </div>
+
+        <div className="pengantar">
+          <h4 className="">Klik salah satu huruf untuk melihat video dan informasi detail.</h4>
         </div>
 
         <div className="alfabet-items">
           {bisindoMaterials.map((item) => (
-            <div className="alfabet-item" key={item.id} onClick={() => setOpenDetail(item)} >
+            <div
+              className="alfabet-item"
+              key={item.id}
+              onClick={() => setOpenDetail(item)}
+            >
               <div className="alfabet-img">
                 <img src={item.img} alt={item.alfabet} />
               </div>
-              <div className="alfabet-name">{item.alfabet}</div>
+
+              <div className="alfabet-name">
+                {item.alfabet}
+              </div>
             </div>
           ))}
         </div>
@@ -29,22 +42,24 @@ function LearningBisindo() {
 
       {openDetail && (
         <div className="detail-alfabet">
+          {console.log(
+            `${VIDEO_URL}/${openDetail.alfabet}/${openDetail.alfabet}_001.mp4`
+          )}
           <button
-            className="close-btn"
+            className="button"
             onClick={() => setOpenDetail(null)}
           >
             ✕
           </button>
 
           <div className="video-alfabet">
-            {openDetail.video && (
-              <video controls>
-                <source
-                  src={openDetail.video}
-                  type="video/mp4"
-                />
-              </video>
-            )}
+            <video controls>
+              <source
+                src={`${VIDEO_URL}/${openDetail.alfabet}/${openDetail.alfabet}_001.mp4`}
+                type="video/mp4"
+              />
+              Browser Anda tidak mendukung video.
+            </video>
           </div>
 
           <div className="deskripsi-alfabet">

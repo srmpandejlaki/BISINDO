@@ -330,3 +330,25 @@ class DataCollectionService:
             filename=f"{dataset.datasetName}.zip",
             media_type="application/zip"
         )
+    
+    def get_label_with_total(
+        self,
+        db: Session
+    ):
+        results = self.label_repository.get_label_with_total(db)
+
+        label = []
+
+        for labelName, total in results:
+            label.append({
+                "labelName": labelName,
+                "total": total
+            })
+
+        return label
+    
+    def get_all_label(
+        self,
+        db: Session
+    ):
+        return self.label_repository.get_all(db)

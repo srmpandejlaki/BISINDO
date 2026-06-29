@@ -103,3 +103,29 @@ export const download_dataset = async (idDataset) => {
 
   return await response.blob();
 };
+
+export const get_label_with_total = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/datasets/labels`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        "Failed to fetch labels.",
+        response.status,
+        response.statusText
+      );
+      return [];
+    }
+
+    const data = await response.json();
+    return data.data; // <-- hanya mengembalikan array
+  } catch (error) {
+    console.error("Error fetching labels", error);
+    return [];
+  }
+};

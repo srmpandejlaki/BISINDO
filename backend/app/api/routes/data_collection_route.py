@@ -13,7 +13,6 @@ import os
 
 from app.database.dependencies import get_db
 from app.services.data_collection_service import DataCollectionService
-from app.database.models import RawData
 
 from app.utils.file_storage import save_uploaded_zip
 
@@ -36,6 +35,28 @@ def get_all_datasets(
     return {
         "success": True,
         "data": datasets
+    }
+
+@router.get("/labels")
+def get_label_with_total(
+    db: Session = Depends(get_db)
+):
+    label = dataset_service.get_label_with_total(db)
+
+    return {
+        "success": True,
+        "data": label
+    }
+
+@router.get("/labels/all")
+def get_all_label(
+    db: Session = Depends(get_db)
+):
+    label = dataset_service.get_all_label(db)
+
+    return {
+        "success": True,
+        "data": label
     }
 
 @router.get("/{idDataset}")

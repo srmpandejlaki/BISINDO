@@ -1,6 +1,7 @@
-from app.database.models import Label
+from app.database.models import Label, RawData
 from app.repositories import BaseRepository
 
+from sqlalchemy import func
 
 class LabelRepository(BaseRepository):
 
@@ -18,4 +19,22 @@ class LabelRepository(BaseRepository):
                 Label.labelName == label_name
             )
             .first()
+        )
+    
+    def get_label_with_total(self, db):
+        return (
+            db.query(
+                Label.labelName,
+                func.count(RawData.idRawData).label("total")
+            )
+            .outerjoin(
+                RawData,
+                RawData.idLabel == Label.idLabel
+            )
+            .group_by(
+                Label.idLabel,
+                Label.labelName
+            )
+            .order_by(Label.labelName)
+            .all()
         )
