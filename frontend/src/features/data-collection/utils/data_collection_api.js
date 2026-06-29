@@ -21,69 +21,54 @@ export const get_dataset_by_id_dataset = async (idDataset) => {
 }
 
 export const create_dataset_from_zip = async (file) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const response = await fetch(`${BASE_URL}/datasets/`, {
-      method: "POST",
-      body: formData, 
-    });
+  const response = await fetch(`${BASE_URL}/datasets/`, {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      console.error("Failed to fetch datasets. ", response.status, response.statusText);
-      return [];
-    }
+  const data = await response.json();
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.log("Error fetching datasets", error);
-    return [];
+  if (!response.ok) {
+    throw new Error(data.detail || "Gagal mengunggah dataset.");
   }
+
+  return data;
 };
 
 export const upload_dataset_data = async (file, idDataset) => {
-  try {
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const response = await fetch(`${BASE_URL}/datasets/${idDataset}/raw-data`, {
-      method: "POST",
-      body: formData, 
-    });
+  const response = await fetch(`${BASE_URL}/datasets/${idDataset}/raw-data`, {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      console.error("Failed to fetch datasets. ", response.status, response.statusText);
-      return [];
-    }
+  const data = await response.json();
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.log("Error fetching datasets", error);
-    return [];
+  if (!response.ok) {
+    throw new Error(data.detail || "Gagal menambahkan data.");
   }
+
+  return data;
 }
 
 export const delete_dataset = async (idDataset) => {
-  try {
-    const response = await fetch(`${BASE_URL}/datasets/${idDataset}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
+  const response = await fetch(`${BASE_URL}/datasets/${idDataset}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  });
 
-    if (!response.ok) {
-      console.error("Failed to fetch datasets. ", response.status, response.statusText);
-      return [];
-    }
+  const data = await response.json();
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.log("Error fetching datasets", error);
-    return [];
+  if (!response.ok) {
+    throw new Error(data.detail || "Gagal menghapus dataset.");
   }
+
+  return data;
 };
 
 export const update_dataset_name = async (idDataset, datasetName) => {

@@ -1,6 +1,12 @@
 from pydantic import BaseModel
 
 
+class ProcessingConfig(BaseModel):
+  max_num_hands: int = 2
+  min_detection_confidence: float = 0.5
+  min_tracking_confidence: float = 0.5
+  min_detection_ratio: float = 0.9
+
 class AddRatio(BaseModel):
   trainRatio: str
 

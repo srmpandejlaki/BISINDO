@@ -68,10 +68,7 @@ function DetailDataset() {
     try {
       setIsUploading(true);
 
-      await upload_dataset_data(
-        idDataset,
-        uploadFile
-      );
+      await upload_dataset_data(uploadFile, idDataset);
 
       await loadDetailDataset(idDataset);
 
@@ -80,8 +77,7 @@ function DetailDataset() {
 
       alert("Data berhasil ditambahkan.");
     } catch (error) {
-      console.error(error);
-      alert("Gagal menambahkan data.");
+      alert(error.message || "Gagal menambahkan data.");
     } finally {
       setIsUploading(false);
     }
@@ -284,9 +280,6 @@ B/
 
             <h2>Preview Video</h2>
 
-            {console.log(
-              `${BASE_URL}/datasets/raw-data/${previewId}/preview`
-            )}
             <video
               controls
               autoPlay

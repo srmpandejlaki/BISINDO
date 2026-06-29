@@ -14,7 +14,7 @@ function TableDataset({ datasets = [], onDeleteSuccess, onUpdateSuccess }) {
         await delete_dataset(idDataset);
         onDeleteSuccess?.(idDataset);
     } catch (error) {
-        console.error(error);
+        alert(error.message || "Gagal menghapus dataset.");
     }
   };
 
@@ -35,11 +35,9 @@ function TableDataset({ datasets = [], onDeleteSuccess, onUpdateSuccess }) {
 
     try {
       await update_dataset_name(idDataset, newName);
-
       onUpdateSuccess?.(idDataset, newName);
-      // nanti refresh data di sini
     } catch (error) {
-      console.error(error);
+      alert(error.message || "Gagal mengubah nama dataset.");
     }
   };
 
@@ -79,7 +77,7 @@ function TableDataset({ datasets = [], onDeleteSuccess, onUpdateSuccess }) {
                 <button 
                   className="button delete" 
                   onClick={() => handleDelete(dataset.idDataset)}
-                  disabled={dataset.preprocessFolderPath}
+                  disabled={!!dataset.preprocessedFolderPath}
                 >
                   hapus
                 </button>

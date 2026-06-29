@@ -13,11 +13,11 @@ export const get_all_datasets = async () => {
     }
 
     const data = await response.json();
-    
-    if (data?.data && Array.isArray(data.data)) return data.data;
-    if (Array.isArray(data.data)) return data;
-    console.log("Unknown data format", data);
 
+    if (data?.data && Array.isArray(data.data)) return data.data;
+    if (Array.isArray(data)) return data;
+
+    console.warn("Unknown data format from /datasets/:", data);
     return [];
 
   } catch (error) {

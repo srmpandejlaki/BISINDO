@@ -43,25 +43,17 @@ function SectionUpload({
     setLoading(true);
 
     try {
-      const response =
-        await create_dataset_from_zip(file);
+      const response = await create_dataset_from_zip(file);
 
-      if (response) {
-        alert("Dataset berhasil diunggah!");
+      alert("Dataset berhasil diunggah!");
 
-        onUploadSuccess?.();
-        onPreviewGenerated?.(null);
+      onUploadSuccess?.();
+      onPreviewGenerated?.(null);
 
-        setFile(null);
-
-        e.target.reset();
-      }
+      setFile(null);
+      e.target.reset();
     } catch (error) {
-      alert(
-        error.response?.data?.detail ||
-        error.message ||
-        "Terjadi kesalahan saat mengunggah."
-      );
+      alert(error.message || "Terjadi kesalahan saat mengunggah.");
     } finally {
       setLoading(false);
     }

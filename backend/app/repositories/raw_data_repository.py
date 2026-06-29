@@ -1,6 +1,7 @@
 from app.database.models import RawData
 from app.repositories import BaseRepository
 
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload, Session
 
 class RawDataRepository(BaseRepository):
@@ -90,3 +91,50 @@ class RawDataRepository(BaseRepository):
             )
             .count()
         )
+    
+    def get_not_processed_by_dataset(
+        self,
+        db: Session,
+        idDataset: int
+    ):
+        return (
+            db.query(RawData)
+
+            .filter(
+                RawData.idDataset == idDataset,
+                RawData.preprocessedFilePath != None,
+                RawData.landmarkFilePath == None
+            )
+            .all()
+        )
+    
+    def update_landmark_file(
+        self,
+        db: Session,
+        raw_data: RawData,
+        landmark_path: str
+    ):
+        raw_data.landmarkFilePath = landmark_path
+
+        db.commit()
+        db.refresh(raw_data)
+
+        return raw_data
+    
+    def get_processing_status(
+        self,
+        db: Session,
+        idDataset: int
+    ):
+        return (
+            db.query(
+                func.count(RawData.idRawData).label("total"),
+                func.count(RawData.landmarkFilePath).label("processed")
+            )
+            .filter(
+                RawData.idDataset == idDataset,
+                RawData.preprocessedFilePath != None
+            )
+            .first()
+        )
+

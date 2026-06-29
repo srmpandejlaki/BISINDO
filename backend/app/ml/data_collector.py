@@ -8,7 +8,7 @@ from datetime import datetime
 # CONFIG
 # =====================================
 
-DATASET_PATH = "storage/raw_data/dataset_raw_mirror"
+DATASET_PATH = "storage/raw_data/dataset_dummy"
 VIDEO_DURATION = 2
 TARGET_FPS = 30
 

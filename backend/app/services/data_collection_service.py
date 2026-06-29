@@ -40,12 +40,12 @@ class DataCollectionService:
     
     # GET Dataset by id (single)
     def get_dataset_by_id(self, db: Session, idDataset: int):
-        dataset = (self.dataset_repository.get_by_id(db, idDataset))
+        dataset = self.dataset_repository.get_by_id(db, idDataset, Dataset.idDataset)
 
-        if not dataset :
+        if not dataset:
             raise ValueError("Dataset not found")
-        
-        return self.dataset_repository.get_by_id(db, idDataset)
+
+        return dataset
     
     # GET Raw Data by id Dataset
     def get_raw_data_by_id_dataset(
@@ -111,12 +111,10 @@ class DataCollectionService:
         db: Session,
         dataset_id: int
     ):
-        dataset = (
-            self.dataset_repository
-            .get_by_id(
-                db,
-                dataset_id
-            )
+        dataset = self.dataset_repository.get_by_id(
+            db,
+            dataset_id,
+            Dataset.idDataset
         )
 
         if not dataset:
@@ -188,7 +186,7 @@ class DataCollectionService:
                     dataName=video_file.stem,
                     dataFilePath=str(video_file),
                     preprocessedFilePath=None,
-                    landmarkDataPath=None
+                    landmarkFilePath=None
                 )
 
                 db.add(raw_data)
@@ -256,7 +254,8 @@ class DataCollectionService:
 
             dataset = self.dataset_repository.get_by_id(
                 db,
-                id_dataset
+                id_dataset,
+                Dataset.idDataset
             )
 
             if not dataset:

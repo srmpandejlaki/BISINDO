@@ -27,7 +27,18 @@ class DatasetRepository(BaseRepository):
     return db.query(Dataset).filter(Dataset.datasetName == datasetName).first()
 
   def get_datasets_preprocess(self, db):
-    return db.query(Dataset).filter(Dataset.preprocessedFolderPath != None).all()
+    return (
+      db.query(
+        Dataset, func.count(RawData.idRawData).label("totalData")
+      )
+      .outerjoin(
+        RawData,
+        Dataset.idDataset == RawData.idDataset
+      )
+      .filter(Dataset.preprocessedFolderPath.isnot(None))
+      .group_by(Dataset.idDataset)
+      .all()
+    )
   
   def get_datasets_landmark(self, db):
     return db.query(Dataset).filter(Dataset.landmarkFolderPath != None).all()

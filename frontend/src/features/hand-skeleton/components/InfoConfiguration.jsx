@@ -1,6 +1,6 @@
 import React from "react";
 
-function InfoConfiguration() {
+function InfoConfiguration({ config = {} }) {
   return (
     <div className="section info-configuration">
       <div className="pengantar">
@@ -12,23 +12,23 @@ function InfoConfiguration() {
       <div className="configuration">
         <p>
           <span>Minimum Detection Confidence</span>
-          <span>0.5</span>
+          <span>{config.min_detection_confidence ?? "-"}</span>
         </p>
         <p>
           <span>Minimum Tracking Confidence</span>
-          <span>0.5</span>
+          <span>{config.min_tracking_confidence ?? "-"}</span>
         </p>
         <p>
           <span>Maksimal Jumlah Tangan</span>
-          <span>2</span>
+          <span>{config.max_num_hands ?? "-"}</span>
         </p>
         <p>
-          <span>Model Complexity </span>
-          <span>1</span>
+          <span>Minimum Detection Ratio</span>
+          <span>{config.min_detection_ratio ?? "-"}</span>
         </p>
       </div>
     </div>
   );
 }
 
-export default InfoConfiguration;
+export default InfoConfiguration;

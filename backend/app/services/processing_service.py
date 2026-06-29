@@ -2,11 +2,12 @@ from sqlalchemy.orm import Session
 
 import os
 
-from app.repositories import TrainingRepository, LabelRepository, RatioDataRepository, DatasetRepository
-from app.database.models import Training, Label, RatioDataSplit
+from app.repositories import TrainingRepository, LabelRepository, RatioDataRepository, DatasetRepository, RawDataRepository
+from app.database.models import Training, RatioDataSplit, Dataset
 
 from app.schemas.processing_schemas import AddRatio
 
+from app.ml.hand_skeleton.extractor import HandSkeletonExtractor
 from app.ml.processing.training_dataset import TrainingDataset
 
 class ProcessingService:
@@ -15,14 +16,172 @@ class ProcessingService:
     self.label_repository = LabelRepository()
     self.ratio_repository = RatioDataRepository()
     self.dataset_repository = DatasetRepository()
+    self.raw_data_repository = RawDataRepository()
 
 # Hand Skeleton
+  def get_datasets_preprocess(self, db: Session):
+    result = self.dataset_repository.get_datasets_preprocess(db)
+
+    dataset = []
+    for d, totalData in result:
+        dataset.append({
+            "idDataset": d.idDataset,
+            "datasetName": d.datasetName,
+            "datasetFolderPath": d.datasetFolderPath,
+            "preprocessedFolderPath": d.preprocessedFolderPath,
+            "totalData": totalData
+        })
+
+    return dataset
+  
   def get_datasets_landmark(self, db: Session):
     return self.dataset_repository.get_datasets_landmark(db)
   
   def get_datasets_landmark_by_id(self, db: Session, idDataset: int):
-    return self.dataset_repository.get_datasets_landmark_by_id(db, idDataset)
+    dataset = self.dataset_repository.get_by_id(db, idDataset, Dataset.idDataset)
+    if not dataset:
+        raise ValueError("Dataset tidak ditemukan.")
+    
+    raw_datas = self.raw_data_repository.get_by_id_dataset(db, idDataset)
+    raw_data_list = []
+    for rd in raw_datas:
+        raw_data_list.append({
+            "idRawData": rd.idRawData,
+            "dataName": rd.dataName,
+            "labelName": rd.label.labelName if rd.label else None,
+            "preprocessedFilePath": rd.preprocessedFilePath,
+            "landmarkFilePath": rd.landmarkFilePath
+        })
+        
+    return {
+        "idDataset": dataset.idDataset,
+        "datasetName": dataset.datasetName,
+        "landmarkFolderPath": dataset.landmarkFolderPath,
+        "rawData": raw_data_list
+    }
 
+  def process_dataset(
+    self,
+    db: Session,
+    idDataset: int,
+    config: dict
+  ):
+    dataset = self.dataset_repository.get_by_id(
+        db,
+        idDataset,
+        Dataset.idDataset
+    )
+
+    if not dataset:
+        raise ValueError(
+            "Dataset tidak ditemukan."
+        )
+
+    landmark_folder = os.path.join(
+        "storage",
+        "landmarks",
+        dataset.datasetName
+    )
+
+    os.makedirs(
+        landmark_folder,
+        exist_ok=True
+    )
+
+    raw_data_list = (
+        self.raw_data_repository
+        .get_not_processed_by_dataset(
+            db,
+            idDataset
+        )
+    )
+
+    if not raw_data_list:
+        raise ValueError(
+            "Tidak ada data yang perlu diproses."
+        )
+    
+    extractor = HandSkeletonExtractor(
+        max_num_hands=config.get("max_num_hands", 2),
+        min_detection_confidence=config.get("min_detection_confidence", 0.5),
+        min_tracking_confidence=config.get("min_tracking_confidence", 0.5),
+        min_detection_ratio=config.get("min_detection_ratio", 0.9)
+    )
+    results = []
+
+    processed = 0
+
+    failed = 0
+
+    for index, raw_data in enumerate(
+        raw_data_list
+    ):
+        input_path = (
+            raw_data.preprocessedFilePath
+        )
+
+        base_name = os.path.splitext(raw_data.dataName)[0]
+        output_path = os.path.join(
+            landmark_folder,
+            f"{base_name}.npy"
+        )
+
+        try:
+            result = (
+                extractor.process_video(
+                    input_path,
+                    output_path
+                )
+            )
+
+            self.raw_data_repository.update_landmark_file(
+                db,
+                raw_data,
+                output_path
+            )
+            processed += 1
+
+        except Exception as e:
+            result = {
+                "input_path": input_path,
+                "error": str(e),
+                "success": False
+            }
+            failed += 1
+
+        results.append(
+            result
+        )
+    extractor.close()
+
+    dataset.landmarkFolderPath = landmark_folder
+
+    db.commit()
+    db.refresh(dataset)
+    
+    return {
+        "dataset": dataset,
+        "processed": processed,
+        "failed": failed,
+        "results": results
+    }
+  
+  def get_processing_status(
+    self,
+    db,
+    idDataset
+  ):
+    status = self.raw_data_repository.get_processing_status(
+        db,
+        idDataset
+    )
+    return {
+        "totalVideo": status.total,
+        "processed": status.processed,
+        "remaining":
+            status.total - status.processed
+    }
+  
 # Model
   def get_all_models(self, db: Session):
     models = self.training_repository.get_all(db)
