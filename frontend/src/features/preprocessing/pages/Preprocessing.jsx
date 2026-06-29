@@ -109,8 +109,12 @@ function PreprocessingPage() {
         selectedDatasetId={selectedDatasetId}
       />
 
-      {
-        status && (
+      <div className="section result">
+        <h2>
+          {result ? "Hasil Prapemrosesan" : "Status Prapemrosesan"}
+        </h2>
+        {/* Status Section */}
+        {status && (
           <div className="dataset-status">
             <h3>Status Dataset</h3>
             <p>
@@ -136,66 +140,66 @@ function PreprocessingPage() {
               }
             </p>
           </div>
-        )
-      }
+        )}
 
-      {/* Result Section */}
-      {result && (
-        <div className="result-section result-success">
-          <div>
-            <h3>Preprocessing Berhasil</h3>
-            <div className="result-details">
-              <p>
-                <strong>Dataset:</strong> {result.dataset.datasetName}
-              </p>
-              <p>
-                <strong>Total Berhasil:</strong> {result.processed}
-              </p>
-              <p>
-                <strong>Total Gagal:</strong> {result.failed}
-              </p>
+        {/* Result Section */}
+        {result && (
+          <div className="result-section result-success">
+            <div>
+              <h3>Preprocessing Berhasil</h3>
+              <div className="result-details">
+                <p>
+                  <strong>Dataset:</strong> {result.dataset.datasetName}
+                </p>
+                <p>
+                  <strong>Total Berhasil:</strong> {result.processed}
+                </p>
+                <p>
+                  <strong>Total Gagal:</strong> {result.failed}
+                </p>
+              </div>
+            </div>
+            <div>
+              <h4>Detail</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Video</th>
+                    <th>Frame Awal</th>
+                    <th>Frame Akhir</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {result.results?.map((item, index) => {
+                    if (!item) return null;
+                    return (
+                      <tr key={index}>
+                        <td>
+                          {item.input_path
+                            ? item.input_path.split(/[/\\]/).pop()
+                            : "-"}
+                        </td>
+                        <td>{item.original_frame_count ?? "-"}</td>
+                        <td>{item.processed_frame_count ?? "-"}</td>
+                        <td>{item.error ? "❌" : "✅"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </div>
-          <div>
-            <h4>Detail</h4>
-            <table>
-              <thead>
-                <tr>
-                  <th>Video</th>
-                  <th>Frame Awal</th>
-                  <th>Frame Akhir</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {result.results?.map((item, index) => {
-                  if (!item) return null;
-                  return (
-                    <tr key={index}>
-                      <td>
-                        {item.input_path
-                          ? item.input_path.split(/[/\\]/).pop()
-                          : "-"}
-                      </td>
-                      <td>{item.original_frame_count ?? "-"}</td>
-                      <td>{item.processed_frame_count ?? "-"}</td>
-                      <td>{item.error ? "❌" : "✅"}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+        )}
 
-      {/* Error Section */}
-      {error && (
-        <div className="result-section result-error">
-          <h3>Preprocessing Gagal</h3>
-          <p>{error}</p>
-        </div>
-      )}
+        {/* Error Section */}
+        {error && (
+          <div className="result-section result-error">
+            <h3>Preprocessing Gagal</h3>
+            <p>{error}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

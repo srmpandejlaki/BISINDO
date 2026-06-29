@@ -5,12 +5,14 @@ const bisindoMaterials = [
     "id" : 1,
     "alfabet" : "A",
     "img" : "/alfabet-img/alfabet-A.png",
+    "video" : "/alfabet-video/A_001.mp4",
     "desc" : ""
   },
   {
     "id" : 2,
     "alfabet" : "B",
     "img" : "/alfabet-img/alfabet-B.png",
+    "video" : "/alfabet-video/B_001.mp4",
     "desc" : ""
   },
   {

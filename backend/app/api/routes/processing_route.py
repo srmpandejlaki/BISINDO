@@ -157,9 +157,24 @@ def get_landmark_preview(
 
   try:
     path = raw_data.landmarkFilePath
-    if not path.endswith(".npy") and not os.path.exists(path):
+    # Handle missing .npy extension
+    if not path.endswith(".npy"):
         if os.path.exists(path + ".npy"):
             path = path + ".npy"
+        elif os.path.exists(os.path.join("backend", path + ".npy")):
+            path = os.path.join("backend", path + ".npy")
+            
+    # Handle running directory fallback
+    if not os.path.exists(path):
+        if os.path.exists(os.path.join("backend", path)):
+            path = os.path.join("backend", path)
+            
+    if not os.path.exists(path):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Landmark file not found on disk at: {path}"
+        )
+        
     data = np.load(path)
     data = data.reshape(-1, 2, 21, 3)
     
@@ -174,18 +189,51 @@ def get_landmark_preview(
         (0,17),(17,18),(18,19),(19,20)
     ]
 
+    # Collect valid points (points that are not zero)
+    valid_points = []
     for hand_idx in range(2):
-        landmarks = frame[hand_idx]
-        points = []
-        for lm in landmarks:
-            x = int(lm[0] * 200)
-            y = int(lm[1] * 200)
-            x = 200 - x
-            points.append((x, y))
-            cv2.circle(canvas, (x, y), 2, colors[hand_idx], -1)
-        for connection in HAND_CONNECTIONS:
-            start, end = connection
-            cv2.line(canvas, points[start], points[end], colors[hand_idx], 1)
+        for lm in frame[hand_idx]:
+            if np.any(lm):
+                valid_points.append((lm[0], lm[1]))
+
+    if not valid_points:
+        cv2.putText(canvas, "No Hand", (70, 105), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+    else:
+        xs = [pt[0] for pt in valid_points]
+        ys = [pt[1] for pt in valid_points]
+        
+        min_x, max_x = min(xs), max(xs)
+        min_y, max_y = min(ys), max(ys)
+        
+        range_x = max_x - min_x
+        range_y = max_y - min_y
+        
+        scale_x = 150.0 / range_x if range_x > 0 else 1.0
+        scale_y = 150.0 / range_y if range_y > 0 else 1.0
+        scale = min(scale_x, scale_y)
+        
+        center_x = (min_x + max_x) / 2.0
+        center_y = (min_y + max_y) / 2.0
+        
+        points = {}
+        for hand_idx in range(2):
+            points[hand_idx] = []
+            for lm in frame[hand_idx]:
+                if not np.any(lm):
+                    points[hand_idx].append(None)
+                else:
+                    x = int(100 + (lm[0] - center_x) * scale)
+                    y = int(100 + (lm[1] - center_y) * scale)
+                    points[hand_idx].append((x, y))
+                    cv2.circle(canvas, (x, y), 3, colors[hand_idx], -1)
+
+        for hand_idx in range(2):
+            for connection in HAND_CONNECTIONS:
+                start, end = connection
+                p_start = points[hand_idx][start]
+                p_end = points[hand_idx][end]
+                if p_start is not None and p_end is not None:
+                    cv2.line(canvas, p_start, p_end, colors[hand_idx], 1)
 
     _, buffer = cv2.imencode(".png", canvas)
     return Response(content=buffer.tobytes(), media_type="image/png")

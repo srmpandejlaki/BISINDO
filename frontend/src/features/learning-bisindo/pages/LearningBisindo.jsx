@@ -1,10 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router-dom";
 import bisindoMaterials from "../utils/bisindo-materials";
-import { VIDEO_URL } from "../../../shared/utils/index-api";
 
 function LearningBisindo() {
   const [openDetail, setOpenDetail] = useState(null);
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+      videoRef.current.play();
+    }
+  }, [openDetail]);
+
+  useEffect(() => {
+  console.log(openDetail);
+}, [openDetail]);
 
   return (
     <div className="content learning-bisindo-page">
@@ -50,11 +61,10 @@ function LearningBisindo() {
           </button>
 
           <div className="video-alfabet">
-            <video key={openDetail.alfabet} controls autoPlay
-              onError={() => console.warn(`Video untuk huruf ${openDetail.alfabet} tidak tersedia.`)}
-            >
+            <video controls autoPlay loop ref={videoRef}>
               <source
-                src={`${VIDEO_URL}/${openDetail.alfabet}/${openDetail.alfabet}_001.mp4`}
+                // key={openDetail.video}
+                src={openDetail?.video}
                 type="video/mp4"
               />
               Browser Anda tidak mendukung video.
