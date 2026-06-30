@@ -155,6 +155,12 @@ class HandSkeletonExtractor:
 
     cap = cv2.VideoCapture(input_path)
 
+    metadata_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    print(f"\n=== EKSTRAKSI ===")
+    print(f"Video : {input_path}")
+    print(f"Metadata frame : {metadata_count}")
+
     if not cap.isOpened():
       raise ValueError("Video tidak dapat dibuka.")
 
@@ -182,6 +188,10 @@ class HandSkeletonExtractor:
         landmarks
       )
 
+    print(f"Frame terbaca : {total_frames}")
+    print(f"Sequence      : {len(sequence)}")
+    print("=================")
+
     cap.release()
 
     if total_frames == 0:
@@ -201,6 +211,8 @@ class HandSkeletonExtractor:
       sequence
     )
 
+    sequence_length = len(sequence)
+
     self.save_landmarks(
       sequence,
       output_path
@@ -211,6 +223,7 @@ class HandSkeletonExtractor:
       "output_path": output_path,
       "frame_count": total_frames,
       "detected_frames": detected_frames,
+      "sequence_length": sequence_length,
       "detection_ratio": round(
         detection_ratio,
         4

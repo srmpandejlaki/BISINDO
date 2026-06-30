@@ -5,38 +5,42 @@ const bisindoMaterials = [
     "id" : 1,
     "alfabet" : "A",
     "img" : "/alfabet-img/alfabet-A.png",
-    "video" : "/alfabet-video/A_001.mp4",
+    "video" : "A_001.mp4",
     "desc" : ""
   },
   {
     "id" : 2,
     "alfabet" : "B",
     "img" : "/alfabet-img/alfabet-B.png",
-    "video" : "/alfabet-video/B_001.mp4",
+    "video" : "B_001.mp4",
     "desc" : ""
   },
   {
     "id" : 3,
     "alfabet" : "C",
     "img" : "/alfabet-img/alfabet-C.png",
+    "video" : "C_001.mp4",
     "desc" : ""
   },
   {
     "id" : 4,
     "alfabet" : "D",
     "img" : "/alfabet-img/alfabet-D.png",
+    "video" : "D_001.mp4",
     "desc" : ""
   },
   {
     "id" : 5,
     "alfabet" : "E",
     "img" : "/alfabet-img/alfabet-E.png",
+    "video" : "E_001.mp4",
     "desc" : ""
   },
   {
     "id" : 6,
     "alfabet" : "F",
     "img" : "/alfabet-img/alfabet-F.png",
+    "video" : "F_001.mp4",
     "desc" : ""
   },
   {

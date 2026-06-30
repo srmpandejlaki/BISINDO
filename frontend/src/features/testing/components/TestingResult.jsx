@@ -100,7 +100,7 @@ function TestingResult({ isLoading, error, testResults }) {
 
         {/* Detailed Predictions Table */}
         <div>
-          <h5>Log Prediksi Data Uji ({totalItems.length} sampel)</h5>
+          <h5>Log Prediksi Data Uji ({totalItems} sampel)</h5>
           <div className=" table testing-table">
             <table>
               <thead style={{ backgroundColor: "#f8f9fa", position: "sticky", top: 0, zIndex: 1, borderBottom: "2px solid #dee2e6" }}>

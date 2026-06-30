@@ -71,3 +71,10 @@ class DatasetRepository(BaseRepository):
       db.refresh(dataset)
 
       return dataset
+  
+  def count_total_data_by_dataset(self, db: Session, idDataset: int):
+    return (
+        db.query(func.count(RawData.idRawData))
+        .filter(RawData.idDataset == idDataset)
+        .scalar()
+    )

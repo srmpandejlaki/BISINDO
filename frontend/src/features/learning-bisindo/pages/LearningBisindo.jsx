@@ -5,6 +5,7 @@ import bisindoMaterials from "../utils/bisindo-materials";
 function LearningBisindo() {
   const [openDetail, setOpenDetail] = useState(null);
   const videoRef = useRef(null);
+  const BASE_URL = "http://127.0.0.1:8000/";
 
   useEffect(() => {
     if (videoRef.current) {
@@ -63,8 +64,9 @@ function LearningBisindo() {
           <div className="video-alfabet">
             <video controls autoPlay loop ref={videoRef}>
               <source
-                // key={openDetail.video}
-                src={openDetail?.video}
+                key={openDetail.video}
+                src={`/alfabet-video/${openDetail?.video}`}
+                // src={`${BASE_URL}/backend/storage/raw-data/dataset-new/${openDetail?.alfabet}/${openDetail?.video}`}
                 type="video/mp4"
               />
               Browser Anda tidak mendukung video.

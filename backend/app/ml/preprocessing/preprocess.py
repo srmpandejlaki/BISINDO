@@ -103,7 +103,7 @@ class VideoPreprocessor:
             exist_ok=True
         )
 
-        fourcc = cv2.VideoWriter_fourcc(*"XVID")
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
 
         writer = cv2.VideoWriter(
             output_path,
@@ -116,6 +116,32 @@ class VideoPreprocessor:
             writer.write(frame)
 
         writer.release()
+
+        # ============================
+        # Validasi hasil video
+        # ============================
+        cap = cv2.VideoCapture(output_path)
+
+        read_count = 0
+
+        while True:
+            ret, frame = cap.read()
+
+            if not ret:
+                break
+
+            read_count += 1
+
+        metadata_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        cap.release()
+
+        print(f"\n=== VALIDASI PREPROCESS ===")
+        print(f"Output : {output_path}")
+        print(f"Frame ditulis     : {len(frames)}")
+        print(f"Metadata frame    : {metadata_count}")
+        print(f"Frame terbaca     : {read_count}")
+        print("============================")
 
     def preprocess(
         self,

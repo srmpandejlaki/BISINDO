@@ -27,20 +27,36 @@ class TestingService:
         X = []
         y = []
         filenames = []
-        labels = sorted(os.listdir(dataset_path))
         
-        for label in labels:
-            label_path = os.path.join(dataset_path, label)
-            if not os.path.isdir(label_path):
-                continue
-            for filename in os.listdir(label_path):
+        if not os.path.exists(dataset_path):
+            return np.array(X), np.array(y), filenames
+
+        items = sorted(os.listdir(dataset_path))
+        has_subdirs = any(os.path.isdir(os.path.join(dataset_path, item)) for item in items)
+
+        if has_subdirs:
+            for label in items:
+                label_path = os.path.join(dataset_path, label)
+                if not os.path.isdir(label_path):
+                    continue
+                for filename in os.listdir(label_path):
+                    if not filename.endswith(".npy"):
+                        continue
+                    file_path = os.path.join(label_path, filename)
+                    data = np.load(file_path)
+                    X.append(data)
+                    y.append(label)
+                    filenames.append(f"{label}/{filename}")
+        else:
+            for filename in items:
                 if not filename.endswith(".npy"):
                     continue
-                file_path = os.path.join(label_path, filename)
+                file_path = os.path.join(dataset_path, filename)
                 data = np.load(file_path)
                 X.append(data)
+                label = filename.split("_")[0].upper()
                 y.append(label)
-                filenames.append(f"{label}/{filename}")
+                filenames.append(filename)
                 
         return np.array(X), np.array(y), filenames
 
@@ -133,6 +149,8 @@ class TestingService:
         cm = confusion_matrix(y_true, y_pred)
         confusionMatrix = cm.tolist()
 
+        processType = "TEST"
+
         # 10. Save or update evaluation in DB
         eval_record = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
         if not eval_record:
@@ -151,13 +169,15 @@ class TestingService:
         eval_record.weightedAverage = weightedAverage
         eval_record.macroAverage = macroAverage
         eval_record.mcc = mcc
+        eval_record.processType = processType
         
         db.commit()
         db.refresh(eval_record)
 
         return {
             "summary": {
-                "idEvaluation": eval_record.idEvaluation,
+                "idTrainTest": eval_record.idTrainTest,
+                "processType": eval_record.processType,
                 "accuracy": accuracy,
                 "precision": precision,
                 "recall": recall,
@@ -184,7 +204,18 @@ class TestingService:
         if not dataset or not dataset.landmarkFolderPath:
             raise ValueError("Dataset not found or landmark processing has not been completed")
 
-        labels = sorted(os.listdir(dataset.landmarkFolderPath))
+        # Dynamically build labels list based on actual .npy files or folders
+        items = sorted(os.listdir(dataset.landmarkFolderPath))
+        has_subdirs = any(os.path.isdir(os.path.join(dataset.landmarkFolderPath, item)) for item in items)
+        if has_subdirs:
+            labels = sorted([item for item in items if os.path.isdir(os.path.join(dataset.landmarkFolderPath, item))])
+        else:
+            labels_set = set()
+            for filename in items:
+                if filename.endswith(".npy"):
+                    label = filename.split("_")[0].upper()
+                    labels_set.add(label)
+            labels = sorted(list(labels_set))
 
         # 3. Load model to get expected sequence length
         from tensorflow.keras import backend as K
@@ -229,45 +260,21 @@ class TestingService:
 
     def extract_landmarks_from_video(self, video_path: str, sequence_length: int):
         import cv2
-        import mediapipe as mp
+        from app.ml.hand_skeleton.extractor import HandSkeletonExtractor
         
-        mp_hands = mp.solutions.hands
-        hands = mp_hands.Hands(
-            static_image_mode=False,
-            max_num_hands=2,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
-        )
-        
+        extractor = HandSkeletonExtractor(min_detection_ratio=0.0)
         cap = cv2.VideoCapture(video_path)
         sequence = []
         
-        while True:
+        while cap.isOpened():
             ret, frame = cap.read()
             if not ret:
                 break
-                
-            rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            results = hands.process(rgb)
-            
-            landmarks = np.zeros(126, dtype=np.float32)
-            if results.multi_hand_landmarks and results.multi_handedness:
-                for hand_landmarks, handedness in zip(results.multi_hand_landmarks, results.multi_handedness):
-                    hand_label = handedness.classification[0].label
-                    coords = []
-                    for lm in hand_landmarks.landmark:
-                        coords.extend([lm.x, lm.y, lm.z])
-                    coords = np.array(coords, dtype=np.float32)
-                    
-                    if hand_label == "Left":
-                        landmarks[:63] = coords
-                    elif hand_label == "Right":
-                        landmarks[63:] = coords
-                        
+            landmarks, _ = extractor.extract_landmarks(frame)
             sequence.append(landmarks)
             
         cap.release()
-        hands.close()
+        extractor.close()
         
         if len(sequence) == 0:
             raise ValueError("Gagal mengekstrak frame dari video. Berkas video mungkin rusak atau kosong.")
@@ -277,48 +284,10 @@ class TestingService:
         indices = np.linspace(0, len(sequence) - 1, sequence_length).astype(int)
         sequence = sequence[indices]
         
-        # Normalization
-        def normalize_scale_local(hand):
-            wrist = hand[0]
-            ref_point = hand[9]  # middle finger MCP
-            scale = np.linalg.norm(ref_point - wrist)
-            if scale > 0:
-                hand = hand / scale
-            return hand
-
-        normalized_sequence = []
-        for frame in sequence:
-            frame = frame.copy()
-            left = frame[:63].reshape(21, 3)
-            right = frame[63:].reshape(21, 3)
-            
-            left_present = not np.all(left == 0)
-            right_present = not np.all(right == 0)
-            
-            if left_present and right_present:
-                wrist_ref = right[0]
-                ref_point = right[9]
-                scale = np.linalg.norm(ref_point - wrist_ref)
-                
-                left = left - wrist_ref
-                right = right - wrist_ref
-                
-                if scale > 0:
-                    left = left / scale
-                    right = right / scale
-            elif left_present:
-                wrist_left = left[0]
-                left = left - wrist_left
-                left = normalize_scale_local(left)
-            elif right_present:
-                wrist_right = right[0]
-                right = right - wrist_right
-                right = normalize_scale_local(right)
-                
-            normalized_frame = np.concatenate([left.flatten(), right.flatten()])
-            normalized_sequence.append(normalized_frame)
-            
-        return np.array(normalized_sequence, dtype=np.float32)
+        # Normalize using the exact same logic as training
+        sequence = extractor.normalize_landmarks(sequence)
+        
+        return sequence
 
     def get_evaluation_by_training_id(self, db: Session, idTrainTest: int):
         eval_record = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()

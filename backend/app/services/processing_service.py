@@ -24,12 +24,16 @@ class ProcessingService:
 
     dataset = []
     for d, totalData in result:
+        status = self.raw_data_repository.get_processing_status(db, d.idDataset)
         dataset.append({
             "idDataset": d.idDataset,
             "datasetName": d.datasetName,
             "datasetFolderPath": d.datasetFolderPath,
             "preprocessedFolderPath": d.preprocessedFolderPath,
-            "totalData": totalData
+            "totalData": totalData,
+            "totalPreprocessed": status.total if status else 0,
+            "processedLandmark": status.processed if status else 0,
+            "remainingLandmark": (status.total - status.processed) if status else 0
         })
 
     return dataset
@@ -98,7 +102,7 @@ class ProcessingService:
 
     if not raw_data_list:
         raise ValueError(
-            "Tidak ada data yang perlu diproses."
+            "Semua data pada dataset ini sudah selesai diekstraksi skeletonnya."
         )
     
     extractor = HandSkeletonExtractor(
@@ -187,6 +191,8 @@ class ProcessingService:
     models = self.training_repository.get_all(db)
     result = []
     for m in models:
+        total_data = self.dataset_repository.count_total_data_by_dataset(db, m.idDataset)
+
         result.append({
             "idTrainTest": m.idTrainTest,
             "idDataset": m.idDataset,
@@ -213,8 +219,8 @@ class ProcessingService:
             "trainModelPath": m.trainModelPath,
             "createdAt": m.createdAt.isoformat() if m.createdAt else None,
             "datasetName": m.dataset.datasetName if m.dataset else None,
-            "totalData": m.dataset.totalData if m.dataset else 0,
-            "totalLabel": m.dataset.totalLabel if m.dataset else 0,
+            "totalData": total_data,
+            # "totalLabel": m.dataset.totalLabel if m.dataset else 0,
             "trainRatio": m.ratio_data_split.trainRatio if m.ratio_data_split else None
         })
     return result
@@ -531,6 +537,7 @@ class ProcessingService:
                   trainLoss=results["trainLoss"],
                   valLoss=results["valLoss"],
                   mcc=results["mcc"],
+                  processType="TRAIN",
                   trainModelPath=model_path,
                   createdAt=now,
                   updatedAt=now
@@ -563,6 +570,7 @@ class ProcessingService:
                   "trainLoss": new_training.trainLoss,
                   "valLoss": new_training.valLoss,
                   "mcc": new_training.mcc,
+                  "processType": new_training.processType,
                   "trainModelPath": new_training.trainModelPath,
                   "createdAt": new_training.createdAt.isoformat() if new_training.createdAt else None
               }

@@ -68,6 +68,12 @@ function PreprocessingPage() {
     try {
       const response = await run_preprocessing(selectedDatasetId, config);
       setResult(response.data);
+
+      localStorage.setItem(
+        `preprocessing-result-${selectedDatasetId}`,
+        JSON.stringify(response.data)
+      );
+
       const newStatus = await get_preprocessing_status(selectedDatasetId);
       setStatus(newStatus);
       await loadDatasets();
@@ -77,6 +83,21 @@ function PreprocessingPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!selectedDatasetId) return;
+
+    const saved = localStorage.getItem(
+      `preprocessing-result-${selectedDatasetId}`
+    );
+
+    if (saved) {
+      setResult(JSON.parse(saved));
+    } else {
+      setResult(null);
+    }
+
+  }, [selectedDatasetId]);
 
   // Hitung info status
   const allPreprocessed = status && status.remaining === 0 && status.totalVideo > 0;

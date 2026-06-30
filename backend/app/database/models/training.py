@@ -51,6 +51,7 @@ class Training(Base):
   rocAuc = Column(Float)
 
   trainModelPath = Column(String(999))
+  processType = Column(String(99))
 
   createdAt = Column(
     DateTime(timezone=True),
