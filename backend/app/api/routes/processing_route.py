@@ -309,7 +309,7 @@ def test_ratios(
   return StreamingResponse(
     processing_service.test_ratios_generator(
       db, 
-      config.epochs, 
+      config.epoch, 
       config.batch_size, 
       config.learning_rate
     ),
@@ -330,19 +330,19 @@ def train_model(
       dropout1=config.dropout1,
       dropout2=config.dropout2,
       dense_units=config.dense_units,
-      epochs=config.epochs,
+      epoch=config.epoch,
       batch_size=config.batch_size,
       learning_rate=config.learning_rate
     ),
     media_type="text/event-stream"
   )
 
-@router.get("/models/{idTrainTest}")
+@router.get("/models/{idTraining}")
 def get_model_by_id(
-  idTrainTest: int,
+  idTraining: int,
   db: Session = Depends(get_db)
 ):
-  dataset = processing_service.get_model_by_id(db, idTrainTest)
+  dataset = processing_service.get_model_by_id(db, idTraining)
 
   if not dataset:
     raise HTTPException(
@@ -355,13 +355,13 @@ def get_model_by_id(
     "data": dataset
   }
 
-@router.delete("/models/{idTrainTest}")
+@router.delete("/models/{idTraining}")
 def delete_model(
-  idTrainTest: int,
+  idTraining: int,
   db: Session = Depends(get_db)
 ):
   try:
-    processing_service.delete_model(db, idTrainTest)
+    processing_service.delete_model(db, idTraining)
     return {
       "success": True,
       "message": "Model deleted successfully"

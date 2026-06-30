@@ -176,7 +176,7 @@ function TestBisindo() {
   // WEBSOCKET
   // ==========================================
   const connectWebSocket = useCallback(() => {
-    const ws = new WebSocket(`${WS_BASE_URL}/testing/realtime/0`);
+    const ws = new WebSocket(`${WS_BASE_URL}/bisindo_test/realtime/0`);
 
     wsRef.current = ws;
     setConnectionStatus("connecting");

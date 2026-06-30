@@ -15,10 +15,11 @@ class TrainingDataset:
         dropout1,
         dropout2,
         dense_units,
-        epochs,
+        epoch,
         batch_size,
         learning_rate,
-        test_size=0.2
+        test_size=0.2,
+        val_size=0.2
     ):
         self.dataset_path = dataset_path
 
@@ -30,10 +31,11 @@ class TrainingDataset:
 
         self.dense_units = dense_units
 
-        self.epochs = epochs
+        self.epoch = epoch
         self.batch_size = batch_size
         self.learning_rate = learning_rate
         self.test_size = test_size
+        self.val_size = val_size
 
     def train(self, epoch_callback=None):
         from tensorflow.keras import backend as K
@@ -49,12 +51,23 @@ class TrainingDataset:
             LabelEncoderService.encode(y)
         )
 
-        X_train, X_test, y_train, y_test = train_test_split(
+        # Split off test set — stratify on raw labels so every class is represented
+        X_trainval, X_test, y_trainval, y_test, y_raw_trainval, _ = train_test_split(
             X,
             y_encoded,
+            y,
             test_size=self.test_size,
             random_state=42,
             stratify=y
+        )
+
+        # Split validation from train — use dynamically computed val_size relative to trainval
+        X_train, X_val, y_train, y_val = train_test_split(
+            X_trainval,
+            y_trainval,
+            test_size=self.val_size,
+            random_state=42,
+            stratify=y_raw_trainval
         )
 
         model = LSTMModelBuilder.build(
@@ -88,8 +101,8 @@ class TrainingDataset:
         history = model.fit(
             X_train,
             y_train,
-            validation_split=0.2,
-            epochs=self.epochs,
+            validation_data=(X_val, y_val),
+            epochs=self.epoch,
             batch_size=self.batch_size,
             callbacks=callbacks,
             verbose=1

@@ -3,8 +3,8 @@ import React from "react";
 function AnalisisPerbandingan({ trainingData, testingData, isLoadingTesting }) {
   if (!trainingData) return null;
 
-  const trainAcc = trainingData.accuracy;
-  const trainF1 = trainingData.f1score;
+  const trainAcc = trainingData.accuracy || 0;
+  const trainF1 = trainingData.f1score || 0;
   const trainMcc = trainingData.mcc || 0;
 
   if (isLoadingTesting) {
@@ -29,8 +29,8 @@ function AnalisisPerbandingan({ trainingData, testingData, isLoadingTesting }) {
     );
   }
 
-  const testAcc = testingData.accuracy;
-  const testF1 = testingData.f1score;
+  const testAcc = testingData.accuracy || 0;
+  const testF1 = testingData.f1score || 0;
   const testMcc = testingData.mcc || 0;
 
   // Calculate gaps
@@ -46,7 +46,7 @@ function AnalisisPerbandingan({ trainingData, testingData, isLoadingTesting }) {
 
   if (trainAcc < 0.60) {
     statusText = "Model Terindikasi Underfitting";
-    statusDesc = "Akurasi model masih rendah di kedua fase. Rekomendasi: Tingkatkan jumlah epochs, tambahkan variasi data dataset, atau sesuaikan arsitektur LSTM unit.";
+    statusDesc = "Akurasi model masih rendah di kedua fase. Rekomendasi: Tingkatkan jumlah epoch, tambahkan variasi data dataset, atau sesuaikan arsitektur LSTM unit.";
     badgeColor = "#ffc107";
     badgeBg = "#fff3cd";
     badgeTextColor = "#664d03";

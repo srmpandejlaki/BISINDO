@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function EvaluationTesting({ testingData, isLoading, idTrainTest }) {
+function EvaluationTesting({ testingData, isLoading, idTraining }) {
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -29,7 +29,7 @@ function EvaluationTesting({ testingData, isLoading, idTrainTest }) {
           Model ini belum pernah diuji menggunakan data uji (test split). Jalankan pengujian sekarang untuk membandingkan metrik performa.
         </p>
         <button
-          onClick={() => navigate("/admin/testing", { state: { selectedModelId: idTrainTest } })}
+          onClick={() => navigate("/admin/testing", { state: { selectedModelId: idTraining } })}
           style={{
             padding: "10px 20px",
             backgroundColor: "#28a745",
@@ -99,27 +99,27 @@ function EvaluationTesting({ testingData, isLoading, idTrainTest }) {
           <tbody>
             <tr>
               <td>Accuracy</td>
-              <td className="text-right" style={{ color: "#198754" }}>{(accuracy * 100).toFixed(2)}%</td>
+              <td className="text-right" style={{ color: "#198754" }}>{((accuracy || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Precision (Weighted)</td>
-              <td className="text-right">{(precision * 100).toFixed(2)}%</td>
+              <td className="text-right">{((precision || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Recall (Weighted)</td>
-              <td className="text-right">{(recall * 100).toFixed(2)}%</td>
+              <td className="text-right">{((recall || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>F1-Score (Weighted)</td>
-              <td className="text-right">{(f1score * 100).toFixed(2)}%</td>
+              <td className="text-right">{((f1score || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Macro Average F1</td>
-              <td className="text-right">{(macroAverage * 100).toFixed(2)}%</td>
+              <td className="text-right">{((macroAverage || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Weighted Average F1</td>
-              <td className="text-right">{(weightedAverage * 100).toFixed(2)}%</td>
+              <td className="text-right">{((weightedAverage || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>MCC (Matthews Corrcoef)</td>

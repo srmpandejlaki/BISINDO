@@ -14,7 +14,7 @@ class RatioDataSplit(Base):
   )
 
   trainRatio = Column(String(99))
-  epochs = Column(String)
+  epoch = Column(String)
   batchSize = Column(String)
   learningRate = Column(Float)
 

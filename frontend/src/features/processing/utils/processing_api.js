@@ -48,9 +48,9 @@ export const get_best_ratio = async () => {
   }
 };
 
-export const get_model_by_id = async (idTrainTest) => {
+export const get_model_by_id = async (idTraining) => {
   try {
-    const response = await fetch(`${BASE_URL}/processing/models/${idTrainTest}`, {
+    const response = await fetch(`${BASE_URL}/processing/models/${idTraining}`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });
@@ -72,9 +72,9 @@ export const get_model_by_id = async (idTrainTest) => {
   }
 };
 
-export const delete_model = async (idTrainTest) => {
+export const delete_model = async (idTraining) => {
   try {
-    const response = await fetch(`${BASE_URL}/processing/models/${idTrainTest}`, {
+    const response = await fetch(`${BASE_URL}/processing/models/${idTraining}`, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     });

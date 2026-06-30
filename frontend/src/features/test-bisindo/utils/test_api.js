@@ -1,8 +1,8 @@
 import { BASE_URL } from "@/shared/utils/index-api";
 
-export const run_test = async (idTrainTest, config) => {
+export const run_test = async (idTraining, config) => {
   try {
-    const response = await fetch(`${BASE_URL}/testing/realtime/${idTrainTest}`, {
+    const response = await fetch(`${BASE_URL}/bisindo_test/realtime/${idTraining}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(config),

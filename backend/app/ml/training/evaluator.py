@@ -9,6 +9,7 @@ from sklearn.metrics import (
 
 class Evaluator:
 
+    @staticmethod
     def evaluate(
         y_true,
         y_pred,

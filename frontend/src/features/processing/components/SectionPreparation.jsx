@@ -14,7 +14,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
   const [dropout2, setDropout2] = useState(0.2);
 
   // Training Parameters State
-  const [epochs, setEpochs] = useState(5);
+  const [epoch, setepoch] = useState(5);
   const [batchSize, setBatchSize] = useState(32);
   const [learningRate, setLearningRate] = useState(0.001);
   const [optimizer, setOptimizer] = useState("adam");
@@ -24,7 +24,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
   // Auto-fill values when existing model is selected
   useEffect(() => {
     if (modelType === "existing" && selectedModelId) {
-      const selected = models.find(m => String(m.idTrainTest) === String(selectedModelId));
+      const selected = models.find(m => String(m.idTraining) === String(selectedModelId));
       if (selected) {
         setModelName(selected.modelName || "");
         setDenseUnits(selected.denseUnits || 16);
@@ -32,7 +32,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
         setDropout1(selected.dropout1 || 0.2);
         setLstmUnits2(selected.LSTMUnits2 || 128);
         setDropout2(selected.dropout2 || 0.2);
-        setEpochs(selected.epochs || 5);
+        setepoch(selected.epoch || 5);
         setBatchSize(selected.batchSize || 32);
         setLearningRate(selected.learningRate || 0.001);
         setOptimizer(selected.optimizer || "adam");
@@ -47,7 +47,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
       setDropout1(0.2);
       setLstmUnits2(128);
       setDropout2(0.2);
-      setEpochs(5);
+      setepoch(5);
       setBatchSize(32);
       setLearningRate(0.001);
       setOptimizer("adam");
@@ -70,7 +70,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
       dropout1: Number(dropout1),
       dropout2: Number(dropout2),
       dense_units: Number(denseUnits),
-      epochs: Number(epochs),
+      epoch: Number(epoch),
       batch_size: Number(batchSize),
       learning_rate: Number(learningRate),
     };
@@ -114,7 +114,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
                 >
                   <option value="">Pilih Model</option>
                   {models.map((model) => (
-                    <option key={model.idTrainTest} value={model.idTrainTest}>
+                    <option key={model.idTraining} value={model.idTraining}>
                       {model.modelName} (Acc: {(model.accuracy * 100).toFixed(1)}%)
                     </option>
                   ))}
@@ -233,8 +233,8 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
               <input 
                 type="number" 
                 placeholder="5" 
-                value={epochs}
-                onChange={(e) => setEpochs(Number(e.target.value))}
+                value={epoch}
+                onChange={(e) => setepoch(Number(e.target.value))}
                 disabled={isDisabled}
                 min={1}
               />

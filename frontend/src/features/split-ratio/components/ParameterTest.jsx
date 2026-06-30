@@ -1,7 +1,7 @@
 import React from "react";
 
 function ParameterTest({ 
-  epochs, setEpochs, 
+  epoch, setepoch, 
   batchSize, setBatchSize, 
   learningRate, setLearningRate, 
   handleSubmit, 
@@ -12,14 +12,14 @@ function ParameterTest({
   return (
     <div className="parameter-test-ratio">
       <h3>Parameter untuk Pengujian Ratio Data Split Terbaik</h3>
-      <form className="form-ratio" onSubmit={handleSubmit}>
+      <form className="form-param" onSubmit={handleSubmit}>
         <div className="input">
           <label>Epoch:</label>
           <input
             type="number"
             placeholder="10"
-            value={epochs}
-            onChange={(e) => setEpochs(e.target.value)}
+            value={epoch}
+            onChange={(e) => setepoch(e.target.value)}
             disabled={isTesting}
             min="1"
             required

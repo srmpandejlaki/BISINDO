@@ -55,7 +55,7 @@ function App() {
             element={<DetailDataset />}
           />
           <Route path="/admin/preprocessing" element={<Preprocessing />} />
-          <Route path="/admin/preprocessing/:idTrainTest/detail_model" element={<DetailModel />} />
+          <Route path="/admin/preprocessing/:idTraining/detail_model" element={<DetailModel />} />
           <Route path="/admin/processing/hand-skeleton" element={<HandSkeleton />} />
           <Route
             path="/admin/processing/hand-skeleton/:idDataset/detail_landmark"

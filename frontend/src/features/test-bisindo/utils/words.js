@@ -1,13 +1,7 @@
 const words = {
   level1: [
-    "aku",
-    "ibu",
-    "api",
-    "mie",
-    "tas",
-    "topi",
-    "bola",
-    "buku"
+    "ada",
+    "babi"
   ],
 
   level2: [

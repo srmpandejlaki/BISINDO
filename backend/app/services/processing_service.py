@@ -194,7 +194,7 @@ class ProcessingService:
         total_data = self.dataset_repository.count_total_data_by_dataset(db, m.idDataset)
 
         result.append({
-            "idTrainTest": m.idTrainTest,
+            "idTraining": m.idTraining,
             "idDataset": m.idDataset,
             "idRatioDataSplit": m.idRatioDataSplit,
             "modelName": m.modelName,
@@ -203,7 +203,7 @@ class ProcessingService:
             "dropout1": m.dropout1,
             "dropout2": m.dropout2,
             "denseUnits": m.denseUnits,
-            "epochs": m.epochs,
+            "epoch": m.epoch,
             "batchSize": m.batchSize,
             "learningRate": m.learningRate,
             "accuracy": m.accuracy,
@@ -235,36 +235,46 @@ class ProcessingService:
       dropout1,
       dropout2,
       dense_units,
-      epochs,
+      epoch,
       batch_size,
       learning_rate
   ):
-      bestRatio = self.ratio_repository.get_by_best_ratio(db, True)
-      test_size = 0.2
-      if bestRatio and bestRatio.trainRatio:
-          try:
-              parts = bestRatio.trainRatio.split(":")
-              if len(parts) == 2:
-                  train_val = float(parts[0])
-                  test_val = float(parts[1])
-                  test_size = test_val / (train_val + test_val)
-          except Exception:
-              pass
+       bestRatio = self.ratio_repository.get_by_best_ratio(db, True)
+       test_size = 0.2
+       val_size = 0.2
+       if bestRatio and bestRatio.trainRatio:
+           try:
+               parts = bestRatio.trainRatio.split(":")
+               if len(parts) == 3:
+                   train_val = float(parts[0])
+                   test_val = float(parts[1])
+                   val_val = float(parts[2])
+                   total = train_val + test_val + val_val
+                   test_size = test_val / total
+                   val_size = val_val / (train_val + val_val)
+               elif len(parts) == 2:
+                   train_val = float(parts[0])
+                   test_val = float(parts[1])
+                   test_size = test_val / (train_val + test_val)
+                   val_size = 0.2
+           except Exception:
+               pass
 
-      trainer = TrainingDataset(
-          dataset_path=dataset_path,
-          lstm_units1=lstm_units1,
-          lstm_units2=lstm_units2,
-          dropout1=dropout1,
-          dropout2=dropout2,
-          dense_units=dense_units,
-          epochs=epochs,
-          batch_size=batch_size,
-          learning_rate=learning_rate,
-          test_size=test_size
-      )
+       trainer = TrainingDataset(
+           dataset_path=dataset_path,
+           lstm_units1=lstm_units1,
+           lstm_units2=lstm_units2,
+           dropout1=dropout1,
+           dropout2=dropout2,
+           dense_units=dense_units,
+           epoch=epoch,
+           batch_size=batch_size,
+           learning_rate=learning_rate,
+           test_size=test_size,
+           val_size=val_size
+       )
 
-      return trainer.train()
+       return trainer.train()
 
   # Ratio Data
   def get_all_ratio(self, db: Session):
@@ -287,7 +297,7 @@ class ProcessingService:
       self.ratio_repository.delete(db, ratio)
       return True
 
-  def test_ratios_generator(self, db: Session, epochs: int, batch_size: int, learning_rate: float):
+  def test_ratios_generator(self, db: Session, epoch: int, batch_size: int, learning_rate: float):
       import queue
       import threading
       import json
@@ -319,14 +329,23 @@ class ProcessingService:
               best_ratio_id = None
               
               for ratio in ratios:
-                  # parse test_size from "80:20"
+                  # parse test_size from "80:20" or "70:15:15"
                   test_size = 0.2
+                  val_size = 0.2
                   try:
                       parts = ratio.trainRatio.split(":")
-                      if len(parts) == 2:
+                      if len(parts) == 3:
+                          train_val = float(parts[0])
+                          test_val = float(parts[1])
+                          val_val = float(parts[2])
+                          total = train_val + test_val + val_val
+                          test_size = test_val / total
+                          val_size = val_val / (train_val + val_val)
+                      elif len(parts) == 2:
                           train_val = float(parts[0])
                           test_val = float(parts[1])
                           test_size = test_val / (train_val + test_val)
+                          val_size = 0.2
                   except Exception:
                       pass
                   
@@ -352,16 +371,17 @@ class ProcessingService:
                       dropout1=0.3,
                       dropout2=0.3,
                       dense_units=64,
-                      epochs=epochs,
+                      epoch=epoch,
                       batch_size=batch_size,
                       learning_rate=learning_rate,
-                      test_size=test_size
+                      test_size=test_size,
+                      val_size=val_size
                   )
                   
                   model, encoder, results = trainer.train(epoch_callback=epoch_callback)
                   
                   # Update ratio metrics in DB
-                  ratio.epochs = str(epochs)
+                  ratio.epoch = str(epoch)
                   ratio.batchSize = str(batch_size)
                   ratio.learningRate = learning_rate
                   ratio.accuracy = results["accuracy"]
@@ -390,7 +410,7 @@ class ProcessingService:
                   ratios_data.append({
                       "idRatioDataSplit": r.idRatioDataSplit,
                       "trainRatio": r.trainRatio,
-                      "epochs": r.epochs,
+                      "epoch": r.epoch,
                       "batchSize": r.batchSize,
                       "learningRate": r.learningRate,
                       "accuracy": r.accuracy,
@@ -434,7 +454,7 @@ class ProcessingService:
       dropout1: float,
       dropout2: float,
       dense_units: int,
-      epochs: int,
+      epoch: int,
       batch_size: int,
       learning_rate: float
   ):
@@ -462,15 +482,24 @@ class ProcessingService:
               # 2. Get best split ratio
               bestRatio = thread_db.query(RatioDataSplit).filter(RatioDataSplit.bestRatio == True).first()
               test_size = 0.2
+              val_size = 0.2
               idRatioDataSplit = None
               if bestRatio:
                   idRatioDataSplit = bestRatio.idRatioDataSplit
                   try:
                       parts = bestRatio.trainRatio.split(":")
-                      if len(parts) == 2:
+                      if len(parts) == 3:
+                          train_val = float(parts[0])
+                          test_val = float(parts[1])
+                          val_val = float(parts[2])
+                          total = train_val + test_val + val_val
+                          test_size = test_val / total
+                          val_size = val_val / (train_val + val_val)
+                      elif len(parts) == 2:
                           train_val = float(parts[0])
                           test_val = float(parts[1])
                           test_size = test_val / (train_val + test_val)
+                          val_size = 0.2
                   except Exception:
                       pass
               
@@ -496,10 +525,11 @@ class ProcessingService:
                   dropout1=dropout1,
                   dropout2=dropout2,
                   dense_units=dense_units,
-                  epochs=epochs,
+                  epoch=epoch,
                   batch_size=batch_size,
                   learning_rate=learning_rate,
-                  test_size=test_size
+                  test_size=test_size,
+                  val_size=val_size
               )
               
               model, encoder, results = trainer.train(epoch_callback=epoch_callback)
@@ -524,7 +554,7 @@ class ProcessingService:
                   dropout1=dropout1,
                   dropout2=dropout2,
                   denseUnits=dense_units,
-                  epochs=epochs,
+                  epoch=epoch,
                   batchSize=batch_size,
                   learningRate=learning_rate,
                   accuracy=results["accuracy"],
@@ -537,7 +567,6 @@ class ProcessingService:
                   trainLoss=results["trainLoss"],
                   valLoss=results["valLoss"],
                   mcc=results["mcc"],
-                  processType="TRAIN",
                   trainModelPath=model_path,
                   createdAt=now,
                   updatedAt=now
@@ -548,7 +577,7 @@ class ProcessingService:
               
               # Map SQLAlchemy object to dictionary for JSON serialization
               training_data = {
-                  "idTrainTest": new_training.idTrainTest,
+                  "idTraining": new_training.idTraining,
                   "idDataset": new_training.idDataset,
                   "idRatioDataSplit": new_training.idRatioDataSplit,
                   "modelName": new_training.modelName,
@@ -557,7 +586,7 @@ class ProcessingService:
                   "dropout1": new_training.dropout1,
                   "dropout2": new_training.dropout2,
                   "denseUnits": new_training.denseUnits,
-                  "epochs": new_training.epochs,
+                  "epoch": new_training.epoch,
                   "batchSize": new_training.batchSize,
                   "learningRate": new_training.learningRate,
                   "accuracy": new_training.accuracy,
@@ -570,7 +599,6 @@ class ProcessingService:
                   "trainLoss": new_training.trainLoss,
                   "valLoss": new_training.valLoss,
                   "mcc": new_training.mcc,
-                  "processType": new_training.processType,
                   "trainModelPath": new_training.trainModelPath,
                   "createdAt": new_training.createdAt.isoformat() if new_training.createdAt else None
               }
@@ -600,18 +628,18 @@ class ProcessingService:
               if not t.is_alive():
                   break
 
-  def get_model_by_id(self, db: Session, idTrainTest: int):
-      model = self.training_repository.get_by_id(db, idTrainTest, Training.idTrainTest)
+  def get_model_by_id(self, db: Session, idTraining: int):
+      model = self.training_repository.get_by_id(db, idTraining, Training.idTraining)
       
       if not model:
           raise ValueError("Model not found")
       
-      return self.training_repository.get_by_id(db, idTrainTest, Training.idTrainTest)
+      return self.training_repository.get_by_id(db, idTraining, Training.idTraining)
 
-  def delete_model(self, db: Session, idTrainTest: int):
+  def delete_model(self, db: Session, idTraining: int):
       import os
       from app.database.models import Training
-      training = self.training_repository.get_by_id(db, idTrainTest, Training.idTrainTest)
+      training = self.training_repository.get_by_id(db, idTraining, Training.idTraining)
       if not training:
           raise ValueError("Model not found")
           

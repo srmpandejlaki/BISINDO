@@ -30,7 +30,7 @@ function TestingPage() {
         const data = await get_all_models();
         setModels(data);
         if (data.length > 0 && !selectedModelId) {
-          setSelectedModelId(data[0].idTrainTest);
+          setSelectedModelId(data[0].idTraining);
         }
       } catch (err) {
         console.error("Gagal mengambil model:", err);
@@ -40,7 +40,7 @@ function TestingPage() {
     fetchModels();
   }, [selectedModelId, setSelectedModelId, setError]);
 
-  const selectedModel = models.find((m) => String(m.idTrainTest) === String(selectedModelId)) || null;
+  const selectedModel = models.find((m) => String(m.idTraining) === String(selectedModelId)) || null;
 
   const handleStartTesting = async () => {
     await startTesting(selectedModelId);

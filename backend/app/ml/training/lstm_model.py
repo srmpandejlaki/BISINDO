@@ -5,6 +5,7 @@ from tensorflow.keras.optimizers import Adam
 
 class LSTMModelBuilder:
 
+    @staticmethod
     def build(
         input_shape,
         num_classes,

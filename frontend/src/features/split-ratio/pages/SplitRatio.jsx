@@ -11,8 +11,8 @@ function SplitRatio() {
     datasets,
     selectedDatasetId,
     handleSelectedId,
-    epochs,
-    setEpochs,
+    epoch,
+    setepoch,
     batchSize,
     setBatchSize,
     learningRate,
@@ -26,7 +26,7 @@ function SplitRatio() {
     testingStatus,
     currentRatioTesting,
     testingError,
-    currentEpochsConfig,
+    currentepochConfig,
     runTestRatios,
   } = useSplitRatio();
 
@@ -64,8 +64,8 @@ function SplitRatio() {
       <div className="parameter-section">
         <h3>Pengujian Ratio Data Split</h3>
         <ParameterTest 
-          epochs={epochs}
-          setEpochs={setEpochs}
+          epoch={epoch}
+          setepoch={setepoch}
           batchSize={batchSize}
           setBatchSize={setBatchSize}
           learningRate={learningRate}
@@ -82,7 +82,7 @@ function SplitRatio() {
         liveProgress={liveProgress}
         testingStatus={testingStatus}
         currentRatioTesting={currentRatioTesting}
-        currentEpochsConfig={currentEpochsConfig}
+        currentepochConfig={currentepochConfig}
       />
     </div>
   );

@@ -24,10 +24,10 @@ function EvaluationPage() {
         
         // Check if there is a preselected model ID from navigation state
         const targetId = location.state?.selectedModelId;
-        if (targetId && data.some((m) => String(m.idTrainTest) === String(targetId))) {
+        if (targetId && data.some((m) => String(m.idTraining) === String(targetId))) {
           setSelectedModelId(targetId);
         } else if (data.length > 0) {
-          setSelectedModelId(data[0].idTrainTest);
+          setSelectedModelId(data[0].idTraining);
         }
       } catch (err) {
         console.error("Gagal mengambil model:", err);
@@ -60,7 +60,7 @@ function EvaluationPage() {
     fetchTestingEvaluation();
   }, [selectedModelId]);
 
-  const selectedModel = models.find((m) => String(m.idTrainTest) === String(selectedModelId)) || null;
+  const selectedModel = models.find((m) => String(m.idTraining) === String(selectedModelId)) || null;
 
   return (
     <div className="content evaluation-page">
@@ -81,7 +81,7 @@ function EvaluationPage() {
             className="model-select"
           >
             {models.map((m) => (
-              <option key={m.idTrainTest} value={m.idTrainTest}>
+              <option key={m.idTraining} value={m.idTraining}>
                 {m.modelName}
               </option>
             ))}
@@ -120,7 +120,7 @@ function EvaluationPage() {
             <EvaluationTesting 
               testingData={testingEvaluation}
               isLoading={isLoadingTesting}
-              idTrainTest={selectedModelId}
+              idTraining={selectedModelId}
             />
           </div>
         </div>

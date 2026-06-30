@@ -12,14 +12,20 @@ function EvaluationTraining({ trainingData }) {
     macroAverage,
     mcc,
     confusionMatrix,
-    epochs,
+    epoch,
     batchSize,
     learningRate,
     LSTMUnits1,
     LSTMUnits2,
     dropout1,
     dropout2,
-    denseUnits
+    denseUnits,
+    trainLoss,
+    valLoss,
+    trainRatio,
+    datasetName,
+    totalData,
+    createdAt
   } = trainingData;
 
   const cm = typeof confusionMatrix === "string" ? JSON.parse(confusionMatrix) : confusionMatrix;
@@ -35,7 +41,12 @@ function EvaluationTraining({ trainingData }) {
       {/* Parameter Info Grid */}
       <div className="parameter-info">
         <div>
-          <p><strong>Epochs:</strong> {epochs}</p>
+          <p><strong>Dataset:</strong> {datasetName || "—"}</p>
+          <p><strong>Total Data:</strong> {totalData ?? "—"}</p>
+          <p><strong>Split Ratio:</strong> {trainRatio || "—"}</p>
+        </div>
+        <div>
+          <p><strong>Epoch:</strong> {epoch}</p>
           <p><strong>Batch Size:</strong> {batchSize}</p>
           <p><strong>Learning Rate:</strong> {learningRate}</p>
         </div>
@@ -43,6 +54,11 @@ function EvaluationTraining({ trainingData }) {
           <p><strong>LSTM Units:</strong> {LSTMUnits1} / {LSTMUnits2}</p>
           <p><strong>Dropout:</strong> {dropout1} / {dropout2}</p>
           <p><strong>Dense Units:</strong> {denseUnits}</p>
+        </div>
+        <div>
+          <p><strong>Train Loss:</strong> {trainLoss != null ? trainLoss.toFixed(4) : "—"}</p>
+          <p><strong>Val Loss:</strong> {valLoss != null ? valLoss.toFixed(4) : "—"}</p>
+          <p><strong>Tanggal Training:</strong> {createdAt ? new Date(createdAt).toLocaleDateString("id-ID") : "—"}</p>
         </div>
       </div>
 
@@ -58,27 +74,27 @@ function EvaluationTraining({ trainingData }) {
           <tbody>
             <tr>
               <td>Accuracy</td>
-              <td className="text-right">{(accuracy * 100).toFixed(2)}%</td>
+              <td className="text-right">{((accuracy || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Precision (Weighted)</td>
-              <td className="text-right">{(precision * 100).toFixed(2)}%</td>
+              <td className="text-right">{((precision || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Recall (Weighted)</td>
-              <td className="text-right">{(recall * 100).toFixed(2)}%</td>
+              <td className="text-right">{((recall || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>F1-Score (Weighted)</td>
-              <td className="text-right">{(f1score * 100).toFixed(2)}%</td>
+              <td className="text-right">{((f1score || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Macro Average F1</td>
-              <td className="text-right">{(macroAverage * 100).toFixed(2)}%</td>
+              <td className="text-right">{((macroAverage || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>Weighted Average F1</td>
-              <td className="text-right">{(weightedAverage * 100).toFixed(2)}%</td>
+              <td className="text-right">{((weightedAverage || 0) * 100).toFixed(2)}%</td>
             </tr>
             <tr>
               <td>MCC (Matthews Corrcoef)</td>

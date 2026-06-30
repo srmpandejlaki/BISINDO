@@ -4,6 +4,7 @@ from tensorflow.keras.utils import to_categorical
 
 class LabelEncoderService:
 
+    @staticmethod
     def encode(labels):
 
         encoder = LabelEncoder()

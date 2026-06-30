@@ -25,7 +25,7 @@ function TableRatio({ ratios, loading, error, fetchRatios, testingStatus}) {
 
   return (
     <div className="table-ratio">
-      <h3>Tabel Data Split Ratio</h3>
+      <h3>Daftar Rasio Pembagian Data</h3>
       {loading ? (
         <p>Memuat data ratio...</p>
       ) : error ? (
@@ -35,10 +35,11 @@ function TableRatio({ ratios, loading, error, fetchRatios, testingStatus}) {
           <table>
             <thead>
               <tr>
-                <th>Train</th>
-                <th>Test</th>
-                <th>Best Ratio</th>
-                <th>Action</th>
+                <th>Latih</th>
+                <th>Uji</th>
+                <th>Validasi</th>
+                <th>Status</th>
+                <th>Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -48,11 +49,14 @@ function TableRatio({ ratios, loading, error, fetchRatios, testingStatus}) {
                   const parts = item.trainRatio ? item.trainRatio.split(":") : [];
                   const train = parts[0] || item.trainRatio;
                   const test = parts[1] || "";
+                  const val = parts[2] || "";
+
 
                   return (
                     <tr key={item.idRatioDataSplit}>
                       <td className="text-center">{train}</td>
                       <td className="text-center">{test}</td>
+                      <td className="text-center">{val}</td>
                       <td className="text-center">{item.bestRatio ? "⭐" : "-"}</td>
                       <td className="text-center">
                         <button 
@@ -68,7 +72,7 @@ function TableRatio({ ratios, loading, error, fetchRatios, testingStatus}) {
                 })
               ) : (
                 <tr>
-                  <td colSpan="4" className="text-center">
+                  <td colSpan="5" className="text-center">
                     Tidak ada data ratio
                   </td>
                 </tr>

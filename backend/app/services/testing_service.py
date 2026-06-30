@@ -15,7 +15,7 @@ from sklearn.metrics import (
     classification_report
 )
 
-from app.database.models import Training, Dataset, RatioDataSplit
+from app.database.models import Training, Dataset, RatioDataSplit, Testing
 from app.repositories import TrainingRepository
 
 class TestingService:
@@ -60,9 +60,9 @@ class TestingService:
                 
         return np.array(X), np.array(y), filenames
 
-    def test_model_on_dataset(self, db: Session, idTrainTest: int):
+    def test_model_on_dataset(self, db: Session, idTraining: int):
         # 1. Fetch Training record
-        training = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
+        training = db.query(Training).filter(Training.idTraining == idTraining).first()
         if not training:
             raise ValueError("Model training record not found")
             
@@ -80,7 +80,13 @@ class TestingService:
         if ratio_split and ratio_split.trainRatio:
             try:
                 parts = ratio_split.trainRatio.split(":")
-                if len(parts) == 2:
+                if len(parts) == 3:
+                    train_val = float(parts[0])
+                    test_val = float(parts[1])
+                    val_val = float(parts[2])
+                    total = train_val + test_val + val_val
+                    test_size = test_val / total
+                elif len(parts) == 2:
                     train_val = float(parts[0])
                     test_val = float(parts[1])
                     test_size = test_val / (train_val + test_val)
@@ -149,50 +155,42 @@ class TestingService:
         cm = confusion_matrix(y_true, y_pred)
         confusionMatrix = cm.tolist()
 
-        processType = "TEST"
-
         # 10. Save or update evaluation in DB
-        eval_record = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
-        if not eval_record:
-            import datetime
-            eval_record = Training(
-                idTrainTest=idTrainTest,
-                createdAt=datetime.datetime.now()
-            )
-            db.add(eval_record)
-            
-        eval_record.accuracy = accuracy
-        eval_record.precision = precision
-        eval_record.recall = recall
-        eval_record.f1score = f1score
-        eval_record.confusionMatrix = confusionMatrix
-        eval_record.weightedAverage = weightedAverage
-        eval_record.macroAverage = macroAverage
-        eval_record.mcc = mcc
-        eval_record.processType = processType
-        
+        testing = Testing(
+            idTraining=idTraining,
+            accuracy=accuracy,
+            precision=precision,
+            recall=recall,
+            f1score=f1score,
+            confusionMatrix=confusionMatrix,
+            weightedAverage=weightedAverage,
+            macroAverage=macroAverage,
+            mcc=mcc,
+        )
+
+        db.add(testing)
         db.commit()
-        db.refresh(eval_record)
+        db.refresh(testing)
 
         return {
             "summary": {
-                "idTrainTest": eval_record.idTrainTest,
-                "processType": eval_record.processType,
-                "accuracy": accuracy,
-                "precision": precision,
-                "recall": recall,
-                "f1score": f1score,
-                "mcc": mcc,
-                "macroAverage": macroAverage,
-                "weightedAverage": weightedAverage,
-                "confusionMatrix": confusionMatrix
+                "idTesting": testing.idTesting,
+                "idTraining": testing.idTraining,
+                "accuracy": testing.accuracy,
+                "precision": testing.precision,
+                "recall": testing.recall,
+                "f1score": testing.f1score,
+                "mcc": testing.mcc,
+                "macroAverage": testing.macroAverage,
+                "weightedAverage": testing.weightedAverage,
+                "confusionMatrix": testing.confusionMatrix
             },
             "predictions": predictions_details
         }
 
-    def test_model_on_upload(self, db: Session, idTrainTest: int, file_path: str, filename: str):
+    def test_model_on_upload(self, db: Session, idTraining: int, file_path: str, filename: str):
         # 1. Fetch Training record
-        training = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
+        training = db.query(Training).filter(Training.idTraining == idTraining).first()
         if not training:
             raise ValueError("Model training record not found")
             
@@ -257,6 +255,9 @@ class TestingService:
             "predicted_label": predicted_label,
             "confidence": f"{confidence * 100:.1f}%"
         }
+    
+    def get_testing_result(self, db: Session, idTesting: int):
+        return db.query(Testing).filter(Testing.idTesting == idTesting).first()
 
     def extract_landmarks_from_video(self, video_path: str, sequence_length: int):
         import cv2
@@ -289,13 +290,26 @@ class TestingService:
         
         return sequence
 
-    def get_evaluation_by_training_id(self, db: Session, idTrainTest: int):
-        eval_record = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
+    def get_evaluation_by_training_id(self, db: Session, idTraining: int):
+        # Check that the training record exists first
+        training = db.query(Training).filter(Training.idTraining == idTraining).first()
+        if not training:
+            return None
+
+        # Query the Testing table (actual test evaluation), get the most recent one
+        eval_record = (
+            db.query(Testing)
+            .filter(Testing.idTraining == idTraining)
+            .order_by(Testing.createdAt.desc())
+            .first()
+        )
+
         if not eval_record:
             return None
-            
+
         return {
-            "idTrainTest": eval_record.idTrainTest,
+            "idTesting": eval_record.idTesting,
+            "idTraining": eval_record.idTraining,
             "accuracy": eval_record.accuracy,
             "precision": eval_record.precision,
             "recall": eval_record.recall,
@@ -306,243 +320,3 @@ class TestingService:
             "mcc": eval_record.mcc,
             "createdAt": eval_record.createdAt.isoformat() if eval_record.createdAt else None
         }
-
-    async def realtime_inference_websocket(self, websocket, idTrainTest: int, db: Session):
-        from fastapi import WebSocketDisconnect
-        import cv2
-        import mediapipe as mp
-        import numpy as np
-        from collections import deque
-        import json
-        import os
-        from tensorflow.keras import backend as K
-        from tensorflow.keras.models import load_model
-
-        # =========================================
-        # 1. GET TRAINING MODEL
-        # =========================================
-        if idTrainTest == 0:
-            training = db.query(Training).order_by(Training.idTrainTest.desc()).first()
-        else:
-            training = db.query(Training).filter(Training.idTrainTest == idTrainTest).first()
-
-        if not training:
-            await websocket.close(code=4004, reason="Training tidak ditemukan")
-            return
-
-        if not training.trainModelPath or not os.path.exists(training.trainModelPath):
-            await websocket.close(code=4004, reason="Model tidak ditemukan")
-            return
-
-        # =========================================
-        # 2. LOAD LABELS
-        # =========================================
-        dataset = db.query(Dataset).filter(Dataset.idDataset == training.idDataset).first()
-
-        label_json_path = os.path.join(
-            "app",
-            "ml",
-            "models",
-            "labels.json"
-        )
-
-        if os.path.exists(label_json_path):
-            with open(label_json_path, "r") as f:
-                label_map = json.load(f)
-
-            labels = [
-                label
-                for label, _
-                in sorted(label_map.items(), key=lambda x: x[1])
-            ]
-        else:
-            labels = [chr(i) for i in range(ord("A"), ord("Z") + 1)]
-
-        # =========================================
-        # 3. LOAD MODEL
-        # =========================================
-        model_path = training.trainModelPath
-
-        if model_path not in self.model_cache:
-            self.model_cache[model_path] = load_model(model_path)
-
-        model = self.model_cache[model_path]
-
-        sequence_length = model.input_shape[1] if model.input_shape[1] else 60
-        sequence = deque(maxlen=sequence_length)
-        hands_history = deque(maxlen=sequence_length)
-
-        # =========================================
-        # 4. MEDIAPIPE
-        # =========================================
-        mp_hands = mp.solutions.hands
-        hands = mp_hands.Hands(
-            static_image_mode=False,
-            max_num_hands=2,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
-        )
-
-        await websocket.accept()
-
-        # =========================================
-        # 🔥 NORMALIZATION (SAMA PERSIS TRAINING)
-        # =========================================
-        def normalize_hand(hand):
-            wrist = hand[0]
-            ref_point = hand[9]  # middle finger MCP
-            scale = np.linalg.norm(ref_point - wrist)
-            if scale > 0:
-                hand = hand / scale
-            return hand
-
-        try:
-            while True:
-                data = await websocket.receive_bytes()
-
-                try:
-                    msg = json.loads(data)
-                    if msg.get("reset"):
-                        sequence.clear()
-                        hands_history.clear()
-                        continue
-                except Exception:
-                    pass  # bukan JSON, lanjutkan proses frame biasa
-                
-                nparr = np.frombuffer(data, np.uint8)
-                frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
-                if frame is None:
-                    continue
-
-                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                results = hands.process(rgb)
-
-                # =========================================
-                # FEATURE VECTOR
-                # =========================================
-                landmarks = np.zeros(126, dtype=np.float32)
-                detected_hands = 0
-
-                if results.multi_hand_landmarks and results.multi_handedness:
-                    for hand_landmarks, handedness in zip(
-                        results.multi_hand_landmarks,
-                        results.multi_handedness
-                    ):
-                        label = handedness.classification[0].label
-
-                        coords = []
-                        for lm in hand_landmarks.landmark:
-                            coords.extend([lm.x, lm.y, lm.z])
-
-                        coords = np.array(coords, dtype=np.float32).reshape(21, 3)
-
-                        # =========================================
-                        # URUTAN HARUS SAMA TRAINING:
-                        # Right = [:63], Left = [63:]
-                        # =========================================
-                        if label == "Left":
-                            landmarks[:63] = coords.flatten()
-                            detected_hands += 1
-
-                        elif label == "Right":
-                            landmarks[63:] = coords.flatten()
-                            detected_hands += 1
-
-                sequence.append(landmarks)
-                hands_history.append(detected_hands)
-
-                # =========================================
-                # PREDICTION
-                # =========================================
-                if len(sequence) == sequence_length:
-
-                    processed_sequence = []
-
-                    for frame in sequence:
-                        frame = frame.copy()
-
-                        left = frame[:63].reshape(21, 3)
-                        right = frame[63:].reshape(21, 3)
-
-                        left_present = not np.all(left == 0)
-                        right_present = not np.all(right == 0)
-
-                        # =========================================
-                        # MATCH TRAINING LOGIC
-                        # =========================================
-
-                        if left_present and right_present:
-                            # GLOBAL ORIGIN = RIGHT WRIST
-                            wrist_ref = right[0]
-                            scale = np.linalg.norm(right[9] - right[0])
-
-                            left = left - wrist_ref
-                            right = right - wrist_ref
-
-                            if scale > 0:
-                                left = left / scale
-                                right = right / scale
-
-                        elif left_present:
-                            wrist = left[0]
-                            left = left - wrist
-                            left = normalize_hand(left)
-
-                        elif right_present:
-                            wrist = right[0]
-                            right = right - wrist
-                            right = normalize_hand(right)
-
-                        processed_frame = np.concatenate([
-                            left.flatten(),
-                            right.flatten()
-                        ])
-
-                        processed_sequence.append(processed_frame)
-
-                    X_input = np.expand_dims(
-                        np.array(processed_sequence, dtype=np.float32),
-                        axis=0
-                    )
-
-                    prediction = model.predict(X_input, verbose=0)[0]
-
-                    predicted_class = np.argmax(prediction)
-                    confidence = float(prediction[predicted_class])
-                    predicted_label = labels[predicted_class]
-
-                    avg_hands_detected = round(np.mean(hands_history))
-
-                    await websocket.send_json({
-                        "success": True,
-                        "predicted_label": predicted_label,
-                        "confidence": confidence,
-                        "hands_detected": avg_hands_detected
-                    })
-
-                else:
-                    await websocket.send_json({
-                        "success": True,
-                        "accumulating": True,
-                        "predicted_label": "...",
-                        "confidence": 0.0,
-                        "frames_count": len(sequence),
-                        "required_frames": sequence_length,
-                        "hands_detected": detected_hands
-                    })
-
-        except WebSocketDisconnect:
-            pass
-
-        except Exception as e:
-            try:
-                await websocket.send_json({
-                    "success": False,
-                    "error": str(e)
-                })
-            except:
-                pass
-
-        finally:
-            hands.close()

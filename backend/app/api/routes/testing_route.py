@@ -20,13 +20,13 @@ router = APIRouter(
 
 testing_service = TestingService()
 
-@router.post("/models/{idTrainTest}/test-dataset")
+@router.post("/models/{idTraining}/test-dataset")
 def test_model_on_dataset(
-    idTrainTest: int,
+    idTraining: int,
     db: Session = Depends(get_db)
 ):
     try:
-        result = testing_service.test_model_on_dataset(db, idTrainTest)
+        result = testing_service.test_model_on_dataset(db, idTraining)
         return {
             "success": True,
             "data": result
@@ -38,9 +38,9 @@ def test_model_on_dataset(
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Testing gagal: {str(e)}")
 
-@router.post("/models/{idTrainTest}/test-upload")
+@router.post("/models/{idTraining}/test-upload")
 async def test_model_on_upload(
-    idTrainTest: int,
+    idTraining: int,
     file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
@@ -54,7 +54,7 @@ async def test_model_on_upload(
             content = await file.read()
             buffer.write(content)
             
-        result = testing_service.test_model_on_upload(db, idTrainTest, temp_file_path, file.filename)
+        result = testing_service.test_model_on_upload(db, idTraining, temp_file_path, file.filename)
         return {
             "success": True,
             "data": result
@@ -73,13 +73,27 @@ async def test_model_on_upload(
             except Exception:
                 pass
 
-@router.get("/models/{idTrainTest}/evaluation")
-def get_evaluation_by_training_id(
-    idTrainTest: int,
+@router.get("/result/{idTesting}")
+def get_result_by_testing_id(
+    idTesting: int,
     db: Session = Depends(get_db)
 ):
     try:
-        evaluation = testing_service.get_evaluation_by_training_id(db, idTrainTest)
+        result = testing_service.get_testing_result(db, idTesting)
+        return {
+            "success": True,
+            "data": result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/models/{idTraining}/evaluation")
+def get_evaluation_by_training_id(
+    idTraining: int,
+    db: Session = Depends(get_db)
+):
+    try:
+        evaluation = testing_service.get_evaluation_by_training_id(db, idTraining)
         if not evaluation:
             # Let's return success with data: null so the client knows it hasn't been tested yet
             return {
@@ -92,14 +106,3 @@ def get_evaluation_by_training_id(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@router.websocket("/realtime/{idTrainTest}")
-async def realtime_inference(
-    websocket: WebSocket,
-    idTrainTest: int
-):
-    db = next(get_db())
-    try:
-        await testing_service.realtime_inference_websocket(websocket, idTrainTest, db)
-    finally:
-        db.close()

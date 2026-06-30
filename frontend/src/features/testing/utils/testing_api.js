@@ -1,8 +1,8 @@
 import { BASE_URL } from "@/shared/utils/index-api";
 
-export const testModelOnDataset = async (idTrainTest) => {
+export const testModelOnDataset = async (idTraining) => {
   try {
-    const response = await fetch(`${BASE_URL}/testing/models/${idTrainTest}/test-dataset`, {
+    const response = await fetch(`${BASE_URL}/testing/models/${idTraining}/test-dataset`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
     });
@@ -23,12 +23,12 @@ export const testModelOnDataset = async (idTrainTest) => {
   }
 };
 
-export const testModelOnUpload = async (idTrainTest, file) => {
+export const testModelOnUpload = async (idTraining, file) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await fetch(`${BASE_URL}/testing/models/${idTrainTest}/test-upload`, {
+    const response = await fetch(`${BASE_URL}/testing/models/${idTraining}/test-upload`, {
       method: "POST",
       body: formData,
     });

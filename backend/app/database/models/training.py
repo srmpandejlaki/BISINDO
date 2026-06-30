@@ -5,9 +5,9 @@ from sqlalchemy.orm import relationship
 from app.database.connection import Base
 
 class Training(Base):
-  __tablename__ = "train_test"
+  __tablename__ = "training"
 
-  idTrainTest = Column(
+  idTraining = Column(
     Integer, 
     primary_key=True
   )
@@ -31,7 +31,7 @@ class Training(Base):
   denseUnits = Column(Integer)
 
   kFold = Column(Integer)
-  epochs = Column(Integer)
+  epoch = Column(Integer)
   batchSize = Column(Integer)
   learningRate = Column(Float)
 
@@ -51,7 +51,6 @@ class Training(Base):
   rocAuc = Column(Float)
 
   trainModelPath = Column(String(999))
-  processType = Column(String(99))
 
   createdAt = Column(
     DateTime(timezone=True),
@@ -74,3 +73,9 @@ class Training(Base):
     "RatioDataSplit",
     back_populates="training",
   )
+
+  testings = relationship(
+    "Testing",
+    back_populates="training",
+    cascade="all, delete-orphan"
+)

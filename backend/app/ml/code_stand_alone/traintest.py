@@ -27,10 +27,10 @@ init(autoreset=True)
 class TQDMProgressBar(Callback):
 
     def on_train_begin(self, logs=None):
-        self.epochs = self.params['epochs']
+        self.epoch = self.params['epoch']
 
         self.progress_bar = tqdm(
-            total=self.epochs,
+            total=self.epoch,
             desc="🚀 Training"
         )
 
@@ -144,7 +144,7 @@ LSTM_2_UNITS = 64
 
 DROPOUT_RATE = 0.3
 
-EPOCHS = 50
+epoch = 50
 BATCH_SIZE = 16
 
 TIMESTAMP = datetime.now().strftime(
@@ -323,7 +323,7 @@ print(Fore.CYAN + "\n🚀 Training started...\n")
 history = model.fit(
     X_train,
     y_train_cat,
-    epochs=EPOCHS,
+    epoch=epoch,
     batch_size=BATCH_SIZE,
     validation_data=(
         X_val,
@@ -460,7 +460,7 @@ with open(
 
     writer.writerow([
         "epoch",
-        EPOCHS
+        epoch
     ])
 
     writer.writerow([
@@ -515,7 +515,7 @@ with open(
         "val_loss"
     ])
 
-    for epoch in range(EPOCHS):
+    for epoch in range(epoch):
 
         writer.writerow([
 

@@ -23,8 +23,8 @@ init(autoreset=True)
 # =========================================
 class TQDMProgressBar(Callback):
     def on_train_begin(self, logs=None):
-        self.epochs = self.params['epochs']
-        self.progress_bar = tqdm(total=self.epochs, desc="🚀 Training")
+        self.epoch = self.params['epoch']
+        self.progress_bar = tqdm(total=self.epoch, desc="🚀 Training")
 
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
@@ -147,12 +147,12 @@ model.summary()
 # =========================================
 print(Fore.CYAN + "\n🚀 Training started...\n")
 
-EPOCHS = 50
+epoch = 50
 
 history = model.fit(
     X_train,
     y_train_cat,
-    epochs=EPOCHS,
+    epoch=epoch,
     batch_size=16,
     validation_data=(X_val, y_val_cat),
     callbacks=[TQDMProgressBar()],

@@ -11,7 +11,7 @@ export function SplitRatioProvider({ children }) {
   const [error, setError] = useState(null);
   
   const [selectedDatasetId, setSelectedDatasetId] = useState(null);
-  const [epochs, setEpochs] = useState("10");
+  const [epoch, setepoch] = useState("10");
   const [batchSize, setBatchSize] = useState("16");
   const [learningRate, setLearningRate] = useState("0.001");
   
@@ -19,7 +19,7 @@ export function SplitRatioProvider({ children }) {
   const [testingStatus, setTestingStatus] = useState("idle"); // 'idle' | 'testing' | 'completed' | 'error'
   const [currentRatioTesting, setCurrentRatioTesting] = useState("");
   const [testingError, setTestingError] = useState(null);
-  const [currentEpochsConfig, setCurrentEpochsConfig] = useState(null);
+  const [currentepochConfig, setCurrentepochConfig] = useState(null);
 
   const fetchRatios = async () => {
     setLoading(true);
@@ -63,13 +63,13 @@ export function SplitRatioProvider({ children }) {
   
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!epochs || !batchSize || !learningRate) {
+    if (!epoch || !batchSize || !learningRate) {
       alert("Semua parameter harus diisi!");
       return;
     }
     
     runTestRatios({
-      epochs: parseInt(epochs),
+      epoch: parseInt(epoch),
       batch_size: parseInt(batchSize),
       learning_rate: parseFloat(learningRate),
     });
@@ -77,7 +77,7 @@ export function SplitRatioProvider({ children }) {
 
   const runTestRatios = async (config) => {
     setTestingStatus("testing");
-    setCurrentEpochsConfig(config.epochs);
+    setCurrentepochConfig(config.epoch);
     setLiveProgress({});
     setTestingError(null);
     setCurrentRatioTesting("");
@@ -145,8 +145,8 @@ export function SplitRatioProvider({ children }) {
         datasets,
         selectedDatasetId,
         handleSelectedId,
-        epochs,
-        setEpochs,
+        epoch,
+        setepoch,
         batchSize,
         setBatchSize,
         learningRate,
@@ -161,7 +161,7 @@ export function SplitRatioProvider({ children }) {
         testingStatus,
         currentRatioTesting,
         testingError,
-        currentEpochsConfig,
+        currentepochConfig,
         runTestRatios,
       }}
     >
