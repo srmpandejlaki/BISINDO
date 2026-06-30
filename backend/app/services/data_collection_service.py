@@ -28,12 +28,15 @@ class DataCollectionService:
         datasets = []
 
         for dataset, total_data in results:
+            preprocessed = self.raw_data_repository.count_preprocessed_by_dataset(db, dataset.idDataset)
             datasets.append({
                 "idDataset": dataset.idDataset,
                 "datasetName": dataset.datasetName,
                 "datasetFolderPath": dataset.datasetFolderPath,
                 "preprocessedFolderPath": dataset.preprocessedFolderPath,
-                "totalData": total_data
+                "totalData": total_data,
+                "preprocessedCount": preprocessed,
+                "remainingCount": total_data - preprocessed
             })
 
         return datasets
@@ -82,11 +85,39 @@ class DataCollectionService:
     def get_raw_data_by_id(self, db: Session, idRawData: int):
         return self.raw_data_repository.get_by_id(db, idRawData, RawData.idRawData)
     
-    # def update_raw_data_by_id(self, db: Session, idRawData: int):
-    #     return self.raw_data_repository.update(db, idRawData)
+    def update_raw_data_by_id(self, db: Session, idRawData: int, dataName: str, labelName: str):
+        raw_data = self.raw_data_repository.get_by_id(db, idRawData, RawData.idRawData)
+        if not raw_data:
+            raise ValueError("Raw data tidak ditemukan.")
+            
+        if dataName:
+            raw_data.dataName = dataName
+            
+        if labelName:
+            label = self.label_repository.get_by_name(db, labelName.upper())
+            if not label:
+                raise ValueError(f"Label '{labelName}' tidak terdaftar.")
+            raw_data.idLabel = label.idLabel
+            
+        db.commit()
+        db.refresh(raw_data)
+        return raw_data
     
-    # def delete_raw_data_by_id(self, db: Session, idRawData: int):
-    #     return self.raw_data_repository.delete_by_id(db, idRawData)
+    def delete_raw_data_by_id(self, db: Session, idRawData: int):
+        raw_data = self.raw_data_repository.get_by_id(db, idRawData, RawData.idRawData)
+        if not raw_data:
+            raise ValueError("Raw data tidak ditemukan.")
+            
+        # Hapus file fisik dari disk
+        for path in [raw_data.dataFilePath, raw_data.preprocessedFilePath, raw_data.landmarkFilePath]:
+            if path and os.path.exists(path):
+                try:
+                    os.remove(path)
+                except Exception as e:
+                    print(f"Gagal menghapus file {path}: {e}")
+                    
+        self.raw_data_repository.delete(db, raw_data)
+        return True
     
     def update_dataset_name(
         self,

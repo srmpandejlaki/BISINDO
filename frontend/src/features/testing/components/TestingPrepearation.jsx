@@ -66,7 +66,7 @@ function TestingPreparation({
           disabled={isLoading}
         >
           {models.map((m) => (
-            <option key={m.idTraining} value={m.idTraining}>
+            <option key={m.idTrainTest} value={m.idTrainTest}>
               {m.modelName} (Acc: {(m.accuracy * 100).toFixed(1)}%)
             </option>
           ))}

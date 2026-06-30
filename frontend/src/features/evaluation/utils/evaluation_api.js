@@ -1,8 +1,8 @@
 import { BASE_URL } from "@/shared/utils/index-api";
 
-export const getEvaluationMetrics = async (idTraining) => {
+export const getEvaluationMetrics = async (idTrainTest) => {
   try {
-    const response = await fetch(`${BASE_URL}/testing/models/${idTraining}/evaluation`, {
+    const response = await fetch(`${BASE_URL}/testing/models/${idTrainTest}/evaluation`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });

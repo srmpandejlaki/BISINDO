@@ -20,38 +20,48 @@ function ListsDataset({ datasets = [], selectedDatasetId, onSelectDataset }) {
             </tr>
           )}
 
-          {datasets.map((dataset, index) => (
-            <tr
-              key={dataset.idDataset}
-              className={selectedDatasetId === dataset.idDataset ? "selected-row" : ""}
-            >
-              <td className="text-center">{index + 1}.</td>
-              <td className="padding-cell">{dataset.datasetName}</td>
-              <td className="text-center">{dataset.totalData}</td>
-              <td className="text-center">
-                <span
-                  className={`status-badge ${
-                    dataset.preprocessedFolderPath
-                      ? "status-done"
-                      : "status-pending"
-                  }`}
-                >
-                  {dataset.preprocessedFolderPath
-                    ? "Sudah diproses"
-                    : "Belum diproses"}
-                </span>
-              </td>
-              <td className="text-center">
-                <input
-                  type="radio"
-                  name="dataset-select"
-                  checked={selectedDatasetId === dataset.idDataset}
-                  onChange={() => onSelectDataset(dataset.idDataset)}
-                  disabled={dataset.preprocessedFolderPath !== null}
-                />
-              </td>
-            </tr>
-          ))}
+          {datasets.map((dataset, index) => {
+            const isDone = dataset.totalData > 0 && dataset.remainingCount === 0;
+            const isEmpty = dataset.totalData === 0;
+            
+            let statusText = "Belum diproses";
+            if (isEmpty) {
+              statusText = "Belum ada data";
+            } else if (isDone) {
+              statusText = "Sudah diproses";
+            } else if (dataset.remainingCount > 0) {
+              statusText = `Belum diproses (${dataset.remainingCount} video)`;
+            }
+
+            return (
+              <tr
+                key={dataset.idDataset}
+                className={selectedDatasetId === dataset.idDataset ? "selected-row" : ""}
+              >
+                <td className="text-center">{index + 1}.</td>
+                <td className="padding-cell">{dataset.datasetName}</td>
+                <td className="text-center">{dataset.totalData}</td>
+                <td className="text-center">
+                  <span
+                    className={`status-badge ${
+                      isDone ? "status-done" : "status-pending"
+                    }`}
+                  >
+                    {statusText}
+                  </span>
+                </td>
+                <td className="text-center">
+                  <input
+                    type="radio"
+                    name="dataset-select"
+                    checked={selectedDatasetId === dataset.idDataset}
+                    onChange={() => onSelectDataset(dataset.idDataset)}
+                    disabled={isEmpty}
+                  />
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

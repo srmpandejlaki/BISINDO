@@ -228,6 +228,45 @@ def get_raw_data_preview(
         filename=os.path.basename(raw_data.dataFilePath)
     )
 
+@router.delete("/raw-data/{idRawData}")
+def delete_raw_data(
+    idRawData: int,
+    db: Session = Depends(get_db)
+):
+    try:
+        dataset_service.delete_raw_data_by_id(db, idRawData)
+        return {
+            "success": True,
+            "message": "Raw data deleted successfully"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/raw-data/{idRawData}")
+def update_raw_data(
+    idRawData: int,
+    dataName: str = Body(None),
+    labelName: str = Body(None),
+    db: Session = Depends(get_db)
+):
+    try:
+        raw_data = dataset_service.update_raw_data_by_id(db, idRawData, dataName, labelName)
+        return {
+            "success": True,
+            "message": "Raw data updated successfully",
+            "data": {
+                "idRawData": raw_data.idRawData,
+                "dataName": raw_data.dataName,
+                "labelName": raw_data.label.labelName
+            }
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 @router.get("/{idDataset}/download")
 def get_by_dataset(
     idDataset: int,

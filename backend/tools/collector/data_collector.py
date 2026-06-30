@@ -19,7 +19,7 @@ FFMPEG_PATH = os.path.join(
 # CONFIG
 # =====================================
 
-DATASET_PATH = "storage/raw_data/dataset_dummy"
+DATASET_PATH = "storage/raw_data/dataset_new"
 VIDEO_DURATION = 2
 TARGET_FPS = 30
 

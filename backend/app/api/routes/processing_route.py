@@ -12,6 +12,7 @@ import os
 
 from app.database.dependencies import get_db
 from app.services.processing_service import ProcessingService
+from app.utils.hand_skeleton import draw_hand_skeleton
 
 from app.schemas.processing_schemas import AddRatio, TestRatiosConfig, TrainModelConfig, ProcessingConfig
 from app.database.models import RawData
@@ -139,110 +140,108 @@ def get_processing_status(
 
 @router.get("/landmarks/raw-data/{idRawData}/preview")
 def get_landmark_preview(
-  idRawData: int,
-  db: Session = Depends(get_db)
+    idRawData: int,
+    db: Session = Depends(get_db)
 ):
-  raw_data = db.query(RawData).filter(RawData.idRawData == idRawData).first()
-  if not raw_data:
-    raise HTTPException(
-      status_code=404,
-      detail="Raw data not found"
+
+    raw_data = (
+        db.query(RawData)
+        .filter(
+            RawData.idRawData == idRawData
+        )
+        .first()
     )
 
-  if not raw_data.landmarkFilePath:
-    raise HTTPException(
-      status_code=400,
-      detail="Landmark file not found. Please run hand skeleton extraction first."
-    )
-
-  try:
-    path = raw_data.landmarkFilePath
-    # Handle missing .npy extension
-    if not path.endswith(".npy"):
-        if os.path.exists(path + ".npy"):
-            path = path + ".npy"
-        elif os.path.exists(os.path.join("backend", path + ".npy")):
-            path = os.path.join("backend", path + ".npy")
-            
-    # Handle running directory fallback
-    if not os.path.exists(path):
-        if os.path.exists(os.path.join("backend", path)):
-            path = os.path.join("backend", path)
-            
-    if not os.path.exists(path):
+    if not raw_data:
         raise HTTPException(
             status_code=404,
-            detail=f"Landmark file not found on disk at: {path}"
+            detail="Raw data not found"
         )
-        
-    data = np.load(path)
-    data = data.reshape(-1, 2, 21, 3)
-    
-    canvas = np.zeros((200, 200, 3), dtype=np.uint8)
-    frame = data[0]
-    colors = [(255, 0, 0), (0, 140, 255)] # Blue and orange
-    HAND_CONNECTIONS = [
-        (0,1),(1,2),(2,3),(3,4),
-        (0,5),(5,6),(6,7),(7,8),
-        (0,9),(9,10),(10,11),(11,12),
-        (0,13),(13,14),(14,15),(15,16),
-        (0,17),(17,18),(18,19),(19,20)
-    ]
 
-    # Collect valid points (points that are not zero)
-    valid_points = []
-    for hand_idx in range(2):
-        for lm in frame[hand_idx]:
-            if np.any(lm):
-                valid_points.append((lm[0], lm[1]))
+    if not raw_data.landmarkFilePath:
+        raise HTTPException(
+            status_code=400,
+            detail="Landmark file not found."
+        )
 
-    if not valid_points:
-        cv2.putText(canvas, "No Hand", (70, 105), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-    else:
-        xs = [pt[0] for pt in valid_points]
-        ys = [pt[1] for pt in valid_points]
-        
-        min_x, max_x = min(xs), max(xs)
-        min_y, max_y = min(ys), max(ys)
-        
-        range_x = max_x - min_x
-        range_y = max_y - min_y
-        
-        scale_x = 150.0 / range_x if range_x > 0 else 1.0
-        scale_y = 150.0 / range_y if range_y > 0 else 1.0
-        scale = min(scale_x, scale_y)
-        
-        center_x = (min_x + max_x) / 2.0
-        center_y = (min_y + max_y) / 2.0
-        
-        points = {}
-        for hand_idx in range(2):
-            points[hand_idx] = []
-            for lm in frame[hand_idx]:
-                if not np.any(lm):
-                    points[hand_idx].append(None)
-                else:
-                    x = int(100 + (lm[0] - center_x) * scale)
-                    y = int(100 + (lm[1] - center_y) * scale)
-                    points[hand_idx].append((x, y))
-                    cv2.circle(canvas, (x, y), 3, colors[hand_idx], -1)
+    try:
 
-        for hand_idx in range(2):
-            for connection in HAND_CONNECTIONS:
-                start, end = connection
-                p_start = points[hand_idx][start]
-                p_end = points[hand_idx][end]
-                if p_start is not None and p_end is not None:
-                    cv2.line(canvas, p_start, p_end, colors[hand_idx], 1)
+        path = raw_data.landmarkFilePath
 
-    _, buffer = cv2.imencode(".png", canvas)
-    return Response(content=buffer.tobytes(), media_type="image/png")
+        # jika tidak ada extension
+        if not path.endswith(".npy"):
 
-  except Exception as e:
-    raise HTTPException(
-        status_code=500,
-        detail=f"Failed to generate preview: {str(e)}"
-    )
+            if os.path.exists(path + ".npy"):
+                path += ".npy"
+
+            elif os.path.exists(
+                os.path.join(
+                    "backend",
+                    path + ".npy"
+                )
+            ):
+                path = os.path.join(
+                    "backend",
+                    path + ".npy"
+                )
+
+        # fallback
+        if not os.path.exists(path):
+
+            backend_path = os.path.join(
+                "backend",
+                path
+            )
+
+            if os.path.exists(backend_path):
+                path = backend_path
+
+        if not os.path.exists(path):
+
+            raise HTTPException(
+                status_code=404,
+                detail=f"File tidak ditemukan: {path}"
+            )
+
+        data = np.load(path)
+
+        if data.shape[1] != 126:
+
+            raise HTTPException(
+                status_code=500,
+                detail=f"Dataset harus memiliki 126 fitur. Shape saat ini: {data.shape}"
+            )
+
+        data = data.reshape( -1, 2, 21, 3 )
+
+        frame = data[2]
+
+        canvas = draw_hand_skeleton(
+            frame=frame,
+            frame_index=0,
+            total_frames=len(data),
+            mirror=False
+        )
+
+        _, buffer = cv2.imencode(
+            ".png",
+            canvas
+        )
+
+        return Response(
+            content=buffer.tobytes(),
+            media_type="image/png"
+        )
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+
+        raise HTTPException(
+            status_code=500,
+            detail=str(e)
+        )
 
 
 @router.post("/add-ratio/")
@@ -338,12 +337,12 @@ def train_model(
     media_type="text/event-stream"
   )
 
-@router.get("/models/{idTraining}")
+@router.get("/models/{idTrainTest}")
 def get_model_by_id(
-  idTraining: int,
+  idTrainTest: int,
   db: Session = Depends(get_db)
 ):
-  dataset = processing_service.get_model_by_id(db, idTraining)
+  dataset = processing_service.get_model_by_id(db, idTrainTest)
 
   if not dataset:
     raise HTTPException(
@@ -356,13 +355,13 @@ def get_model_by_id(
     "data": dataset
   }
 
-@router.delete("/models/{idTraining}")
+@router.delete("/models/{idTrainTest}")
 def delete_model(
-  idTraining: int,
+  idTrainTest: int,
   db: Session = Depends(get_db)
 ):
   try:
-    processing_service.delete_model(db, idTraining)
+    processing_service.delete_model(db, idTrainTest)
     return {
       "success": True,
       "message": "Model deleted successfully"

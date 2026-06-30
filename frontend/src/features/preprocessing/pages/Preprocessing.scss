@@ -242,3 +242,47 @@
   background:#4caf50;
   transition:.3s;
 }
+
+// === Preprocessing Banner ===
+.preprocessing-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border-left: 5px solid;
+
+  .banner-icon {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    strong {
+      font-size: 0.95rem;
+    }
+
+    p {
+      margin: 0;
+      font-size: 0.85rem;
+      opacity: 0.85;
+    }
+  }
+
+  &.banner-done {
+    background-color: #e8f5e9;
+    border-color: #2e7d32;
+    color: #1b5e20;
+  }
+
+  &.banner-pending {
+    background-color: #fff8e1;
+    border-color: #f59e0b;
+    color: #78350f;
+  }
+}

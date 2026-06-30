@@ -3,12 +3,12 @@ import { useParams, NavLink } from "react-router-dom";
 import { get_model_by_id } from "../utils/processing_api";
 
 function DetailModel() {
-  const { idTraining } = useParams();
+  const { idTrainTest } = useParams();
   const [model, setModel] = useState(null);
 
-  const loadModel = async (idTraining) => {
+  const loadModel = async (idTrainTest) => {
     try {
-      const response = await get_model_by_id(idTraining);
+      const response = await get_model_by_id(idTrainTest);
       console.log("Response:", response);
       setModel(response ?? null);
     } catch (err) {
@@ -30,10 +30,10 @@ function DetailModel() {
   : "";
 
   useEffect(() => {
-    if (idTraining) {
-      loadModel(idTraining);
+    if (idTrainTest) {
+      loadModel(idTrainTest);
     }
-  }, [idTraining]);
+  }, [idTrainTest]);
 
   const cm = typeof confusionMatrix === "string" ? JSON.parse(confusionMatrix) : confusionMatrix;
   const N = cm && Array.isArray(cm) ? cm.length : 0;

@@ -70,8 +70,8 @@ function AddRatioSection({ fetchRatios, testingStatus }) {
             required
           />
         </div>
+        <button className="button" type="submit" disabled={isTesting}>Tambah Ratio</button>
       </form>
-      <button className="button" type="submit" disabled={isTesting}>Tambah Ratio</button>
     </div>
   );
 }

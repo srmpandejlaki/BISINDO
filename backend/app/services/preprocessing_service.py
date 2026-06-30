@@ -66,7 +66,7 @@ class PreprocessingService:
         )
 
         if not raw_data_list:
-            raise ValueError("Dataset tidak memiliki data.")
+            raise ValueError("Semua data pada dataset ini sudah selesai dipraproses.")
 
         output_folder = os.path.join(
             "storage",
@@ -112,10 +112,12 @@ class PreprocessingService:
                     "input_path": raw_data.dataFilePath,
                     "error": str(e)
                 })
+
+        # Simpan path folder (bukan path file individual)
         self.dataset_repository.update_preprocessing_result(
             db,
             dataset,
-            output_path
+            output_folder
         )
 
         db.commit()

@@ -6,6 +6,7 @@ function ParameterSetting({
   onStartPreprocessing,
   isLoading,
   selectedDatasetId,
+  isDisabled,
 }) {
   const handleChange = (key, value) => {
     onConfigChange({ ...config, [key]: value });
@@ -40,16 +41,21 @@ function ParameterSetting({
         <button
           className="button btn-start-preprocessing"
           onClick={onStartPreprocessing}
-          disabled={isLoading || !selectedDatasetId}
+          disabled={isDisabled}
         >
           {isLoading ? "Sedang Memproses..." : "Mulai Preprocessing"}
         </button>
         {!selectedDatasetId && (
           <p className="hint-text">Pilih dataset terlebih dahulu</p>
         )}
+        {selectedDatasetId && isDisabled && !isLoading && (
+          <p className="hint-text" style={{ color: "#2e7d32" }}>
+            ✅ Semua data pada dataset ini sudah dipraproses.
+          </p>
+        )}
       </div>
     </div>
   );
 }
 
-export default ParameterSetting;
+export default ParameterSetting;

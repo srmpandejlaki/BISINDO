@@ -24,7 +24,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
   // Auto-fill values when existing model is selected
   useEffect(() => {
     if (modelType === "existing" && selectedModelId) {
-      const selected = models.find(m => String(m.idTraining) === String(selectedModelId));
+      const selected = models.find(m => String(m.idTrainTest) === String(selectedModelId));
       if (selected) {
         setModelName(selected.modelName || "");
         setDenseUnits(selected.denseUnits || 16);
@@ -114,7 +114,7 @@ function SectionPreparation({ datasets, models, bestRatio, trainingStatus, start
                 >
                   <option value="">Pilih Model</option>
                   {models.map((model) => (
-                    <option key={model.idTraining} value={model.idTraining}>
+                    <option key={model.idTrainTest} value={model.idTrainTest}>
                       {model.modelName} (Acc: {(model.accuracy * 100).toFixed(1)}%)
                     </option>
                   ))}

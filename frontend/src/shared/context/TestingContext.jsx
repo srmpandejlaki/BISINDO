@@ -11,8 +11,8 @@ export const TestingProvider = ({ children }) => {
   const [error, setError] = useState("");
   const [testResults, setTestResults] = useState(null);
 
-  const startTesting = async (idTraining) => {
-    if (!idTraining) {
+  const startTesting = async (idTrainTest) => {
+    if (!idTrainTest) {
       setError("Silakan pilih model terlebih dahulu.");
       return;
     }
@@ -22,13 +22,13 @@ export const TestingProvider = ({ children }) => {
 
     try {
       if (testingMode === "dataset") {
-        const result = await testModelOnDataset(idTraining);
+        const result = await testModelOnDataset(idTrainTest);
         setTestResults({ mode: "dataset", ...result });
       } else {
         if (!uploadFile) {
           throw new Error("Silakan unggah file (.npy atau video) terlebih dahulu.");
         }
-        const result = await testModelOnUpload(idTraining, uploadFile);
+        const result = await testModelOnUpload(idTrainTest, uploadFile);
         setTestResults({ mode: "upload", ...result, filename: uploadFile.name });
       }
     } catch (err) {

@@ -129,3 +129,34 @@ export const get_label_with_total = async () => {
     return [];
   }
 };
+
+export const delete_raw_data = async (idRawData) => {
+  const response = await fetch(`${BASE_URL}/datasets/raw-data/${idRawData}`, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Gagal menghapus raw data.");
+  }
+
+  return data;
+};
+
+export const update_raw_data = async (idRawData, dataName, labelName) => {
+  const response = await fetch(`${BASE_URL}/datasets/raw-data/${idRawData}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ dataName, labelName }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Gagal memperbarui raw data.");
+  }
+
+  return data;
+};

@@ -54,18 +54,22 @@ def preprocess_dataset(
     config: PreprocessingConfig,
     db: Session = Depends(get_db)
 ):
+    try:
+        result = preprocessing_service.preprocess_dataset(
+            db,
+            idDataset,
+            config.target_frame
+        )
 
-    result = preprocessing_service.preprocess_dataset(
-        db,
-        idDataset,
-        config.target_frame
-    )
-
-    return {
-        "success": True,
-        "message": "Preprocessing berhasil.",
-        "data": result
-    }
+        return {
+            "success": True,
+            "message": "Preprocessing berhasil.",
+            "data": result
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/dataset-preprocess/")
 def get_dataset_preprocess(

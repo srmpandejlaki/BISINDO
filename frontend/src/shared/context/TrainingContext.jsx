@@ -115,9 +115,9 @@ export function TrainingProvider({ children }) {
     }
   };
 
-  const deleteModel = async (idTraining) => {
+  const deleteModel = async (idTrainTest) => {
     try {
-      const response = await delete_model(idTraining);
+      const response = await delete_model(idTrainTest);
       if (response && response.success) {
         await fetchModels();
         return { success: true };

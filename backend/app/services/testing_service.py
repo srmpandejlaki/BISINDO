@@ -55,8 +55,8 @@ class TestingService:
 
         # 2. Fetch associated Dataset
         dataset = db.query(Dataset).filter(Dataset.idDataset == training.idDataset).first()
-        if not dataset or not dataset.preprocessingResultPath:
-            raise ValueError("Dataset not found or has not been preprocessed")
+        if not dataset or not dataset.landmarkFolderPath:
+            raise ValueError("Dataset not found or landmark processing has not been completed")
 
         # 3. Fetch split ratio
         ratio_split = db.query(RatioDataSplit).filter(RatioDataSplit.idRatioDataSplit == training.idRatioDataSplit).first()
@@ -72,7 +72,7 @@ class TestingService:
                 pass
 
         # 4. Load dataset
-        X, y, filenames = self.load_dataset_with_filenames(dataset.preprocessingResultPath)
+        X, y, filenames = self.load_dataset_with_filenames(dataset.landmarkFolderPath)
         if len(X) == 0:
             raise ValueError("Dataset is empty")
 
@@ -181,10 +181,10 @@ class TestingService:
 
         # 2. Fetch dataset to get label map
         dataset = db.query(Dataset).filter(Dataset.idDataset == training.idDataset).first()
-        if not dataset or not dataset.preprocessingResultPath:
-            raise ValueError("Dataset not found or has not been preprocessed")
+        if not dataset or not dataset.landmarkFolderPath:
+            raise ValueError("Dataset not found or landmark processing has not been completed")
 
-        labels = sorted(os.listdir(dataset.preprocessingResultPath))
+        labels = sorted(os.listdir(dataset.landmarkFolderPath))
 
         # 3. Load model to get expected sequence length
         from tensorflow.keras import backend as K

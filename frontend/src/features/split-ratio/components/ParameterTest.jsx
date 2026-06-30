@@ -5,7 +5,6 @@ function ParameterTest({
   batchSize, setBatchSize, 
   learningRate, setLearningRate, 
   handleSubmit, 
-  runTestRatios, 
   testingStatus, testingError }) {
 
   const isTesting = testingStatus === "testing";

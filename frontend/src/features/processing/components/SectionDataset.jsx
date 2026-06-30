@@ -2,9 +2,9 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 
 function SectionDataset({ models, bestRatio, loading, error, deleteModel }) {
-  const handleDelete = async (idTraining, modelName) => {
+  const handleDelete = async (idTrainTest, modelName) => {
     if (window.confirm(`Apakah Anda yakin ingin menghapus model "${modelName}"?`)) {
-      const res = await deleteModel(idTraining);
+      const res = await deleteModel(idTrainTest);
       if (res && !res.success) {
         alert(res.message);
       }
@@ -58,16 +58,16 @@ function SectionDataset({ models, bestRatio, loading, error, deleteModel }) {
                 </tr>
               ) : (
                 models.map((model, index) => (
-                  <tr key={model.idTraining || index}>
+                  <tr key={model.idTrainTest || index}>
                     <td className="text-center">{index + 1}.</td>
                     <td className="model-name-cell text-center">{model.modelName}</td>
                     <td className="text-center">{formatDate(model.createdAt)}</td>
                     <td className="acc-cell text-center">{(model.accuracy * 100).toFixed(2)}%</td>
                     <td className="btn-column">
-                      <NavLink to={`/admin/preprocessing/${model.idTraining}/detail_model`}>
+                      <NavLink to={`/admin/preprocessing/${model.idTrainTest}/detail_model`}>
                         <button className="button edit" >Detail</button>
                       </NavLink>
-                      <button className="button delete" onClick={() => handleDelete(model.idTraining, model.modelName)}>Delete</button>
+                      <button className="button delete" onClick={() => handleDelete(model.idTrainTest, model.modelName)}>Delete</button>
                     </td>
                   </tr>
                 ))

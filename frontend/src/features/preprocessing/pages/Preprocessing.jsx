@@ -29,7 +29,6 @@ function PreprocessingPage() {
         setDatasets([]);
       } else {
         setDatasets(response);
-        console.log("Datasets:", response);
       }
     } catch (err) {
       console.error("Error fetching data", err);
@@ -44,13 +43,12 @@ function PreprocessingPage() {
   useEffect(() => {
     setResult(null);
     setError(null);
+    setStatus(null);
 
     if (!selectedDatasetId) return;
     async function loadStatus() {
       try {
-        const data = await get_preprocessing_status(
-          selectedDatasetId
-        );
+        const data = await get_preprocessing_status(selectedDatasetId);
         setStatus(data);
       } catch (err) {
         console.error(err);
@@ -70,13 +68,8 @@ function PreprocessingPage() {
     try {
       const response = await run_preprocessing(selectedDatasetId, config);
       setResult(response.data);
-      const newStatus =
-          await get_preprocessing_status(
-              selectedDatasetId
-          );
-
+      const newStatus = await get_preprocessing_status(selectedDatasetId);
       setStatus(newStatus);
-      // Refresh datasets to update status
       await loadDatasets();
     } catch (err) {
       setError(err.message || "Terjadi kesalahan saat preprocessing");
@@ -84,6 +77,12 @@ function PreprocessingPage() {
       setIsLoading(false);
     }
   };
+
+  // Hitung info status
+  const allPreprocessed = status && status.remaining === 0 && status.totalVideo > 0;
+  const progressPercent = status && status.totalVideo > 0
+    ? Math.round((status.preprocessed / status.totalVideo) * 100)
+    : 0;
 
   return (
     <div className="content preprocessing-admin">
@@ -101,44 +100,93 @@ function PreprocessingPage() {
         />
       </div>
 
+      {/* Banner informasi status data */}
+      {selectedDatasetId && status && (
+        <div className={`preprocessing-banner ${allPreprocessed ? "banner-done" : "banner-pending"}`}>
+          {allPreprocessed ? (
+            <>
+              <span className="banner-icon">✅</span>
+              <div>
+                <strong>Semua data sudah dipraproses.</strong>
+                <p>Total {status.totalVideo} video pada dataset ini telah selesai diproses.</p>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="banner-icon">⚠️</span>
+              <div>
+                <strong>Terdapat {status.remaining} data yang belum dipraproses.</strong>
+                <p>
+                  Dari total {status.totalVideo} video, {status.preprocessed} sudah diproses dan{" "}
+                  <strong>{status.remaining}</strong> belum diproses.
+                  Klik tombol di bawah untuk memproses data yang belum selesai.
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       <ParameterSetting
         config={config}
         onConfigChange={setConfig}
         onStartPreprocessing={handleStartPreprocessing}
         isLoading={isLoading}
         selectedDatasetId={selectedDatasetId}
+        isDisabled={!selectedDatasetId || allPreprocessed || isLoading}
       />
 
       <div className="section result">
         <h2>
           {result ? "Hasil Prapemrosesan" : "Status Prapemrosesan"}
         </h2>
-        {/* Status Section */}
-        {status && (
+
+        {/* Status Section — tampil kalau belum ada hasil preprocessing baru */}
+        {status && !result && (
           <div className="dataset-status">
             <h3>Status Dataset</h3>
             <p>
-              <strong>Total Video :</strong>
-              {status.totalVideo}
+              <strong>Total Video :</strong> {status.totalVideo}
             </p>
             <p>
-              <strong>Sudah Dipraproses :</strong>
-              {status.preprocessed}
+              <strong>Sudah Dipraproses :</strong> {status.preprocessed}
             </p>
             <p>
-              <strong>Belum Dipraproses :</strong>
-              {status.remaining}
+              <strong>Belum Dipraproses :</strong>{" "}
+              <span style={{
+                color: status.remaining > 0 ? "#e07b00" : "inherit",
+                fontWeight: status.remaining > 0 ? "bold" : "normal"
+              }}>
+                {status.remaining}
+              </span>
             </p>
             <p>
-              <strong>Progress :</strong>
-              {status.totalVideo === 0
-                  ? "0%"
-                  : `${Math.round(
-                        (status.preprocessed /
-                        status.totalVideo) * 100
-                    )}%`
-              }
+              <strong>Progress :</strong>{" "}
+              <span style={{
+                color: progressPercent === 100 ? "#2e7d32" : "#e07b00",
+                fontWeight: "bold"
+              }}>
+                {progressPercent}%
+              </span>
             </p>
+
+            {/* Progress bar */}
+            <div style={{
+              marginTop: "10px",
+              background: "#e0e0e0",
+              borderRadius: "8px",
+              height: "10px",
+              width: "100%",
+              maxWidth: "400px"
+            }}>
+              <div style={{
+                width: `${progressPercent}%`,
+                height: "100%",
+                borderRadius: "8px",
+                background: progressPercent === 100 ? "#2e7d32" : "#f59e0b",
+                transition: "width 0.4s ease"
+              }} />
+            </div>
           </div>
         )}
 

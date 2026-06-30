@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function EvaluationTesting({ testingData, isLoading, idTraining }) {
+function EvaluationTesting({ testingData, isLoading, idTrainTest }) {
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -29,7 +29,7 @@ function EvaluationTesting({ testingData, isLoading, idTraining }) {
           Model ini belum pernah diuji menggunakan data uji (test split). Jalankan pengujian sekarang untuk membandingkan metrik performa.
         </p>
         <button
-          onClick={() => navigate("/admin/testing", { state: { selectedModelId: idTraining } })}
+          onClick={() => navigate("/admin/testing", { state: { selectedModelId: idTrainTest } })}
           style={{
             padding: "10px 20px",
             backgroundColor: "#28a745",

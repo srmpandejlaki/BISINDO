@@ -63,7 +63,7 @@ export const delete_ratio = async (id) => {
 
 export const get_dataset_preprocess = async () => {
   try {
-    const response = await fetch(`${BASE_URL}/preprocessing/dataset-preprocess/`, {
+    const response = await fetch(`${BASE_URL}/processing/landmarks/`, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
     });

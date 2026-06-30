@@ -4,7 +4,9 @@ import usePagination from "@/shared/hooks/usePagination";
 import Pagination from "@/shared/components/base/Pagination";
 import {
   get_dataset_by_id_dataset,
-  upload_dataset_data
+  upload_dataset_data,
+  delete_raw_data,
+  update_raw_data
 } from "../utils/data_collection_api";
 import { BASE_URL } from "../../../shared/utils/index-api";
 
@@ -18,6 +20,11 @@ function DetailDataset() {
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  // Edit raw data
+  const [editItem, setEditItem] = useState(null);
+  const [editDataName, setEditDataName] = useState("");
+  const [editLabelName, setEditLabelName] = useState("");
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -88,6 +95,46 @@ function DetailDataset() {
       `${BASE_URL}/datasets/${id}/download`;
   };
 
+  const handleEditClick = (item) => {
+    setEditItem(item);
+    setEditDataName(item.dataName);
+    setEditLabelName(item.labelName || "");
+  };
+
+  const handleUpdate = async () => {
+    if (!editDataName.trim() || !editLabelName.trim()) {
+      alert("Nama dan Label harus diisi!");
+      return;
+    }
+    
+    if (editLabelName.trim().length !== 1 || !/[A-Za-z]/.test(editLabelName.trim())) {
+      alert("Label harus satu huruf A-Z!");
+      return;
+    }
+
+    try {
+      await update_raw_data(editItem.idRawData, editDataName.trim(), editLabelName.trim().toUpperCase());
+      await loadDetailDataset(idDataset);
+      setEditItem(null);
+      alert("Data berhasil diperbarui.");
+    } catch (error) {
+      alert(error.message || "Gagal memperbarui data.");
+    }
+  };
+
+  const handleDeleteRawData = async (idRawData) => {
+    const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus data video ini?");
+    if (!confirmDelete) return;
+
+    try {
+      await delete_raw_data(idRawData);
+      await loadDetailDataset(idDataset);
+      alert("Data video berhasil dihapus.");
+    } catch (error) {
+      alert(error.message || "Gagal menghapus data video.");
+    }
+  };
+
   return (
     <div className="content detail-dataset">
 
@@ -145,8 +192,8 @@ function DetailDataset() {
                   </td>
 
                   <td className="btn-column">
-                    <button className="button">Ubah</button>
-                    <button className="button delete">Hapus</button>
+                    <button className="button" onClick={() => handleEditClick(dataset)}>Ubah</button>
+                    <button className="button delete" onClick={() => handleDeleteRawData(dataset.idRawData)}>Hapus</button>
                   </td>
 
                 </tr>
@@ -333,6 +380,59 @@ B/
 
         </div>
 
+      )}
+
+      {/* ================= Edit Modal ================= */}
+      {editItem && (
+        <div
+          className="modal-overlay"
+          onClick={() => setEditItem(null)}
+        >
+          <div
+            className="modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{ width: "320px", padding: "20px", borderRadius: "8px", background: "#fff" }}
+          >
+            <h2>Ubah Data Video</h2>
+            
+            <div style={{ margin: "15px 0", textAlign: "left" }}>
+              <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>Nama Video:</label>
+              <input
+                type="text"
+                value={editDataName}
+                onChange={(e) => setEditDataName(e.target.value)}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+              />
+            </div>
+
+            <div style={{ margin: "15px 0", textAlign: "left" }}>
+              <label style={{ fontWeight: "bold", display: "block", marginBottom: "5px" }}>Label Huruf (A-Z):</label>
+              <input
+                type="text"
+                value={editLabelName}
+                onChange={(e) => setEditLabelName(e.target.value)}
+                maxLength={1}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: "12px", marginTop: "20px" }}>
+              <button
+                className="button"
+                onClick={() => setEditItem(null)}
+              >
+                Batal
+              </button>
+              <button
+                className="button submit"
+                onClick={handleUpdate}
+              >
+                Simpan
+              </button>
+            </div>
+
+          </div>
+        </div>
       )}
 
     </div>

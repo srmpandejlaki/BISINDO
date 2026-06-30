@@ -188,7 +188,7 @@ class ProcessingService:
     result = []
     for m in models:
         result.append({
-            "idTraining": m.idTraining,
+            "idTrainTest": m.idTrainTest,
             "idDataset": m.idDataset,
             "idRatioDataSplit": m.idRatioDataSplit,
             "modelName": m.modelName,
@@ -300,14 +300,14 @@ class ProcessingService:
                   q.put({"type": "done"})
                   return
                   
-              # 2. Get latest dataset with preprocessingResultPath
-              dataset = thread_db.query(Dataset).filter(Dataset.preprocessingResultPath != None).order_by(Dataset.idDataset.desc()).first()
+              # 2. Get latest dataset with landmarkFolderPath
+              dataset = thread_db.query(Dataset).filter(Dataset.landmarkFolderPath != None).order_by(Dataset.idDataset.desc()).first()
               if not dataset:
                   q.put({"type": "error", "message": "Tidak ada dataset yang siap (belum dipreprocess)"})
                   q.put({"type": "done"})
                   return
                   
-              dataset_path = dataset.preprocessingResultPath
+              dataset_path = dataset.landmarkFolderPath
               
               best_acc = -1.0
               best_ratio_id = None
@@ -444,14 +444,14 @@ class ProcessingService:
           from app.database.connection import SessionLocal
           thread_db = SessionLocal()
           try:
-              # 1. Get latest dataset with preprocessingResultPath
-              dataset = thread_db.query(Dataset).filter(Dataset.preprocessingResultPath != None).order_by(Dataset.idDataset.desc()).first()
+              # 1. Get latest dataset with landmarkFolderPath
+              dataset = thread_db.query(Dataset).filter(Dataset.landmarkFolderPath != None).order_by(Dataset.idDataset.desc()).first()
               if not dataset:
                   q.put({"type": "error", "message": "Tidak ada dataset yang siap (belum dipreprocess)"})
                   q.put({"type": "done"})
                   return
                   
-              dataset_path = dataset.preprocessingResultPath
+              dataset_path = dataset.landmarkFolderPath
               
               # 2. Get best split ratio
               bestRatio = thread_db.query(RatioDataSplit).filter(RatioDataSplit.bestRatio == True).first()
@@ -541,7 +541,7 @@ class ProcessingService:
               
               # Map SQLAlchemy object to dictionary for JSON serialization
               training_data = {
-                  "idTraining": new_training.idTraining,
+                  "idTrainTest": new_training.idTrainTest,
                   "idDataset": new_training.idDataset,
                   "idRatioDataSplit": new_training.idRatioDataSplit,
                   "modelName": new_training.modelName,
@@ -592,18 +592,18 @@ class ProcessingService:
               if not t.is_alive():
                   break
 
-  def get_model_by_id(self, db: Session, idTraining: int):
-      model = self.training_repository.get_by_id(db, idTraining, Training.idTraining)
+  def get_model_by_id(self, db: Session, idTrainTest: int):
+      model = self.training_repository.get_by_id(db, idTrainTest, Training.idTrainTest)
       
       if not model:
           raise ValueError("Model not found")
       
-      return self.training_repository.get_by_id(db, idTraining, Training.idTraining)
+      return self.training_repository.get_by_id(db, idTrainTest, Training.idTrainTest)
 
-  def delete_model(self, db: Session, idTraining: int):
+  def delete_model(self, db: Session, idTrainTest: int):
       import os
       from app.database.models import Training
-      training = self.training_repository.get_by_id(db, idTraining, Training.idTraining)
+      training = self.training_repository.get_by_id(db, idTrainTest, Training.idTrainTest)
       if not training:
           raise ValueError("Model not found")
           
