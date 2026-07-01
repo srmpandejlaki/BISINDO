@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import { get_all_ratio, get_dataset_preprocess } from "@/features/split-ratio/utils/split_ratio_api";
 import { BASE_URL } from "@/shared/utils/index-api";
 
@@ -139,6 +139,17 @@ export function SplitRatioProvider({ children }) {
     }
   };
 
+  const highestAccuracy = useMemo(() => {
+    const validAccuracies = ratios
+      .map((item) => item.accuracy)
+      .filter((acc) => acc !== null && acc !== undefined);
+
+    return validAccuracies.length
+      ? Math.max(...validAccuracies)
+      : null;
+  }, [ratios]);
+
+
   return (
     <SplitRatioContext.Provider
       value={{
@@ -163,6 +174,7 @@ export function SplitRatioProvider({ children }) {
         testingError,
         currentepochConfig,
         runTestRatios,
+        highestAccuracy
       }}
     >
       {children}

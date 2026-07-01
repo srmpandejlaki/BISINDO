@@ -227,19 +227,11 @@ class ProcessingService:
   
   # Training
   def start_training(
-      self,
-      db: Session,
-      dataset_path,
-      lstm_units1,
-      lstm_units2,
-      dropout1,
-      dropout2,
-      dense_units,
-      epoch,
-      batch_size,
-      learning_rate
+      self, db: Session, dataset_path,
+      lstm_units1, lstm_units2, dropout1, dropout2, dense_units,
+      epoch, batch_size, learning_rate
   ):
-       bestRatio = self.ratio_repository.get_by_best_ratio(db, True)
+       bestRatio = self.ratio_repository.get_by_best_ratio(db)
        test_size = 0.2
        val_size = 0.2
        if bestRatio and bestRatio.trainRatio:
@@ -257,23 +249,15 @@ class ProcessingService:
                    test_val = float(parts[1])
                    test_size = test_val / (train_val + test_val)
                    val_size = 0.2
-           except Exception:
-               pass
+           except Exception: pass
 
        trainer = TrainingDataset(
            dataset_path=dataset_path,
-           lstm_units1=lstm_units1,
-           lstm_units2=lstm_units2,
-           dropout1=dropout1,
-           dropout2=dropout2,
-           dense_units=dense_units,
-           epoch=epoch,
-           batch_size=batch_size,
-           learning_rate=learning_rate,
-           test_size=test_size,
-           val_size=val_size
+           lstm_units1=lstm_units1, lstm_units2=lstm_units2,
+           dropout1=dropout1, dropout2=dropout2, dense_units=dense_units,
+           epoch=epoch, batch_size=batch_size, learning_rate=learning_rate,
+           test_size=test_size, val_size=val_size
        )
-
        return trainer.train()
 
   # Ratio Data
@@ -324,9 +308,6 @@ class ProcessingService:
                   return
                   
               dataset_path = dataset.landmarkFolderPath
-              
-              best_acc = -1.0
-              best_ratio_id = None
               
               for ratio in ratios:
                   # parse test_size from "80:20" or "70:15:15"
@@ -389,19 +370,11 @@ class ProcessingService:
                   ratio.recall = results["recall"]
                   ratio.f1score = results["f1score"]
                   thread_db.commit()
-                  
-                  # Check for best ratio
-                  if results["accuracy"] > best_acc:
-                      best_acc = results["accuracy"]
-                      best_ratio_id = ratio.idRatioDataSplit
-              
-              # Update bestRatio flag in DB
-              for ratio in ratios:
-                  if ratio.idRatioDataSplit == best_ratio_id:
-                      ratio.bestRatio = True
-                  else:
-                      ratio.bestRatio = False
-              thread_db.commit()
+
+              highest_accuracy = max(
+                (r.accuracy for r in ratios if r.accuracy is not None),
+                default=None
+              )
               
               # Send the final ratios list to client
               # Map SQLAlchemy object to dictionary for JSON serialization
@@ -417,7 +390,9 @@ class ProcessingService:
                       "precision": r.precision,
                       "recall": r.recall,
                       "f1score": r.f1score,
-                      "bestRatio": r.bestRatio
+                      "bestRatio": (
+                          highest_accuracy is not None and r.accuracy == highest_accuracy
+                      )
                   })
                   
               q.put({"type": "complete", "data": ratios_data})
@@ -480,7 +455,7 @@ class ProcessingService:
               dataset_path = dataset.landmarkFolderPath
               
               # 2. Get best split ratio
-              bestRatio = thread_db.query(RatioDataSplit).filter(RatioDataSplit.bestRatio == True).first()
+              bestRatio = self.ratio_repository.get_by_best_ratio(thread_db)
               test_size = 0.2
               val_size = 0.2
               idRatioDataSplit = None

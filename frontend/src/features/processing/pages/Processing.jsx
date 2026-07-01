@@ -3,11 +3,11 @@ import SectionDataset from "../components/SectionDataset";
 import SectionPreparation from "../components/SectionPreparation";
 import SectionHasilTraining from "../components/SectionHasilTraining";
 import { useTraining } from "@/shared/context/TrainingContext";
+import { useSplitRatio } from "@/shared/context/SplitRatioContext";
 
 function ProcessingPage() {
   const {
     models,
-    bestRatio,
     loading,
     error,
     trainingStatus,
@@ -20,15 +20,20 @@ function ProcessingPage() {
     datasets,
   } = useTraining();
 
+  const {ratios, highestAccuracy } = useSplitRatio();
+  const bestRatio = ratios.find(
+    (ratio) => ratio.accuracy === highestAccuracy
+  );
+
   return (
     <div className="content processing-page">
       <h1>Pelatihan Model</h1>
       <SectionDataset 
         models={models} 
-        bestRatio={bestRatio} 
         loading={loading}
         error={error}
         deleteModel={deleteModel}
+        bestRatio={bestRatio}
       />
       <SectionPreparation 
         datasets={datasets}

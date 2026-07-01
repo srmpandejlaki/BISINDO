@@ -1,7 +1,7 @@
 import React from "react";
 import { delete_ratio } from "../utils/split_ratio_api";
 
-function TableRatio({ ratios, loading, error, fetchRatios, testingStatus}) {
+function TableRatio({ ratios, loading, error, fetchRatios, testingStatus, highestAccuracy }) {
   // Handler untuk menghapus ratio
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm("Apakah Anda yakin ingin menghapus ratio ini?");
@@ -51,13 +51,16 @@ function TableRatio({ ratios, loading, error, fetchRatios, testingStatus}) {
                   const test = parts[1] || "";
                   const val = parts[2] || "";
 
+                  const isBestRatio =
+                    highestAccuracy !== null &&
+                    item.accuracy === highestAccuracy;
 
                   return (
                     <tr key={item.idRatioDataSplit}>
                       <td className="text-center">{train}</td>
                       <td className="text-center">{test}</td>
                       <td className="text-center">{val}</td>
-                      <td className="text-center">{item.bestRatio ? "⭐" : "-"}</td>
+                      <td className="text-center">{isBestRatio ? "⭐" : "-"}</td>
                       <td className="text-center">
                         <button 
                           onClick={() => handleDelete(item.idRatioDataSplit)}

@@ -11,9 +11,13 @@ class RatioDataRepository(BaseRepository):
     db.refresh(ratioDataSplit)
     return ratioDataSplit
   
-  def get_by_best_ratio(self, db, bestRatio: bool = True):
+  def get_by_best_ratio(self, db):
     return (
-      db.query(RatioDataSplit)
-      .filter(RatioDataSplit.bestRatio == bestRatio)
-      .first()
+        db.query(RatioDataSplit)
+        .filter(RatioDataSplit.accuracy != None)
+        .order_by(
+            RatioDataSplit.accuracy.desc(),
+            RatioDataSplit.f1score.desc()
+        )
+        .first()
     )

@@ -33,7 +33,7 @@ class Training(Base):
   kFold = Column(Integer)
   epoch = Column(Integer)
   batchSize = Column(Integer)
-  learningRate = Column(Float)
+  learningRate = Column(String)
 
   accuracy = Column(Float)
   precision = Column(Float)
@@ -48,7 +48,6 @@ class Training(Base):
   valLoss = Column(Float)
   
   mcc = Column(Float)
-  rocAuc = Column(Float)
 
   trainModelPath = Column(String(999))
 

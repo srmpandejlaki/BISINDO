@@ -22,7 +22,6 @@ class Testing(Base):
     weightedAverage = Column(Float)
     macroAverage = Column(Float)
     mcc = Column(Float)
-    rocAuc = Column(Float)
     confusionMatrix = Column(JSON)
 
     createdAt = Column(

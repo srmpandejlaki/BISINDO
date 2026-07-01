@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 import mediapipe as mp
 
-WIDTH = 800
-HEIGHT = 800
-SCALE = 250
+WIDTH = 400
+HEIGHT = 400
+SCALE = 200
 
 LEFT_COLOR = (255, 0, 0)
 RIGHT_COLOR = (0, 255, 0)

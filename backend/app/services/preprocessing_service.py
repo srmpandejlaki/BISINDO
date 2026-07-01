@@ -45,38 +45,18 @@ class PreprocessingService:
             "remaining": total - preprocessed
         }
 
-    def preprocess_dataset(
-        self,
-        db: Session,
-        idDataset: int,
-        target_frame: int = 60
-    ):
-        dataset = self.dataset_repository.get_by_id(
-            db,
-            idDataset,
-            Dataset.idDataset
-        )
-
+    def preprocess_dataset( self, db: Session, idDataset: int, target_frame: int = 60 ):
+        dataset = self.dataset_repository.get_by_id(db, idDataset, Dataset.idDataset)
         if not dataset:
             raise ValueError("Dataset tidak ditemukan.")
 
-        raw_data_list = self.raw_data_repository.get_not_preprocessed_by_dataset(
-            db,
-            idDataset
-        )
-
+        raw_data_list = self.raw_data_repository.get_not_preprocessed_by_dataset(db, idDataset)
         if not raw_data_list:
             raise ValueError("Semua data pada dataset ini sudah selesai dipraproses.")
 
-        output_folder = os.path.join(
-            "storage",
-            "preprocessed",
-            dataset.datasetName
-        )
-
+        output_folder = os.path.join( "storage", "preprocessed", dataset.datasetName )
         os.makedirs(output_folder, exist_ok=True)
         preprocessor = VideoPreprocessor(target_frame)
-
         processed = 0
         failed = 0
         results = []
@@ -84,48 +64,18 @@ class PreprocessingService:
         for raw_data in raw_data_list:
             try:
                 filename = os.path.basename(raw_data.dataFilePath)
-
-                output_path = os.path.join(
-                    output_folder,
-                    filename
-                )
-
-                result = preprocessor.preprocess(
-                    raw_data.dataFilePath,
-                    output_path
-                )
-
-                self.raw_data_repository.update_preprocessed_path(
-                    db,
-                    raw_data,
-                    output_path
-                )
-
+                output_path = os.path.join(output_folder, filename)
+                result = preprocessor.preprocess(raw_data.dataFilePath, output_path)
+                self.raw_data_repository.update_preprocessed_path(db, raw_data, output_path)
                 processed += 1
-
                 results.append(result)
 
             except Exception as e:
                 failed += 1
-
-                results.append({
-                    "input_path": raw_data.dataFilePath,
-                    "error": str(e)
-                })
+                results.append({ "input_path": raw_data.dataFilePath, "error": str(e) })
 
         # Simpan path folder (bukan path file individual)
-        self.dataset_repository.update_preprocessing_result(
-            db,
-            dataset,
-            output_folder
-        )
-
+        self.dataset_repository.update_preprocessing_result(db, dataset, output_folder)
         db.commit()
         db.refresh(dataset)
-
-        return {
-            "dataset": dataset,
-            "processed": processed,
-            "failed": failed,
-            "results": results
-        }
+        return { "dataset": dataset, "processed": processed, "failed": failed, "results": results }

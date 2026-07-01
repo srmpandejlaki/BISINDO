@@ -14,16 +14,14 @@ class RatioDataSplit(Base):
   )
 
   trainRatio = Column(String(99))
-  epoch = Column(String)
-  batchSize = Column(String)
-  learningRate = Column(Float)
+  epoch = Column(Integer)
+  batchSize = Column(Integer)
+  learningRate = Column(String)
 
   accuracy = Column(Float)
   precision = Column(Float)
   recall = Column(Float)
   f1score = Column(Float)
-
-  bestRatio = Column(Boolean)
 
   createdAt = Column(
     DateTime(timezone=True),

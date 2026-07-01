@@ -28,6 +28,7 @@ function SplitRatio() {
     testingError,
     currentepochConfig,
     runTestRatios,
+    highestAccuracy
   } = useSplitRatio();
 
   useEffect(() => {
@@ -50,6 +51,7 @@ function SplitRatio() {
           error={error} 
           fetchRatios={fetchRatios}
           testingStatus={testingStatus}
+          highestAccuracy={highestAccuracy}
         />
 
         <TableDataPreprocess 

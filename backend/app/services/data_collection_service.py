@@ -228,45 +228,23 @@ class DataCollectionService:
             )
     
     # POST Dataset Baru
-    def create_dataset_from_zip(
-        self,
-        db: Session,
-        zip_path: str,
-        datasetName: str
-    ):
+    def create_dataset_from_zip(self, db: Session, zip_path: str, datasetName: str):
         try:
-
             dataset_folder = extract_zip(zip_path)
-
             dataset_path = Path(dataset_folder)
-
-            existing = self.dataset_repository.get_by_name(
-                db,
-                datasetName
-            )
-
+            existing = self.dataset_repository.get_by_name(db, datasetName)
             if existing:
-                raise ValueError(
-                    "Nama dataset sudah digunakan."
-                )
-
+                raise ValueError( "Nama dataset sudah digunakan." )
             dataset = Dataset(
                 datasetName=datasetName,
                 datasetFolderPath=str(dataset_path),
             )
-
             db.add(dataset)
             db.flush()
 
-            self._save_raw_data(
-                db,
-                dataset,
-                dataset_path
-            )
-
+            self._save_raw_data(db, dataset, dataset_path)
             db.commit()
             db.refresh(dataset)
-
             return dataset
 
         except Exception:
